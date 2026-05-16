@@ -1,28 +1,36 @@
-const Listing = require("../models/listing");
+const Product = require("../models/product");
 const Review = require("../models/review");
 
+module.exports.createReview = async (req, res) => {
+    try {
+        let product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
 
+        let newReview = new Review(req.body.review);
+        newReview.author = req.user._id;
 
-module.exports.createReview = async (req,res) => {
-    let listing = await Listing.findById(req.params.id);
-    let newReview = new Review(req.body.review);
-    newReview.author = req.user._id; 
-  
-    listing.reviews.push(newReview);
-  
-    await newReview.save();
-    await listing.save();
-    req.flash("success", "New Review Created!");
-  
-    res.redirect(`/listings/${listing._id}`);
-  }
+        product.reviews.push(newReview);
+
+        await newReview.save();
+        await product.save();
+
+        res.status(201).json({ success: true, message: "Review added successfully", review: newReview });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+}
 
 module.exports.destroyReview = async (req, res) => {
-    let {id,reviewId} =req.params;
-    
-    await Listing.findByIdAndUpdate(id,{$pull: {reviews:reviewId}});
-    await Review.findByIdAndDelete(reviewId);
-    req.flash("success", " Review Deleted!"); 
-    res.redirect(`/listings/${id}`);
-  
-  }  
+    try {
+        let { id, reviewId } = req.params;
+
+        await Product.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+        await Review.findByIdAndDelete(reviewId);
+        
+        res.status(200).json({ success: true, message: "Review deleted successfully" });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+}

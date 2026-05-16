@@ -1,0 +1,114 @@
+import React, { useState, useEffect } from 'react';
+import { FaUndo, FaCheck, FaTimes } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import api from '../../api/axios';
+
+const AdminReturns = () => {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchReturnRequests();
+  }, []);
+
+  const fetchReturnRequests = async () => {
+    try {
+      const res = await api.get('/admin/orders');
+      if (res.data.success) {
+        // Filter only orders that have some return status other than 'None'
+        const returnOrders = res.data.orders.filter(o => o.returnStatus !== 'None');
+        setOrders(returnOrders);
+      }
+    } catch (err) {
+      toast.error("Failed to fetch returns");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    try {
+      const res = await api.put(`/admin/orders/${orderId}/return-status`, { returnStatus: newStatus });
+      if (res.data.success) {
+        toast.success(`Return marked as ${newStatus}`);
+        fetchReturnRequests();
+      }
+    } catch (err) {
+      toast.error("Failed to update status");
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white">Return Requests</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Manage customer return and refund requests</p>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="text-center py-10 text-gray-500">Loading returns...</div>
+      ) : (
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-brand-100 dark:border-gray-700 overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-brand-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-sm uppercase">
+              <tr>
+                <th className="px-6 py-4 font-medium">Order ID</th>
+                <th className="px-6 py-4 font-medium">Customer</th>
+                <th className="px-6 py-4 font-medium">Reason</th>
+                <th className="px-6 py-4 font-medium">Amount</th>
+                <th className="px-6 py-4 font-medium">Status</th>
+                <th className="px-6 py-4 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {orders.map(order => (
+                <tr key={order._id} className="hover:bg-brand-50/50 dark:hover:bg-gray-700/50 transition-colors">
+                  <td className="px-6 py-4 text-sm font-mono text-gray-500">{order._id.substring(order._id.length - 6)}</td>
+                  <td className="px-6 py-4 text-gray-900 dark:text-gray-300 text-sm">{order.user?.email || 'Guest'}</td>
+                  <td className="px-6 py-4 text-gray-900 dark:text-gray-300 text-sm max-w-xs truncate">{order.returnReason}</td>
+                  <td className="px-6 py-4 font-bold text-gray-900 dark:text-gray-300">₹{order.totalAmount}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      order.returnStatus === 'Requested' ? 'bg-yellow-100 text-yellow-700' :
+                      order.returnStatus === 'Approved' ? 'bg-blue-100 text-blue-700' :
+                      order.returnStatus === 'Refunded' ? 'bg-green-100 text-green-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {order.returnStatus}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    {order.returnStatus === 'Requested' && (
+                      <div className="flex gap-2">
+                        <button onClick={() => handleUpdateStatus(order._id, 'Approved')} className="text-green-500 hover:text-green-700 p-2" title="Approve">
+                          <FaCheck />
+                        </button>
+                        <button onClick={() => handleUpdateStatus(order._id, 'Rejected')} className="text-red-500 hover:text-red-700 p-2" title="Reject">
+                          <FaTimes />
+                        </button>
+                      </div>
+                    )}
+                    {order.returnStatus === 'Approved' && (
+                      <button onClick={() => handleUpdateStatus(order._id, 'Refunded')} className="text-brand-600 hover:text-brand-800 text-sm font-medium">
+                        Mark Refunded
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {orders.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="px-6 py-8 text-center text-gray-500">No active return requests.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AdminReturns;

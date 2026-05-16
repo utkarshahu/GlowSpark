@@ -1,15 +1,16 @@
 const Joi = require("joi");
 
 
-module.exports.listingSchema =Joi.object({
-    listing: Joi.object({
+module.exports.productSchema = Joi.object({
+    product: Joi.object({
         title: Joi.string().required(),
         price: Joi.number().required().min(0),
         description: Joi.string().required(),
-        location: Joi.string().required(),
-        image: Joi.string().allow("",null),
-        country:Joi.string().required(),
-
+        brand: Joi.string().required(),
+        category: Joi.string().valid('Skincare', 'Makeup', 'Haircare', 'Fragrance', 'Bath & Body').required(),
+        image: Joi.string().allow("", null),
+        stock: Joi.number().min(0).allow("", null),
+        ingredients: Joi.string().allow("", null)
     }).required(),
 });
 

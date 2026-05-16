@@ -47,3 +47,29 @@ module.exports.logout =  (req,res,next) => {
 
     })
 }
+
+module.exports.addToWishlist = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const user = await User.findById(req.user._id);
+        if (!user.wishlist.includes(productId)) {
+            user.wishlist.push(productId);
+            await user.save();
+        }
+        res.json({ success: true, message: 'Added to wishlist', wishlist: user.wishlist });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Failed to add to wishlist' });
+    }
+};
+
+module.exports.removeFromWishlist = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const user = await User.findById(req.user._id);
+        user.wishlist = user.wishlist.filter(id => id.toString() !== productId);
+        await user.save();
+        res.json({ success: true, message: 'Removed from wishlist', wishlist: user.wishlist });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Failed to remove from wishlist' });
+    }
+};

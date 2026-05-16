@@ -1,0 +1,29 @@
+const express = require("express");
+const router = express.Router();
+const passport = require("passport");
+const wrapAsync = require("../utils/wrapAsync.js");
+const authController = require("../controllers/auth.js");
+
+router.post("/signup", wrapAsync(authController.signup));
+
+router.post("/login", 
+    passport.authenticate("local", { failureMessage: true }), 
+    authController.login
+);
+
+router.get("/me", authController.getCurrentUser);
+
+router.post("/logout", authController.logout);
+
+// OAuth Routes
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google/callback', passport.authenticate('google', { failureRedirect: 'http://localhost:5173/login' }), authController.oauthCallback);
+
+router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+router.get('/facebook/callback', passport.authenticate('facebook', { failureRedirect: 'http://localhost:5173/login' }), authController.oauthCallback);
+
+// OTP & Password Reset
+router.post("/forgot-password", wrapAsync(authController.forgotPassword));
+router.post("/reset-password", wrapAsync(authController.resetPassword));
+
+module.exports = router;

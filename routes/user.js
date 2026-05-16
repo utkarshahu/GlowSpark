@@ -3,30 +3,11 @@ const router = express.Router();
 const User = require("../models/user.js");
 const wrapAsync = require("../utils/wrapAsync.js");
 const passport = require("passport");
-const { saveRedirectUrl } = require("../middleware.js");
+const { isLoggedIn } = require("../middleware.js");
 const userController = require("../controllers/users.js");
 
+// Wishlist routes
+router.post("/wishlist/:productId", isLoggedIn, wrapAsync(userController.addToWishlist));
+router.delete("/wishlist/:productId", isLoggedIn, wrapAsync(userController.removeFromWishlist));
 
-router.route("/signup")
-.get( userController.renderSignupForm)
-.post( wrapAsync(userController.signup));
-
-
-
-router.route("/login")
-.get(userController.renderLoginForm)
-.post(
-    saveRedirectUrl,
-    passport.authenticate("local", {
-        failureRedirect: "/login",
-        failureFlash:true
-    }),
-
-    userController.login
-);
-
-router.get("/logout",userController.logout);
-
-
-
-module.exports = router;  
+module.exports = router;
