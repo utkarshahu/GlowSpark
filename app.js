@@ -99,19 +99,21 @@ const store = MongoStore.create({
 store.on("error", (err) => {
   console.log(" error in MONGO-SESSION store ",err);
 });
-
+app.set("trust proxy", 1);
 const sessionOptions = {
   store,
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: false, // Don't create sessions for unauthenticated requests
-  cookie: {
-    expires: Date.now() + 7*24*60*60*1000,
-    maxAge :  7*24*60*60*1000,
-    httpOnly : true,
-    // secure: process.env.NODE_ENV === "production" // Uncomment for HTTPS
-  },
+ cookie: {
+  expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  httpOnly: true,
+  secure: true,
+  sameSite: "none"
+}
 };
+
 
 app.use(session(sessionOptions));
 
