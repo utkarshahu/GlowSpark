@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FaTag, FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
+import { FaTag, FaPlus, FaTrash, FaEdit, FaSearch } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import api from '../../api/axios';
 
 const AdminCoupons = () => {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     code: '',
@@ -70,9 +71,13 @@ const AdminCoupons = () => {
     }
   };
 
+  const filteredCoupons = coupons.filter(coupon => 
+    coupon.code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-4">
         <div>
           <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white">Coupon Management</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2">Create and manage discount codes</p>
@@ -83,6 +88,20 @@ const AdminCoupons = () => {
         >
           <FaPlus /> New Coupon
         </button>
+      </div>
+
+      {/* Center Search Bar */}
+      <div className="flex justify-center mb-8">
+        <div className="relative w-full max-w-md">
+          <input 
+            type="text" 
+            placeholder="Search coupons by code..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-brand-100 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm transition-all"
+          />
+          <FaSearch className="absolute left-3.5 top-4 text-gray-400 dark:text-gray-500" />
+        </div>
       </div>
 
       {loading ? (
@@ -101,7 +120,7 @@ const AdminCoupons = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {coupons.map(coupon => (
+              {filteredCoupons.map(coupon => (
                 <tr key={coupon._id} className="hover:bg-brand-50/50 dark:hover:bg-gray-700/50 transition-colors">
                   <td className="px-6 py-4">
                     <span className="font-bold font-mono bg-brand-100 dark:bg-brand-900/30 text-brand-800 dark:text-brand-300 px-3 py-1 rounded-lg">

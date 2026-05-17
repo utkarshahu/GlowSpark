@@ -13,7 +13,7 @@ router
   .post(
     isLoggedIn,
     isAdmin,
-    upload.single("product[image]"),
+    upload.array("images", 8),
     validateProduct,
     wrapAsync(productController.createProduct)
   );
@@ -23,7 +23,7 @@ router.route("/:id")
   .put(
     isLoggedIn,
     isAdmin,
-    upload.single("product[image]"),
+    upload.array("images", 8),
     validateProduct,
     wrapAsync(productController.updateProduct)
   )

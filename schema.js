@@ -9,6 +9,12 @@ module.exports.productSchema = Joi.object({
         brand: Joi.string().required(),
         category: Joi.string().valid('Skincare', 'Makeup', 'Haircare', 'Fragrance', 'Bath & Body').required(),
         image: Joi.string().allow("", null),
+        images: Joi.array().items(Joi.object({
+            url: Joi.string().required(),
+            filename: Joi.string().required()
+        })).allow(null),
+        thumbnailIndex: Joi.number().min(0).allow("", null),
+        isNewArrival: Joi.boolean().allow(null),
         stock: Joi.number().min(0).allow("", null),
         ingredients: Joi.string().allow("", null)
     }).required(),

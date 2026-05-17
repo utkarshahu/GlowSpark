@@ -219,20 +219,25 @@ const Products = () => {
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 mb-12" ref={gridRef}>
-                  {products.map(product => (
-                    <Link to={`/products/${product._id}`} key={product._id} className="group block bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-brand-100/50 dark:border-gray-700 flex flex-col h-full">
-                      <div className="relative aspect-[4/5] overflow-hidden bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-                        <SmartImage 
-                          src={product.image.url} 
-                          alt={product.title} 
-                          className="w-full h-full rounded-xl group-hover:scale-110 transition-transform duration-700 ease-out drop-shadow-xl"
-                        />
-                        <button 
-                          onClick={(e) => handleWishlist(e, product._id)}
-                          className={`absolute top-4 right-4 transition-colors p-2 rounded-full backdrop-blur-sm z-10 ${wishlist.includes(product._id) ? 'text-red-500 bg-red-50' : 'text-gray-300 hover:text-red-500 bg-white/80'}`}
-                        >
-                          <FaHeart />
-                        </button>
+                  {products.map(product => {
+                    const thumbnailUrl = product.images && product.images[product.thumbnailIndex || 0]
+                      ? product.images[product.thumbnailIndex || 0].url
+                      : (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400');
+
+                    return (
+                      <Link to={`/products/${product._id}`} key={product._id} className="group block bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-brand-100/50 dark:border-gray-700 flex flex-col h-full">
+                        <div className="relative aspect-[4/5] overflow-hidden bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+                          <SmartImage 
+                            src={thumbnailUrl} 
+                            alt={product.title} 
+                            className="w-full h-full rounded-xl group-hover:scale-110 transition-transform duration-700 ease-out drop-shadow-xl"
+                          />
+                          <button 
+                            onClick={(e) => handleWishlist(e, product._id)}
+                            className={`absolute top-4 right-4 transition-colors p-2 rounded-full backdrop-blur-sm z-10 ${wishlist.includes(product._id) ? 'text-red-500 bg-red-50' : 'text-gray-300 hover:text-red-500 bg-white/80'}`}
+                          >
+                            <FaHeart />
+                          </button>
                         {product.stock < 10 && product.stock > 0 && (
                           <div className="absolute top-4 left-4 bg-brand-900 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10">
                               Low Stock
@@ -255,8 +260,9 @@ const Products = () => {
                           </button>
                         </div>
                       </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    );
+                  })}
                 </div>
 
                 {/* Pagination Controls */}

@@ -4,16 +4,18 @@ import api from '../../api/axios';
 import { toast } from 'react-toastify';
 import ConfirmModal from '../../components/ConfirmModal';
 import { socket } from '../../api/socket';
+import { FaSearch } from 'react-icons/fa';
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await api.get('/products');
+        const res = await api.get('/products?limit=all');
         if (res.data.success) {
           setProducts(res.data.products);
         }
@@ -66,16 +68,37 @@ const AdminProducts = () => {
     navigate(`/admin/products/${product._id}`);
   };
 
+  const filteredProducts = products.filter(product => 
+    product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) return <div className="text-gray-900 dark:text-white">Loading...</div>;
 
   return (
     <div className="transition-colors duration-300 relative">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
         <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white">Product Management</h1>
         <Link to="/admin/products/new" className="bg-brand-900 dark:bg-brand-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-black dark:hover:bg-brand-600 transition-colors text-center w-full sm:w-auto">
           + Add New Product
         </Link>
       </div>
+
+      {/* Center Search Bar */}
+      <div className="flex justify-center mb-8">
+        <div className="relative w-full max-w-md">
+          <input 
+            type="text" 
+            placeholder="Search products by name, brand, or category..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-brand-100 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm transition-all"
+          />
+          <FaSearch className="absolute left-3.5 top-4 text-gray-400 dark:text-gray-500" />
+        </div>
+      </div>
+
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-brand-100 dark:border-gray-700 shadow-sm overflow-x-auto transition-colors duration-300">
         <table className="w-full text-left">
           <thead className="bg-brand-50 dark:bg-gray-700 border-b border-brand-100 dark:border-gray-600">
@@ -88,26 +111,39 @@ const AdminProducts = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-100 dark:divide-gray-700">
-            {products.map(product => (
-              <tr 
-                key={product._id} 
-                onClick={() => navigate(`/admin/products/${product._id}`)}
-                className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-              >
-                <td className="p-4 text-sm font-medium text-gray-900 dark:text-white">{product.title}</td>
-                <td className="p-4 text-sm text-gray-600 dark:text-gray-400">{product.brand}</td>
-                <td className="p-4 text-sm text-gray-800 dark:text-gray-300">&#8377; {product.price.toLocaleString("en-IN")}</td>
-                <td className="p-4">
-                  <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${product.stock > 0 ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'}`}>
-                    {product.stock} In Stock
-                  </span>
-                </td>
-                <td className="p-4 space-x-4">
-                  <button onClick={(e) => { e.stopPropagation(); handleEditClick(product); }} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm transition-colors">Edit</button>
-                  <button onClick={(e) => { e.stopPropagation(); confirmDelete(product._id); }} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium text-sm transition-colors">Delete</button>
-                </td>
-              </tr>
-            ))}
+            {filteredProducts.map(product => {
+              const thumbnailUrl = product.images && product.images[product.thumbnailIndex || 0] 
+                ? product.images[product.thumbnailIndex || 0].url 
+                : (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=100');
+              
+              return (
+                <tr 
+                  key={product._id} 
+                  onClick={() => navigate(`/admin/products/${product._id}`)}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                >
+                  <td className="p-4 text-sm font-medium text-gray-900 dark:text-white flex items-center gap-3">
+                    <img 
+                      src={thumbnailUrl} 
+                      alt={product.title} 
+                      className="w-12 h-12 rounded-lg object-cover border border-brand-100 dark:border-gray-700 shadow-sm shrink-0" 
+                    />
+                    <span className="truncate">{product.title}</span>
+                  </td>
+                  <td className="p-4 text-sm text-gray-600 dark:text-gray-400">{product.brand}</td>
+                  <td className="p-4 text-sm text-gray-800 dark:text-gray-300">&#8377; {product.price.toLocaleString("en-IN")}</td>
+                  <td className="p-4">
+                    <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${product.stock > 0 ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'}`}>
+                      {product.stock} In Stock
+                    </span>
+                  </td>
+                  <td className="p-4 space-x-4">
+                    <button onClick={(e) => { e.stopPropagation(); handleEditClick(product); }} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm transition-colors">Edit</button>
+                    <button onClick={(e) => { e.stopPropagation(); confirmDelete(product._id); }} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium text-sm transition-colors">Delete</button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

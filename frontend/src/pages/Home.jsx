@@ -1,11 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import MagneticButton from '../components/MagneticButton';
 import HeroScene from '../components/HeroScene';
+import api from '../api/axios';
+import { socket } from '../api/socket';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,6 +23,48 @@ const Home = () => {
   const parallaxImgRef = useRef(null);
   const featuresRef = useRef(null);
   const bgGradientRef = useRef(null);
+
+  const [newArrivals, setNewArrivals] = useState([]);
+
+  useEffect(() => {
+    const fetchNewArrivals = async () => {
+      try {
+        const res = await api.get('/products?limit=all');
+        if (res.data.success) {
+          const arrivals = res.data.products.filter(p => p.isNewArrival);
+          setNewArrivals(arrivals);
+        }
+      } catch (err) {
+        console.error("Failed to fetch new arrivals", err);
+      }
+    };
+    fetchNewArrivals();
+
+    // Socket listener for real-time reactivity
+    socket.on('productUpdated', (updatedProduct) => {
+      setNewArrivals((prev) => {
+        const exists = prev.find(p => p._id === updatedProduct._id);
+        if (updatedProduct.isNewArrival) {
+          if (exists) {
+            return prev.map(p => p._id === updatedProduct._id ? updatedProduct : p);
+          } else {
+            return [...prev, updatedProduct];
+          }
+        } else {
+          return prev.filter(p => p._id !== updatedProduct._id);
+        }
+      });
+    });
+
+    socket.on('productDeleted', (deletedProductId) => {
+      setNewArrivals((prev) => prev.filter(p => p._id !== deletedProductId));
+    });
+
+    return () => {
+      socket.off('productUpdated');
+      socket.off('productDeleted');
+    };
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -85,7 +129,7 @@ const Home = () => {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="bg-brand-50 min-h-screen relative overflow-hidden"
+      className="bg-brand-50 dark:bg-gray-900 min-h-screen relative overflow-hidden transition-colors duration-300"
     >
       <Navbar />
       
@@ -186,11 +230,70 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* New Arrivals Section */}
+      <section className="py-24 bg-white dark:bg-gray-900 border-y border-brand-100 dark:border-gray-800 transition-colors duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="text-brand-600 dark:text-brand-400 font-bold uppercase tracking-[0.2em] text-xs">Freshly Formulated</span>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 dark:text-white mt-2">New Arrivals</h2>
+            <div className="w-16 h-0.5 bg-brand-500 mx-auto mt-4"></div>
+          </div>
+
+          <AnimatePresence mode="popLayout">
+            {newArrivals.length === 0 ? (
+              <p className="text-center text-gray-500 py-10 font-light">Stay tuned! Our latest premium creations are arriving soon.</p>
+            ) : (
+              <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {newArrivals.map((product) => {
+                  const thumbnailUrl = product.images && product.images[product.thumbnailIndex || 0]
+                    ? product.images[product.thumbnailIndex || 0].url
+                    : (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=600');
+
+                  return (
+                    <motion.div
+                      key={product._id}
+                      layout
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.5 }}
+                      className="group bg-brand-50 dark:bg-gray-850 rounded-3xl p-4 border border-brand-100/50 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-full"
+                    >
+                      <div className="relative aspect-square rounded-2xl overflow-hidden bg-white dark:bg-gray-950 mb-4 flex items-center justify-center p-4">
+                        <img 
+                          src={thumbnailUrl} 
+                          alt={product.title} 
+                          className="max-h-full object-contain group-hover:scale-105 transition-transform duration-500" 
+                        />
+                        <span className="absolute top-3 left-3 bg-brand-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">NEW</span>
+                      </div>
+
+                      <div className="flex-grow">
+                        <span className="text-[10px] font-bold text-brand-500 uppercase tracking-widest block mb-1">{product.brand}</span>
+                        <h3 className="font-serif font-bold text-gray-900 dark:text-white text-lg truncate mb-2">{product.title}</h3>
+                        <p className="font-bold text-brand-700 dark:text-brand-300 mb-4">&#8377; {product.price.toLocaleString("en-IN")}</p>
+                      </div>
+
+                      <Link 
+                        to={`/products/${product._id}`}
+                        className="w-full py-3 bg-brand-900 hover:bg-black dark:bg-brand-500 text-white text-center rounded-xl font-bold transition-all text-sm uppercase tracking-wider block hover:shadow-lg"
+                      >
+                        View Details
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </section>
       
       {/* Cinematic Footer Hook */}
       <section className="h-[80vh] bg-brand-900 rounded-t-[4rem] flex flex-col items-center justify-center relative overflow-hidden z-10 px-4">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
-        <h2 className="text-5xl md:text-8xl font-serif text-brand-50 mb-10 text-center relative z-10">Ready to Glow?</h2>
+        <h2 className="text-5xl md:text-8xl font-serif text-brand-55 mb-10 text-center relative z-10">Ready to Glow?</h2>
         <MagneticButton>
            <Link to="/products" className="relative z-10 inline-block bg-brand-50 text-brand-900 px-12 py-5 rounded-full font-bold uppercase tracking-widest hover:bg-white transition-colors text-sm shadow-2xl">
              Enter Store

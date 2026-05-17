@@ -118,8 +118,8 @@ const ProductDetail = () => {
     ? (product.reviews.reduce((acc, rev) => acc + rev.rating, 0) / product.reviews.length).toFixed(1)
     : 0;
 
-  if (loading) return <div className="min-h-screen bg-brand-50 pt-32 text-center">Loading...</div>;
-  if (!product) return <div className="min-h-screen bg-brand-50 pt-32 text-center">Product not found</div>;
+  if (loading) return <div className="min-h-screen bg-brand-50 dark:bg-gray-900 pt-32 text-center text-gray-900 dark:text-white">Loading...</div>;
+  if (!product) return <div className="min-h-screen bg-brand-50 dark:bg-gray-900 pt-32 text-center text-red-500">Product not found</div>;
 
   return (
     <div className="bg-brand-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
@@ -135,13 +135,17 @@ const ProductDetail = () => {
               pagination={{ clickable: true }}
               className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-brand-100/50 dark:border-gray-700 shadow-inner"
             >
-              <SwiperSlide className="flex items-center justify-center p-8">
-                <img src={product.image.url} alt={product.title} className="w-full h-full object-cover rounded-xl shadow-2xl" />
-              </SwiperSlide>
-              {/* Simulated additional angles */}
-              <SwiperSlide className="flex items-center justify-center p-8">
-                <img src={product.image.url} alt={`${product.title} Angle 2`} className="w-full h-full object-cover rounded-xl shadow-2xl filter grayscale hover:grayscale-0 transition-all duration-500" />
-              </SwiperSlide>
+              {product.images && product.images.length > 0 ? (
+                product.images.map((img, idx) => (
+                  <SwiperSlide key={idx} className="flex items-center justify-center p-8">
+                    <img src={img.url} alt={`${product.title} Angle ${idx + 1}`} className="w-full h-full object-cover rounded-xl shadow-2xl" />
+                  </SwiperSlide>
+                ))
+              ) : (
+                <SwiperSlide className="flex items-center justify-center p-8">
+                  <img src={product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=600'} alt={product.title} className="w-full h-full object-cover rounded-xl shadow-2xl" />
+                </SwiperSlide>
+              )}
             </Swiper>
           </div>
 

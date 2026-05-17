@@ -4,8 +4,8 @@ module.exports.index = async (req, res) => {
   try {
     const { sort, category, page = 1, limit = 12, search, maxPrice } = req.query;
     const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
-    const skip = (pageNum - 1) * limitNum;
+    const limitNum = limit === 'all' ? 10000 : parseInt(limit);
+    const skip = (pageNum - 1) * (limitNum || 12);
     
     let matchStage = { isDeleted: { $ne: true } };
 
@@ -97,11 +97,11 @@ module.exports.createProduct = async (req, res, next) => {
     let newProduct = new Product(product);
     newProduct.owner = req.user._id;
 
-    if (req.file) {
-      newProduct.image = {
-        url: req.file.path,
-        filename: req.file.filename,
-      };
+    if (req.files && req.files.length > 0) {
+      newProduct.images = req.files.map(file => ({
+        url: file.path,
+        filename: file.filename,
+      }));
     }
 
     await newProduct.save();
@@ -116,15 +116,23 @@ module.exports.updateProduct = async (req, res) => {
   try {
     let { id } = req.params;
 
-    let product = await Product.findByIdAndUpdate(id, { ...req.body.product }, { new: true });
-
-    if (req.file) {
-      product.image = {
-        url: req.file.path,
-        filename: req.file.filename,
-      };
-      await product.save();
+    let product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
     }
+
+    // Merge basic product properties
+    Object.assign(product, req.body.product);
+
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map(file => ({
+        url: file.path,
+        filename: file.filename,
+      }));
+      product.images = [...(product.images || []), ...newImages];
+    }
+
+    await product.save();
 
     const io = req.app.get('io');
     if (io) {

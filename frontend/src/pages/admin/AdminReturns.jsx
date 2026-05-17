@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUndo, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaUndo, FaCheck, FaTimes, FaSearch } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import api from '../../api/axios';
 import { socket } from '../../api/socket';
@@ -8,6 +8,7 @@ import { socket } from '../../api/socket';
 const AdminReturns = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,12 +66,33 @@ const AdminReturns = () => {
     }
   };
 
+  const filteredOrders = orders.filter(order => 
+    order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (order.user?.email || 'Guest').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order.returnReason.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order.returnStatus.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-4">
         <div>
           <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white">Return Requests</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2">Manage customer return and refund requests</p>
+        </div>
+      </div>
+
+      {/* Center Search Bar */}
+      <div className="flex justify-center mb-8">
+        <div className="relative w-full max-w-md">
+          <input 
+            type="text" 
+            placeholder="Search return requests..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-brand-100 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm transition-all"
+          />
+          <FaSearch className="absolute left-3.5 top-4 text-gray-400 dark:text-gray-500" />
         </div>
       </div>
 
@@ -90,7 +112,7 @@ const AdminReturns = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {orders.map(order => (
+              {filteredOrders.map(order => (
                 <tr 
                   key={order._id} 
                   onClick={() => navigate(`/admin/orders/${order._id}`)}

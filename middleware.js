@@ -19,6 +19,27 @@ module.exports.isAdmin = (req, res, next) => {
 }
 
 module.exports.validateProduct = (req, res, next) => {
+    if (req.body.product) {
+        if (typeof req.body.product.images === 'string') {
+            try {
+                req.body.product.images = JSON.parse(req.body.product.images);
+            } catch (e) {
+                req.body.product.images = [];
+            }
+        }
+        if (req.body.product.thumbnailIndex !== undefined && req.body.product.thumbnailIndex !== '') {
+            req.body.product.thumbnailIndex = parseInt(req.body.product.thumbnailIndex);
+        }
+        if (req.body.product.price !== undefined && req.body.product.price !== '') {
+            req.body.product.price = parseFloat(req.body.product.price);
+        }
+        if (req.body.product.stock !== undefined && req.body.product.stock !== '') {
+            req.body.product.stock = parseInt(req.body.product.stock);
+        }
+        if (req.body.product.isNewArrival !== undefined) {
+            req.body.product.isNewArrival = req.body.product.isNewArrival === 'true' || req.body.product.isNewArrival === true;
+        }
+    }
     let { error } = productSchema.validate(req.body);
     if (error) {
         let errMsg = error.details.map((el) => el.message).join(",");

@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { toast } from 'react-toastify';
 import ConfirmModal from '../../components/ConfirmModal';
+import { FaSearch } from 'react-icons/fa';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [userToToggle, setUserToToggle] = useState(null);
   const navigate = useNavigate();
@@ -47,24 +49,46 @@ const AdminUsers = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  const filteredUsers = users.filter(user => 
+    user._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (user.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (user.username || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (user.role || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (loading) return <div className="text-gray-900 dark:text-white">Loading...</div>;
 
   return (
     <div>
-      <h1 className="text-3xl font-serif font-bold text-gray-900 mb-8">User Management</h1>
-      <div className="bg-white rounded-2xl border border-brand-100 shadow-sm overflow-hidden">
+      <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white mb-4">User Management</h1>
+      
+      {/* Center Search Bar */}
+      <div className="flex justify-center mb-8">
+        <div className="relative w-full max-w-md">
+          <input 
+            type="text" 
+            placeholder="Search users by email, name, role..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-brand-100 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm transition-all"
+          />
+          <FaSearch className="absolute left-3.5 top-4 text-gray-400 dark:text-gray-500" />
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-brand-100 dark:border-gray-700 shadow-sm overflow-hidden">
         <table className="w-full text-left">
-          <thead className="bg-brand-50 border-b border-brand-100">
+          <thead className="bg-brand-50 dark:bg-gray-700 border-b border-brand-100 dark:border-gray-600">
             <tr>
-              <th className="p-4 font-medium text-gray-600">User ID</th>
-              <th className="p-4 font-medium text-gray-600">Email</th>
-              <th className="p-4 font-medium text-gray-600">Role</th>
-              <th className="p-4 font-medium text-gray-600">Status</th>
-              <th className="p-4 font-medium text-gray-600">Actions</th>
+              <th className="p-4 font-medium text-gray-600 dark:text-gray-300">User ID</th>
+              <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Email</th>
+              <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Role</th>
+              <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Status</th>
+              <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-brand-100">
-            {users.map(user => (
+          <tbody className="divide-y divide-brand-100 dark:divide-gray-700">
+            {filteredUsers.map(user => (
               <tr 
                 key={user._id} 
                 onClick={() => navigate(`/admin/users/${user._id}`)}

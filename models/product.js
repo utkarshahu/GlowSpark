@@ -14,9 +14,15 @@ const productSchema = new Schema({
     enum: ['Skincare', 'Makeup', 'Haircare', 'Fragrance', 'Bath & Body'],
     default: 'Skincare'
   },
-  image: {
-    url: String,
-    filename: String,
+  images: [
+    {
+      url: String,
+      filename: String,
+    }
+  ],
+  thumbnailIndex: {
+    type: Number,
+    default: 0
   },
   price: {
     type: Number,

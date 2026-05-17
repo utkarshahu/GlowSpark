@@ -11,8 +11,8 @@ const AdminProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [newImageFiles, setNewImageFiles] = useState([]);
+  const [newImagePreviews, setNewImagePreviews] = useState([]);
 
   useEffect(() => {
     fetchProduct();
@@ -29,7 +29,10 @@ const AdminProductDetail = () => {
           description: res.data.product.description,
           stock: res.data.product.stock,
           brand: res.data.product.brand,
-          category: res.data.product.category
+          category: res.data.product.category,
+          images: res.data.product.images || [],
+          thumbnailIndex: res.data.product.thumbnailIndex || 0,
+          isNewArrival: res.data.product.isNewArrival || false
         });
       }
     } catch (err) {
@@ -58,44 +61,99 @@ const AdminProductDetail = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      let payload;
-      let headers = {};
-      
-      if (imageFile) {
-        payload = new FormData();
-        payload.append('product[title]', editForm.title);
-        payload.append('product[price]', editForm.price);
-        payload.append('product[description]', editForm.description);
-        payload.append('product[stock]', editForm.stock);
-        payload.append('product[brand]', editForm.brand);
-        payload.append('product[category]', editForm.category);
-        payload.append('product[image]', imageFile);
-        headers = { 'Content-Type': 'multipart/form-data' };
-      } else {
-        payload = { product: editForm };
+      const payload = new FormData();
+      payload.append('product[title]', editForm.title);
+      payload.append('product[price]', editForm.price);
+      payload.append('product[description]', editForm.description);
+      payload.append('product[stock]', editForm.stock);
+      payload.append('product[brand]', editForm.brand);
+      payload.append('product[category]', editForm.category);
+      payload.append('product[images]', JSON.stringify(editForm.images));
+      payload.append('product[thumbnailIndex]', editForm.thumbnailIndex);
+      payload.append('product[isNewArrival]', editForm.isNewArrival);
+
+      if (newImageFiles.length > 0) {
+        newImageFiles.forEach((file) => {
+          payload.append('images', file);
+        });
       }
 
-      const res = await api.put(`/products/${id}`, payload, { headers });
+      const res = await api.put(`/products/${id}`, payload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
       if (res.data.success) {
         toast.success("Product updated successfully");
         setProduct(res.data.product);
         setIsEditing(false);
-        setImageFile(null);
-        setImagePreview(null);
+        setNewImageFiles([]);
+        setNewImagePreviews([]);
+        fetchProduct(); // Refresh
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update product");
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result);
-      reader.readAsDataURL(file);
+  const handleMultipleImagesChange = (e) => {
+    const files = Array.from(e.target.files);
+    const currentTotal = (editForm.images?.length || 0) + newImageFiles.length;
+    
+    if (currentTotal + files.length > 8) {
+      toast.error("Maximum 8 images allowed per product");
+      return;
     }
+
+    const newFiles = [...newImageFiles, ...files];
+    setNewImageFiles(newFiles);
+
+    // Generate previews
+    const filePreviews = [];
+    let loadedCount = 0;
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        filePreviews.push(reader.result);
+        loadedCount++;
+        if (loadedCount === files.length) {
+          setNewImagePreviews([...newImagePreviews, ...filePreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleDeleteImage = (index, isExisting) => {
+    if (isExisting) {
+      const updatedImages = editForm.images.filter((_, i) => i !== index);
+      let newThumbnailIndex = editForm.thumbnailIndex;
+      if (editForm.thumbnailIndex === index) {
+        newThumbnailIndex = 0;
+      } else if (editForm.thumbnailIndex > index) {
+        newThumbnailIndex--;
+      }
+      setEditForm({ ...editForm, images: updatedImages, thumbnailIndex: newThumbnailIndex });
+    } else {
+      const updatedFiles = newImageFiles.filter((_, i) => i !== index);
+      const updatedPreviews = newImagePreviews.filter((_, i) => i !== index);
+      setNewImageFiles(updatedFiles);
+      setNewImagePreviews(updatedPreviews);
+
+      // Adjust thumbnail if needed
+      const existingCount = editForm.images?.length || 0;
+      const absoluteDeletedIndex = existingCount + index;
+      let newThumbnailIndex = editForm.thumbnailIndex;
+      if (editForm.thumbnailIndex === absoluteDeletedIndex) {
+        newThumbnailIndex = 0;
+      } else if (editForm.thumbnailIndex > absoluteDeletedIndex) {
+        newThumbnailIndex--;
+      }
+      setEditForm({ ...editForm, thumbnailIndex: newThumbnailIndex });
+    }
+  };
+
+  const handleSetThumbnail = (absoluteIndex) => {
+    setEditForm({ ...editForm, thumbnailIndex: absoluteIndex });
   };
 
   const handleDeleteProduct = async () => {
@@ -113,6 +171,17 @@ const AdminProductDetail = () => {
 
   if (loading) return <div className="p-8 text-gray-500">Loading product details...</div>;
   if (!product) return <div className="p-8 text-red-500">Product not found</div>;
+
+  // Final combined list of images for rendering/selection during editing
+  const existingImages = editForm.images || [];
+  const combinedImagePreviews = [
+    ...existingImages.map(img => img.url),
+    ...newImagePreviews
+  ];
+
+  const mainImageUrl = product.images && product.images[product.thumbnailIndex || 0]
+    ? product.images[product.thumbnailIndex || 0].url
+    : (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=600');
 
   return (
     <div className="max-w-6xl mx-auto pb-12">
@@ -139,88 +208,185 @@ const AdminProductDetail = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Product Stats */}
+        {/* Product Media Column */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
-             <div className="relative aspect-square bg-gray-100 dark:bg-gray-900 rounded-2xl mb-6 overflow-hidden group">
-                <img src={imagePreview || product.image?.url} alt={product.title} className="w-full h-full object-cover" />
-                {isEditing && (
-                  <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                    <div className="flex flex-col items-center text-white">
-                      <FaCamera className="text-3xl mb-2" />
-                      <span className="font-medium text-sm">Change Image</span>
-                    </div>
-                    <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-                  </label>
-                )}
-             </div>
              
              {isEditing ? (
-               <form onSubmit={handleEditSubmit} className="space-y-4">
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
-                   <input required type="text" value={editForm.title} onChange={e => setEditForm({...editForm, title: e.target.value})} className="w-full p-2 rounded bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 dark:text-white" />
+               // Media Manager (Editing Mode)
+               <div className="space-y-6">
+                 <div className="flex justify-between items-center">
+                   <h3 className="font-bold text-gray-900 dark:text-white">Product Gallery</h3>
+                   <span className="text-xs text-gray-500">{combinedImagePreviews.length}/8 Photos</span>
                  </div>
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (&#8377;)</label>
-                   <input required type="number" min="0" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} className="w-full p-2 rounded bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 dark:text-white" />
+
+                 {/* Photo Grid */}
+                 <div className="grid grid-cols-2 gap-3">
+                   {combinedImagePreviews.map((url, idx) => {
+                     const isExisting = idx < existingImages.length;
+                     const targetIdx = isExisting ? idx : idx - existingImages.length;
+                     const isThumbnail = editForm.thumbnailIndex === idx;
+
+                     return (
+                       <div key={idx} className={`relative aspect-square rounded-xl overflow-hidden border-2 bg-gray-50 dark:bg-gray-900 transition-all ${isThumbnail ? 'border-brand-500 ring-2 ring-brand-100' : 'border-gray-200 dark:border-gray-700'}`}>
+                         <img src={url} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
+                         
+                         {/* Thumbnail Badge / Button */}
+                         <button 
+                           type="button" 
+                           onClick={() => handleSetThumbnail(idx)} 
+                           className={`absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold shadow-sm transition-all ${isThumbnail ? 'bg-brand-500 text-white' : 'bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-white'}`}
+                         >
+                           {isThumbnail ? '★ Thumb' : 'Set Thumb'}
+                         </button>
+
+                         {/* Delete Button */}
+                         <button 
+                           type="button" 
+                           onClick={() => handleDeleteImage(targetIdx, isExisting)} 
+                           className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500/80 hover:bg-red-500 text-white shadow-sm transition-all text-xs"
+                         >
+                           <FaTimes />
+                         </button>
+                       </div>
+                     );
+                   })}
+
+                   {/* Add Photo Box */}
+                   {combinedImagePreviews.length < 8 && (
+                     <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl aspect-square hover:bg-brand-50/30 dark:hover:bg-gray-900/30 cursor-pointer transition-colors">
+                       <FaCamera className="text-gray-400 dark:text-gray-500 text-2xl mb-2" />
+                       <span className="text-[10px] text-gray-500 font-medium">Add Photo(s)</span>
+                       <input 
+                         type="file" 
+                         accept="image/*" 
+                         multiple 
+                         className="hidden" 
+                         onChange={handleMultipleImagesChange} 
+                       />
+                     </label>
+                   )}
                  </div>
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock</label>
-                   <input required type="number" min="0" value={editForm.stock} onChange={e => setEditForm({...editForm, stock: e.target.value})} className="w-full p-2 rounded bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 dark:text-white" />
+               </div>
+             ) : (
+               // Simple View Mode Gallery
+               <div>
+                 <div className="relative aspect-square bg-gray-100 dark:bg-gray-900 rounded-2xl mb-6 overflow-hidden">
+                   <img src={mainImageUrl} alt={product.title} className="w-full h-full object-cover" />
+                   {product.isNewArrival && (
+                     <span className="absolute top-3 right-3 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">New Arrival</span>
+                   )}
                  </div>
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Brand</label>
-                   <input type="text" value={editForm.brand} onChange={e => setEditForm({...editForm, brand: e.target.value})} className="w-full p-2 rounded bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 dark:text-white" />
-                 </div>
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                   <select required value={editForm.category} onChange={e => setEditForm({...editForm, category: e.target.value})} className="w-full p-2 rounded bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 dark:text-white">
+                 
+                 {/* Mini thumbs list */}
+                 {product.images && product.images.length > 1 && (
+                   <div className="grid grid-cols-4 gap-2">
+                     {product.images.map((img, i) => (
+                       <div key={i} className={`aspect-square rounded-lg overflow-hidden border-2 bg-gray-50 ${product.thumbnailIndex === i ? 'border-brand-500' : 'border-gray-200'}`}>
+                         <img src={img.url} alt={`Thumb ${i + 1}`} className="w-full h-full object-cover" />
+                       </div>
+                     ))}
+                   </div>
+                 )}
+               </div>
+             )}
+          </div>
+        </div>
+
+        {/* Product Details Form/Details Column */}
+        <div className="lg:col-span-2">
+          {isEditing ? (
+            <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm">
+              <h2 className="text-2xl font-serif font-bold text-gray-900 dark:text-white mb-6">Edit Product Details</h2>
+              <form onSubmit={handleEditSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Product Title</label>
+                    <input required type="text" value={editForm.title} onChange={e => setEditForm({...editForm, title: e.target.value})} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Brand</label>
+                    <input required type="text" value={editForm.brand} onChange={e => setEditForm({...editForm, brand: e.target.value})} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (&#8377;)</label>
+                    <input required type="number" min="0" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock</label>
+                    <input required type="number" min="0" value={editForm.stock} onChange={e => setEditForm({...editForm, stock: e.target.value})} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                    <select required value={editForm.category} onChange={e => setEditForm({...editForm, category: e.target.value})} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
                       <option value="Skincare">Skincare</option>
                       <option value="Makeup">Makeup</option>
                       <option value="Haircare">Haircare</option>
                       <option value="Fragrance">Fragrance</option>
                       <option value="Bath & Body">Bath & Body</option>
-                   </select>
-                 </div>
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                   <textarea rows="3" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} className="w-full p-2 rounded bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 dark:text-white" />
-                 </div>
-                 <div className="flex gap-2 pt-2">
-                   <button type="button" onClick={() => { setIsEditing(false); setImagePreview(null); setImageFile(null); }} className="flex-1 flex justify-center items-center gap-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white p-2 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                     <FaTimes /> Cancel
-                   </button>
-                   <button type="submit" className="flex-1 flex justify-center items-center gap-2 bg-brand-600 text-white p-2 rounded-xl hover:bg-brand-700 transition-colors">
-                     <FaSave /> Save
-                   </button>
-                 </div>
-               </form>
-             ) : (
-               <>
-                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{product.title}</h3>
-                 <p className="text-brand-600 dark:text-brand-400 font-bold mb-4">&#8377; {product.price.toLocaleString("en-IN")}</p>
-                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{product.description}</p>
-                 
-                 <div className="space-y-4">
-                    <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
-                       <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                         <FaBox className="text-brand-500 text-xl" />
-                         <span className="font-medium">Current Stock</span>
-                       </div>
-                       <span className="font-bold text-gray-900 dark:text-white text-lg">{product.stock}</span>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                  <textarea rows="4" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                </div>
+
+                {/* New Arrivals Toggle */}
+                <div className="flex items-center gap-3 bg-brand-50/50 dark:bg-gray-900 p-4 rounded-xl border border-brand-100 dark:border-gray-700">
+                  <input 
+                    type="checkbox" 
+                    id="isNewArrival" 
+                    checked={editForm.isNewArrival} 
+                    onChange={e => setEditForm({...editForm, isNewArrival: e.target.checked})} 
+                    className="w-5 h-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500" 
+                  />
+                  <label htmlFor="isNewArrival" className="font-bold text-gray-900 dark:text-white cursor-pointer select-none">Mark as "New Arrival"</label>
+                </div>
+
+                <div className="flex gap-4 pt-2">
+                  <button type="button" onClick={() => { setIsEditing(false); setNewImagePreviews([]); setNewImageFiles([]); }} className="flex-1 flex justify-center items-center gap-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white py-3 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-bold">
+                    <FaTimes /> Cancel
+                  </button>
+                  <button type="submit" className="flex-1 flex justify-center items-center gap-2 bg-brand-900 hover:bg-black text-white py-3 rounded-xl transition-colors font-bold shadow-lg">
+                    <FaSave /> Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            // Stats / Info (View Mode)
+            <div className="space-y-6">
+              <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm">
+                <h3 className="text-2xl font-serif font-bold text-gray-900 dark:text-white mb-2">{product.title}</h3>
+                <p className="text-xl font-bold text-brand-600 dark:text-brand-400 mb-6">&#8377; {product.price.toLocaleString("en-IN")}</p>
+                
+                <h4 className="font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider text-xs mb-2">Description</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-8">{product.description}</p>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
+                    <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                      <FaBox className="text-brand-500 text-xl" />
+                      <span className="font-medium">Stock Available</span>
                     </div>
-                    <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
-                       <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                         <FaShoppingCart className="text-brand-500 text-xl" />
-                         <span className="font-medium">Units Sold</span>
-                       </div>
-                       <span className="font-bold text-gray-900 dark:text-white text-lg">{product.orderCount || 0}</span>
+                    <span className="font-bold text-gray-900 dark:text-white text-lg">{product.stock}</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
+                    <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                      <FaShoppingCart className="text-brand-500 text-xl" />
+                      <span className="font-medium">Total Sales</span>
                     </div>
-                 </div>
-               </>
-             )}
-          </div>
+                    <span className="font-bold text-gray-900 dark:text-white text-lg">{product.soldCount || 0}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Reviews Management */}
