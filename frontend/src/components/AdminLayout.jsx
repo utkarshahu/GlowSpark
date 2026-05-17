@@ -40,9 +40,9 @@ const AdminLayout = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-brand-50 font-sans">
+    <div className="flex min-h-screen bg-brand-50 font-sans">
       {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-brand-100 flex flex-col justify-between shadow-sm">
+      <div className="w-64 bg-white border-r border-brand-100 flex flex-col justify-between shadow-sm sticky top-0 h-screen">
         <div>
           <div className="h-20 flex items-center px-8 border-b border-brand-100">
             <h1 className="text-2xl font-serif font-bold text-brand-900 tracking-tight">
@@ -87,7 +87,7 @@ const AdminLayout = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-auto bg-[#Fdf8f6]">
+      <div className="flex-1 bg-[#Fdf8f6]">
         <div className="p-8">
           <Outlet />
         </div>

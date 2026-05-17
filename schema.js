@@ -21,3 +21,30 @@ module.exports.reviewSchema = Joi.object({
         comment: Joi.string().required()
     }).required(),
 });
+
+module.exports.userSignupSchema = Joi.object({
+    username: Joi.string().required().min(3).max(30),
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(6)
+});
+
+module.exports.userLoginSchema = Joi.object({
+    email: Joi.string().required().email(),
+    password: Joi.string().required()
+});
+
+module.exports.userProfileSchema = Joi.object({
+    username: Joi.string().min(3).max(30).allow("", null),
+    phoneNumber: Joi.string().pattern(/^[0-9]{10}$/).allow("", null),
+    addresses: Joi.array().items(Joi.object({
+        houseNo: Joi.string().allow("", null),
+        street: Joi.string().allow("", null),
+        city: Joi.string().allow("", null),
+        state: Joi.string().allow("", null),
+        pincode: Joi.string().allow("", null),
+        country: Joi.string().allow("", null),
+        isDefault: Joi.boolean()
+    })),
+    oldPassword: Joi.string().min(6).allow("", null),
+    newPassword: Joi.string().min(6).allow("", null)
+});

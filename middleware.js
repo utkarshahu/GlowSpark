@@ -46,3 +46,35 @@ module.exports.isReviewAuthor = async (req, res, next) => {
     }
     next();
 }
+
+const { userSignupSchema, userLoginSchema, userProfileSchema } = require("./schema.js");
+
+module.exports.validateSignup = (req, res, next) => {
+    let { error } = userSignupSchema.validate(req.body);
+    if (error) {
+        let errMsg = error.details.map((el) => el.message).join(",");
+        throw new ExpressError(400, errMsg);
+    } else {
+        next();
+    }
+};
+
+module.exports.validateLogin = (req, res, next) => {
+    let { error } = userLoginSchema.validate(req.body);
+    if (error) {
+        let errMsg = error.details.map((el) => el.message).join(",");
+        throw new ExpressError(400, errMsg);
+    } else {
+        next();
+    }
+};
+
+module.exports.validateProfile = (req, res, next) => {
+    let { error } = userProfileSchema.validate(req.body);
+    if (error) {
+        let errMsg = error.details.map((el) => el.message).join(",");
+        throw new ExpressError(400, errMsg);
+    } else {
+        next();
+    }
+};

@@ -11,10 +11,13 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { FaStar, FaCheckCircle, FaTruck, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
+import { useDispatch } from 'react-redux';
+import { setCart } from '../store/cartSlice';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(5);
@@ -39,7 +42,10 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     try {
-      await api.post('/cart/add', { productId: product._id });
+      const res = await api.post('/cart/add', { productId: product._id });
+      if (res.data.success) {
+         dispatch(setCart(res.data.cart));
+      }
       toast.success(`${product.title} added to your bag`);
     } catch (err) {
       if (err.response?.status === 401) {
@@ -69,6 +75,42 @@ const ProductDetail = () => {
       }
     } finally {
       setIsSubmittingReview(false);
+    }
+  };
+
+  const handleHelpful = async (reviewId) => {
+    try {
+      const res = await api.put(`/products/${id}/reviews/${reviewId}/helpful`);
+      if (res.data.success) {
+        setProduct({
+          ...product,
+          reviews: product.reviews.map(r => r._id === reviewId ? { ...r, likes: res.data.review.likes, dislikes: res.data.review.dislikes } : r)
+        });
+      }
+    } catch (err) {
+      if (err.response?.status === 401) {
+        toast.error("Please login to vote");
+      } else {
+        toast.error("Failed to vote");
+      }
+    }
+  };
+
+  const handleNotHelpful = async (reviewId) => {
+    try {
+      const res = await api.put(`/products/${id}/reviews/${reviewId}/not-helpful`);
+      if (res.data.success) {
+        setProduct({
+          ...product,
+          reviews: product.reviews.map(r => r._id === reviewId ? { ...r, likes: res.data.review.likes, dislikes: res.data.review.dislikes } : r)
+        });
+      }
+    } catch (err) {
+      if (err.response?.status === 401) {
+        toast.error("Please login to vote");
+      } else {
+        toast.error("Failed to vote");
+      }
     }
   };
 
@@ -196,7 +238,7 @@ const ProductDetail = () => {
             <div className="lg:col-span-2 space-y-6">
               {product.reviews && product.reviews.length > 0 ? (
                 product.reviews.map((rev, idx) => (
-                  <div key={idx} className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
+                  <div key={rev._id || idx} className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-3">
                          {rev.author?.profilePhoto?.url ? (
@@ -229,10 +271,10 @@ const ProductDetail = () => {
                     )}
 
                     <div className="flex items-center gap-4 text-gray-400 text-xs">
-                      <button className="flex items-center gap-1 hover:text-brand-600 transition-colors">
+                      <button onClick={() => handleHelpful(rev._id)} className="flex items-center gap-1 hover:text-brand-600 transition-colors">
                         <FaThumbsUp /> Helpful ({rev.likes?.length || 0})
                       </button>
-                      <button className="flex items-center gap-1 hover:text-brand-600 transition-colors">
+                      <button onClick={() => handleNotHelpful(rev._id)} className="flex items-center gap-1 hover:text-brand-600 transition-colors">
                         <FaThumbsDown /> Not Helpful ({rev.dislikes?.length || 0})
                       </button>
                     </div>

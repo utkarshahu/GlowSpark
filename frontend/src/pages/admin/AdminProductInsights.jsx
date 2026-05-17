@@ -7,9 +7,11 @@ const AdminProductInsights = () => {
   const [insights, setInsights] = useState({
     bestsellers: [],
     lowStock: [],
-    monthlySales: []
+    allOrders: []
   });
   const [loading, setLoading] = useState(true);
+  const [timeframe, setTimeframe] = useState('6M'); // 1W, 1M, 6M, 1Y, PY
+  const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
     // In a real app, you would have a dedicated insights endpoint
@@ -20,7 +22,7 @@ const AdminProductInsights = () => {
   const fetchInsightsData = async () => {
     try {
       const [productsRes, ordersRes] = await Promise.all([
-        api.get('/products?sort=bestseller'), // Already sorted by bestseller algorithm
+        api.get('/products?sort=bestseller&limit=100'), // Fetch up to 100 products for accurate bestsellers & low stock
         api.get('/admin/orders')
       ]);
 
@@ -34,35 +36,8 @@ const AdminProductInsights = () => {
         // Process Low Stock
         const lowStock = products.filter(p => p.stock < 10).slice(0, 5);
 
-        // Process Monthly Sales (Mocked based on order data)
-        const monthlySalesMap = {};
-        orders.forEach(order => {
-          if (order.status !== 'Delivered' && order.status !== 'Shipped' && order.status !== 'Processing') return;
-          if (order.returnStatus === 'Refunded' || order.returnStatus === 'Approved') return;
-
-          const date = new Date(order.createdAt);
-          const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
-          
-          if (!monthlySalesMap[monthYear]) {
-            monthlySalesMap[monthYear] = { name: monthYear, revenue: 0, orders: 0 };
-          }
-          monthlySalesMap[monthYear].revenue += order.totalAmount;
-          monthlySalesMap[monthYear].orders += 1;
-        });
-
-        const monthlySales = Object.values(monthlySalesMap).slice(-6); // Last 6 months
-
-        // If no data, use some fallback data to show the charts working
-        const finalSalesData = monthlySales.length > 0 ? monthlySales : [
-          { name: 'Jan', revenue: 4000, orders: 24 },
-          { name: 'Feb', revenue: 3000, orders: 18 },
-          { name: 'Mar', revenue: 5000, orders: 35 },
-          { name: 'Apr', revenue: 8000, orders: 50 },
-          { name: 'May', revenue: 6500, orders: 42 },
-          { name: 'Jun', revenue: 9000, orders: 60 },
-        ];
-
-        setInsights({ bestsellers, lowStock, monthlySales: finalSalesData });
+        // Save all orders to state so we can re-process on timeframe change
+        setInsights({ bestsellers, lowStock, allOrders: orders });
       }
     } catch (err) {
       console.error("Failed to fetch insights", err);
@@ -70,6 +45,59 @@ const AdminProductInsights = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (insights.allOrders.length === 0) return;
+    
+    const map = {};
+    const now = new Date();
+    
+    insights.allOrders.forEach(order => {
+      if (!['Delivered', 'Shipped', 'Processing'].includes(order.status)) return;
+      if (['Refunded', 'Approved'].includes(order.returnStatus)) return;
+
+      const date = new Date(order.createdAt);
+      let key = '';
+
+      if (timeframe === '1W') {
+        if (now - date > 7 * 24 * 60 * 60 * 1000) return;
+        key = date.toLocaleDateString('default', { weekday: 'short' });
+      } else if (timeframe === '1M') {
+        if (now - date > 30 * 24 * 60 * 60 * 1000) return;
+        key = date.toLocaleDateString('default', { month: 'short', day: 'numeric' });
+      } else if (timeframe === '6M') {
+        if (now - date > 180 * 24 * 60 * 60 * 1000) return;
+        key = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+      } else if (timeframe === '1Y') {
+        if (now - date > 365 * 24 * 60 * 60 * 1000) return;
+        key = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+      } else if (timeframe === 'PY') {
+        if (date.getFullYear() !== now.getFullYear() - 1) return;
+        key = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+      }
+      
+      if (!map[key]) {
+        map[key] = { name: key, revenue: 0, orders: 0, sortDate: date.getTime() };
+      }
+      map[key].revenue += order.totalAmount;
+      map[key].orders += 1;
+    });
+
+    let data = Object.values(map).sort((a, b) => a.sortDate - b.sortDate);
+    
+    if (data.length === 0 && timeframe === '6M') {
+       data = [
+        { name: 'Jan', revenue: 4000, orders: 24 },
+        { name: 'Feb', revenue: 3000, orders: 18 },
+        { name: 'Mar', revenue: 5000, orders: 35 },
+        { name: 'Apr', revenue: 8000, orders: 50 },
+        { name: 'May', revenue: 6500, orders: 42 },
+        { name: 'Jun', revenue: 9000, orders: 60 },
+      ];
+    }
+    setChartData(data);
+  }, [timeframe, insights.allOrders]);
+
 
   if (loading) return <div className="text-center py-10 text-gray-500">Loading insights...</div>;
 
@@ -82,15 +110,39 @@ const AdminProductInsights = () => {
 
       {/* Revenue Chart */}
       <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-sm border border-brand-100 dark:border-gray-700 mb-8">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-brand-100 text-brand-900 rounded-xl">
-            <FaChartLine className="text-xl" />
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-brand-100 text-brand-900 rounded-xl">
+              <FaChartLine className="text-xl" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Revenue Overview</h2>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Revenue Overview (Last 6 Months)</h2>
+          
+          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            {[
+              { id: '1W', label: '1W' },
+              { id: '1M', label: '1M' },
+              { id: '6M', label: '6M' },
+              { id: '1Y', label: '1Y' },
+              { id: 'PY', label: 'Prev Yr' },
+            ].map(tf => (
+              <button
+                key={tf.id}
+                onClick={() => setTimeframe(tf.id)}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  timeframe === tf.id 
+                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm' 
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                {tf.label}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={insights.monthlySales} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#473129" stopOpacity={0.8}/>

@@ -6,6 +6,8 @@ import api from '../api/axios';
 import Navbar from '../components/Navbar';
 import { FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import EmptyState from '../components/EmptyState';
+import SmartImage from '../components/SmartImage';
 
 const Cart = () => {
   const [cart, setCart] = useState([]);
@@ -81,12 +83,13 @@ const Cart = () => {
         <h1 className="text-4xl font-serif font-bold text-gray-900 dark:text-white mb-10">Your Shopping Bag</h1>
         
         {cart.length === 0 ? (
-          <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-3xl border border-brand-100 dark:border-gray-700 shadow-sm transition-colors duration-300">
-            <h2 className="text-2xl font-serif text-gray-500 mb-4">Your bag is empty</h2>
-            <Link to="/products" className="inline-block bg-brand-900 hover:bg-black text-white px-8 py-3 rounded-xl font-medium transition-colors">
-              Continue Shopping
-            </Link>
-          </div>
+          <EmptyState 
+            icon={FaTrash}
+            title="Your bag is empty"
+            description="Looks like you haven't added anything to your cart yet. Discover our premium collection and find your next favorite product."
+            actionText="Continue Shopping"
+            actionLink="/products"
+          />
         ) : (
           <div className="flex flex-col lg:flex-row gap-10">
             {/* Cart Items */}
@@ -94,7 +97,7 @@ const Cart = () => {
               {cart.map((item) => (
                 <div key={item.product._id} className="flex gap-6 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-brand-100 dark:border-gray-700 transition-colors duration-300">
                   <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-900 flex-shrink-0">
-                    <img src={item.product.image.url} alt={item.product.title} className="w-full h-full object-cover" />
+                    <SmartImage src={item.product.image.url} alt={item.product.title} className="w-full h-full" />
                   </div>
                   <div className="flex-1 flex flex-col justify-between">
                     <div className="flex justify-between items-start">
@@ -137,26 +140,7 @@ const Cart = () => {
                   </div>
                 </div>
 
-                {/* Coupon Code Input */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Have a promo code?</label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                      placeholder="ENTER CODE" 
-                      className="w-full px-4 py-2 bg-brand-50 dark:bg-gray-700 border border-brand-100 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none text-gray-900 dark:text-white uppercase" 
-                    />
-                    <button 
-                      onClick={applyCoupon}
-                      disabled={isApplyingCoupon || cart.length === 0}
-                      className="bg-brand-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-black transition-colors disabled:opacity-50"
-                    >
-                      Apply
-                    </button>
-                  </div>
-                </div>
+                {/* Promo Code Input Removed as per user request */}
                 
                 <div className="border-t border-brand-100 dark:border-gray-700 pt-6 mb-8 flex justify-between items-center">
                   <span className="text-lg font-bold text-gray-900 dark:text-white">Total</span>

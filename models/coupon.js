@@ -54,7 +54,13 @@ const couponSchema = new Schema({
 // Auto-disable expired coupons
 couponSchema.methods.isValid = function() {
     if (!this.active) return false;
-    if (this.expiresAt < new Date()) return false;
+    
+    // Set expiry to end of day to prevent same-day invalidation due to time offsets
+    const expiryEOD = new Date(this.expiresAt);
+    expiryEOD.setHours(23, 59, 59, 999);
+    
+    if (expiryEOD < new Date()) return false;
+    
     if (this.usageLimit !== null && this.usedCount >= this.usageLimit) return false;
     return true;
 };

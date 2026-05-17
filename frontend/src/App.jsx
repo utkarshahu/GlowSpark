@@ -31,6 +31,11 @@ const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
 const AdminReturns = lazy(() => import('./pages/admin/AdminReturns'));
 const AdminProductInsights = lazy(() => import('./pages/admin/AdminProductInsights'));
+const AdminOrderDetail = lazy(() => import('./pages/admin/AdminOrderDetail'));
+const AdminProductDetail = lazy(() => import('./pages/admin/AdminProductDetail'));
+const AdminUserDetail = lazy(() => import('./pages/admin/AdminUserDetail'));
+
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Suspense Fallback Component
 const PageSkeleton = () => (
@@ -87,10 +92,11 @@ function App() {
       <CustomCursor />
       {loading && <Preloader onComplete={() => setLoading(false)} />}
       <div className={loading ? 'opacity-0' : 'opacity-100 transition-opacity duration-1000'}>
-        <Router>
-          <BackButton />
-          <Suspense fallback={<PageSkeleton />}>
-            <Routes>
+        <ErrorBoundary>
+          <Router>
+            <BackButton />
+            <Suspense fallback={<PageSkeleton />}>
+              <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/products" element={<Products />} />
@@ -108,8 +114,11 @@ function App() {
                 <Route index element={<AdminDashboard />} />
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="products/new" element={<AdminCreateProduct />} />
+                <Route path="products/:id" element={<AdminProductDetail />} />
                 <Route path="orders" element={<AdminOrders />} />
+                <Route path="orders/:id" element={<AdminOrderDetail />} />
                 <Route path="users" element={<AdminUsers />} />
+                <Route path="users/:id" element={<AdminUserDetail />} />
                 <Route path="coupons" element={<AdminCoupons />} />
                 <Route path="returns" element={<AdminReturns />} />
                 <Route path="analytics" element={<AdminProductInsights />} />
@@ -117,6 +126,7 @@ function App() {
             </Routes>
           </Suspense>
         </Router>
+        </ErrorBoundary>
       </div>
     </>
   );

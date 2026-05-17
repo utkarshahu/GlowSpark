@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart } from 'react-icons/fa';
 import { logout } from '../store/userSlice';
 import api from '../api/axios';
+import logo from '../assets/glow_spark_logo.png';
 
 const Navbar = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -44,8 +45,10 @@ const Navbar = () => {
     <nav className="fixed w-full z-50 transition-all duration-300 bg-white/80 dark:bg-black/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
-          <Link to="/" className="font-serif text-3xl font-bold tracking-tight text-brand-900 dark:text-brand-100">
-            Glow<span className="text-brand-500">Spark</span>
+          <Link to="/" className="flex items-center group transition-transform hover:scale-[1.02]">
+            <span className="text-3xl font-serif tracking-tighter font-black text-gray-900 dark:text-white transition-colors duration-300">
+              Glow<span className="text-brand-600 dark:text-brand-400">Spark</span><span className="text-brand-400 text-4xl leading-none">.</span>
+            </span>
           </Link>
           
           <div className="hidden md:flex space-x-8">

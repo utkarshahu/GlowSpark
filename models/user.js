@@ -7,6 +7,10 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    username: {
+        type: String,
+        sparse: true
+    },
     role: {
         type: String,
         enum: ['customer', 'admin'],
@@ -80,7 +84,14 @@ const userSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'Product'
         }
-    ]
+    ],
+    isBlocked: {
+        type: Boolean,
+        default: false
+    },
+    lastLogin: {
+        type: Date
+    }
 }, { timestamps: true });
 
 // Pre-save hook to calculate profile completion

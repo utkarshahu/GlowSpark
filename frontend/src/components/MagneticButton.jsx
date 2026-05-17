@@ -60,7 +60,7 @@ const MagneticButton = ({ children, className = '', onClick }) => {
       onClick={onClick}
       className={`relative inline-flex items-center justify-center ${className}`}
     >
-      <span ref={textRef} className="pointer-events-none block relative z-10">
+      <span ref={textRef} className="block relative z-10 w-full h-full">
         {children}
       </span>
     </button>

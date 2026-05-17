@@ -10,9 +10,11 @@ router.use(isLoggedIn, isAdmin);
 
 router.get('/dashboard', wrapAsync(adminController.getDashboardStats));
 router.get('/orders', wrapAsync(adminController.getAllOrders));
+router.get('/orders/:orderId', wrapAsync(adminController.getOrderDetail));
 router.put('/orders/:orderId', wrapAsync(adminController.updateOrderStatus));
 router.put('/orders/:id/return-status', wrapAsync(orderController.updateReturnStatus));
 router.get('/users', wrapAsync(adminController.getAllUsers));
-router.put('/users/:userId/block', wrapAsync(adminController.toggleUserBlock));
+router.get('/users/:userId', wrapAsync(adminController.getUserById));
+router.put('/users/:userId/toggle-block', wrapAsync(adminController.toggleUserBlock));
 
 module.exports = router;

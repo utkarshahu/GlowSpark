@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from '../store/cartSlice';
 import api from '../api/axios';
 import Navbar from '../components/Navbar';
@@ -13,10 +13,12 @@ const Checkout = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [couponCode, setCouponCode] = useState('');
-  const [discount, setDiscount] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const user = useSelector(state => state.user.currentUser);
+  const isBlocked = user?.isBlocked;
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -39,14 +41,20 @@ const Checkout = () => {
     fetchCart();
   }, [navigate]);
 
-  const handleApplyCoupon = (e) => {
+  const handleApplyCoupon = async (e) => {
     e.preventDefault();
-    if (couponCode.toUpperCase() === 'GLOW20') {
-      setDiscount(0.2); // 20% off
-      toast.success("Coupon 'GLOW20' applied! 20% off.");
-    } else {
-      setDiscount(0);
-      toast.error("Invalid coupon code.");
+    if (!couponCode.trim()) return toast.error("Please enter a coupon code");
+    
+    try {
+      const currentSubtotal = cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
+      const res = await api.post('/coupons/apply', { code: couponCode, cartTotal: currentSubtotal });
+      if (res.data.success) {
+        setDiscountAmount(res.data.discountAmount);
+        toast.success(res.data.message, { theme: "dark" });
+      }
+    } catch (err) {
+      setDiscountAmount(0);
+      toast.error(err.response?.data?.message || "Invalid coupon code");
     }
   };
 
@@ -79,8 +87,7 @@ const Checkout = () => {
   };
 
   const subtotal = cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
-  const discountAmount = subtotal * discount;
-  const totalAmount = subtotal - discountAmount;
+  const totalAmount = Math.max(0, subtotal - discountAmount);
 
   if (loading) return <div className="min-h-screen bg-brand-50 pt-32 text-center">Loading...</div>;
 
@@ -91,6 +98,12 @@ const Checkout = () => {
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-brand-100 dark:border-gray-700 p-8 md:p-12 transition-colors duration-300">
           <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white mb-8">Checkout</h1>
           
+          {isBlocked && (
+            <div className="bg-red-100 text-red-800 p-6 rounded-2xl mb-8 font-bold border border-red-200">
+              Your account has been restricted from placing orders. Please contact customer support.
+            </div>
+          )}
+
           {error && <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-6">{error}</div>}
 
           <div className="mb-8 border-b border-gray-100 dark:border-gray-700 pb-8">
@@ -106,9 +119,9 @@ const Checkout = () => {
                 <span>Subtotal</span>
                 <span>&#8377; {subtotal.toLocaleString("en-IN")}</span>
               </div>
-              {discount > 0 && (
+              {discountAmount > 0 && (
                 <div className="flex justify-between text-green-600 dark:text-green-400">
-                  <span>Discount (20%)</span>
+                  <span>Discount Applied</span>
                   <span>- &#8377; {discountAmount.toLocaleString("en-IN")}</span>
                 </div>
               )}
@@ -158,7 +171,7 @@ const Checkout = () => {
               <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1 ml-7"><FaLock /> 256-bit encryption</p>
             </div>
 
-            <button disabled={isProcessing} type="submit" className="w-full flex items-center justify-center gap-3 bg-brand-900 hover:bg-black disabled:bg-gray-400 text-white py-4 rounded-xl font-bold uppercase tracking-widest transition-colors shadow-xl hover:shadow-2xl hover:-translate-y-1 text-lg">
+            <button disabled={isProcessing || isBlocked} type="submit" className="w-full flex items-center justify-center gap-3 bg-brand-900 hover:bg-black disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold uppercase tracking-widest transition-colors shadow-xl hover:shadow-2xl hover:-translate-y-1 text-lg">
               {isProcessing ? 'Processing Securely...' : `Pay \u20B9 ${totalAmount.toLocaleString("en-IN")}`}
             </button>
           </form>

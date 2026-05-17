@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { toast } from 'react-toastify';
+import ConfirmModal from '../../components/ConfirmModal';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [userToToggle, setUserToToggle] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -22,15 +27,23 @@ const AdminUsers = () => {
     fetchUsers();
   }, []);
 
-  const handleToggleBlock = async (userId) => {
+  const confirmToggleBlock = (userId) => {
+    setUserToToggle(users.find(u => u._id === userId));
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleToggleBlock = async () => {
+    if (!userToToggle) return;
     try {
-      const res = await api.put(`/admin/users/${userId}/block`);
+      const res = await api.put(`/admin/users/${userToToggle._id}/toggle-block`);
       if (res.data.success) {
-        setUsers(users.map(u => u._id === userId ? res.data.user : u));
+        setUsers(users.map(u => u._id === userToToggle._id ? res.data.user : u));
         toast.success(`User status updated`);
       }
     } catch (err) {
       toast.error('Failed to update user status');
+    } finally {
+      setUserToToggle(null);
     }
   };
 
@@ -52,21 +65,25 @@ const AdminUsers = () => {
           </thead>
           <tbody className="divide-y divide-brand-100">
             {users.map(user => (
-              <tr key={user._id}>
+              <tr 
+                key={user._id} 
+                onClick={() => navigate(`/admin/users/${user._id}`)}
+                className="cursor-pointer hover:bg-gray-50 transition-colors"
+              >
                 <td className="p-4 text-sm text-gray-800">#{user._id.substring(user._id.length - 8).toUpperCase()}</td>
                 <td className="p-4 text-sm text-gray-800">{user.email}</td>
                 <td className="p-4 text-sm text-gray-800">{user.role}</td>
                 <td className="p-4">
-                  <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${user.isVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {user.isVerified ? 'Active' : 'Blocked'}
+                  <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${user.isBlocked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                    {user.isBlocked ? 'Blocked' : 'Active'}
                   </span>
                 </td>
-                <td className="p-4">
+                <td className="p-4 space-x-4">
                   <button 
-                    onClick={() => handleToggleBlock(user._id)}
-                    className={`${user.isVerified ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'} font-medium text-sm`}
+                    onClick={(e) => { e.stopPropagation(); confirmToggleBlock(user._id); }}
+                    className={`${user.isBlocked ? 'text-green-600 hover:text-green-800' : 'text-red-600 hover:text-red-800'} font-medium text-sm`}
                   >
-                    {user.isVerified ? 'Block User' : 'Unblock User'}
+                    {user.isBlocked ? 'Unblock' : 'Block'}
                   </button>
                 </td>
               </tr>
@@ -74,6 +91,17 @@ const AdminUsers = () => {
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleToggleBlock}
+        title={userToToggle?.isBlocked ? "Unblock User" : "Block User"}
+        message={userToToggle?.isBlocked ? `Are you sure you want to unblock ${userToToggle?.email}? They will regain access to their account.` : `Are you sure you want to block ${userToToggle?.email}? They will lose access to their account.`}
+        confirmText={userToToggle?.isBlocked ? "Unblock" : "Block"}
+        cancelText="Cancel"
+        isDestructive={!userToToggle?.isBlocked}
+      />
     </div>
   );
 };

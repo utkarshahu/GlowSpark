@@ -2,7 +2,7 @@ const User = require("../models/user");
 
 module.exports.signup = async (req, res, next) => {
     try {
-        const { email, password } = req.body;
+        const { username, email, password } = req.body;
         
         // Ensure email isn't already registered
         const existingUser = await User.findOne({ email });
@@ -10,7 +10,10 @@ module.exports.signup = async (req, res, next) => {
             return res.status(400).json({ success: false, message: "A user with the given email is already registered" });
         }
 
-        const newUser = new User({ email, username: email }); // LocalMongoose still internally might use username field if misconfigured, better to explicitly pass it just in case, but since we set usernameField: 'email', it should use email. Wait, if usernameField is email, passport-local-mongoose uses 'email' as the main field.
+        const userCount = await User.countDocuments();
+        const role = userCount === 0 ? 'admin' : 'customer';
+
+        const newUser = new User({ email, username, role });
         
         const registeredUser = await User.register(newUser, password);
         req.login(registeredUser, (err) => {
@@ -22,13 +25,33 @@ module.exports.signup = async (req, res, next) => {
     }
 };
 
-module.exports.login = (req, res) => {
-    res.status(200).json({ success: true, message: "Welcome back!", user: req.user });
+module.exports.login = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).populate('wishlist', '_id');
+        const validWishlistIds = user.wishlist.filter(p => p !== null).map(p => p._id);
+        if (validWishlistIds.length !== req.user.wishlist.length) {
+            req.user.wishlist = validWishlistIds;
+            await req.user.save();
+        }
+        res.status(200).json({ success: true, message: "Welcome back!", user: req.user });
+    } catch (e) {
+        res.status(200).json({ success: true, message: "Welcome back!", user: req.user });
+    }
 };
 
-module.exports.getCurrentUser = (req, res) => {
+module.exports.getCurrentUser = async (req, res) => {
     if (req.isAuthenticated()) {
-        res.status(200).json({ success: true, user: req.user });
+        try {
+            const user = await User.findById(req.user._id).populate('wishlist', '_id');
+            const validWishlistIds = user.wishlist.filter(p => p !== null).map(p => p._id);
+            if (validWishlistIds.length !== req.user.wishlist.length) {
+                req.user.wishlist = validWishlistIds;
+                await req.user.save();
+            }
+            res.status(200).json({ success: true, user: req.user });
+        } catch (e) {
+            res.status(200).json({ success: true, user: req.user });
+        }
     } else {
         res.status(401).json({ success: false, message: "Not authenticated" });
     }

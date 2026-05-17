@@ -3,7 +3,28 @@ if(process.env.NODE_ENV != "production") {
 }
 
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const app = express();
+const server = http.createServer(app);
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+const io = new Server(server, {
+  cors: {
+    origin: frontendUrl,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  }
+});
+
+// Make io accessible in routers/controllers
+app.set("io", io);
+
+io.on("connection", (socket) => {
+  console.log("A user connected via socket.io:", socket.id);
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
 const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
@@ -45,7 +66,7 @@ async function main() {
 
 // CORS setup to allow frontend to communicate with backend
 app.use(cors({
-  origin: "http://localhost:5173", // Vite default port
+  origin: frontendUrl,
   credentials: true,
 }));
 
@@ -198,6 +219,6 @@ app.use((err,req,res,next) => {
   });
 });
 
-app.listen(8080, () => {
+server.listen(8080, () => {
   console.log("API Server is listening to port 8080");
 });

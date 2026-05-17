@@ -3,10 +3,12 @@ const router = express.Router();
 const passport = require("passport");
 const wrapAsync = require("../utils/wrapAsync.js");
 const authController = require("../controllers/auth.js");
+const { validateSignup, validateLogin } = require("../middleware.js");
 
-router.post("/signup", wrapAsync(authController.signup));
+router.post("/signup", validateSignup, wrapAsync(authController.signup));
 
 router.post("/login", 
+    validateLogin,
     passport.authenticate("local", { failureMessage: true }), 
     authController.login
 );

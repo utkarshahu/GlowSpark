@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import MagneticButton from '../components/MagneticButton';
+import HeroScene from '../components/HeroScene';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -102,42 +103,45 @@ const Home = () => {
       ></div>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative h-[100vh] flex flex-col justify-center px-4 sm:px-8 lg:px-16 pt-20 z-10 overflow-hidden">
+      <section ref={heroRef} className="relative h-[100vh] flex flex-col justify-center px-4 sm:px-8 lg:px-16 pt-20 z-10 overflow-hidden bg-brand-50 dark:bg-gray-900 transition-colors duration-300">
+        <HeroScene />
         <div className="absolute inset-0 z-[-1] overflow-hidden rounded-b-[4rem]">
           <img 
             ref={parallaxImgRef}
             src="https://images.unsplash.com/photo-1615397323282-31121d51a6df?q=80&w=2000&auto=format&fit=crop" 
             alt="Premium Skincare" 
-            className="w-full h-[130%] object-cover opacity-80"
+            className="w-full h-[130%] object-cover opacity-80 dark:opacity-40 transition-opacity duration-300"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-50 via-brand-50/20 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-50 via-brand-50/70 to-brand-50/30 dark:from-gray-900 dark:via-gray-900/80 dark:to-gray-900/40 transition-colors duration-300"></div>
         </div>
         
         <div className="max-w-7xl mx-auto w-full relative z-10 mt-20" ref={textContainerRef}>
-          <div className="overflow-hidden mb-6">
-            <p className="text-brand-700 font-bold tracking-[0.3em] uppercase text-sm md:text-base inline-block">The New Standard of Beauty</p>
-          </div>
-          <div className="overflow-hidden">
-            <h1 className="text-6xl md:text-8xl lg:text-[9rem] font-serif font-bold text-brand-900 leading-[0.9] tracking-tighter mix-blend-multiply">
-              Redefining <br/> <span className="italic font-light text-brand-600 block mt-2">Luxury.</span>
-            </h1>
-          </div>
-          <div className="overflow-hidden mt-10 max-w-lg">
-            <p className="text-xl md:text-2xl text-gray-800 font-light leading-relaxed">
-              Experience clinically proven formulas encased in architectural, sustainable design.
-            </p>
-          </div>
-          <div className="overflow-hidden mt-12 flex items-center gap-6">
-            <MagneticButton>
-              <Link to="/products" className="inline-flex items-center justify-center bg-brand-900 text-white px-10 py-5 rounded-full font-medium transition-colors hover:bg-black uppercase tracking-widest text-sm">
-                Shop Collection
-              </Link>
-            </MagneticButton>
-            <MagneticButton>
-               <a href="#story" className="inline-flex items-center justify-center border border-brand-900 text-brand-900 px-10 py-5 rounded-full font-medium transition-colors hover:bg-brand-100 uppercase tracking-widest text-sm">
-                  Our Story
-               </a>
-            </MagneticButton>
+          <div className="bg-white/60 dark:bg-black/40 backdrop-blur-xl p-8 md:p-12 rounded-3xl border border-white/50 dark:border-gray-800/50 shadow-2xl inline-block transition-colors duration-300">
+            <div className="overflow-hidden mb-6">
+              <p className="text-brand-700 dark:text-brand-300 font-bold tracking-[0.3em] uppercase text-sm md:text-base inline-block">The New Standard of Beauty</p>
+            </div>
+            <div className="overflow-hidden">
+              <h1 className="text-5xl md:text-7xl lg:text-[8rem] font-serif font-bold text-gray-900 dark:text-white leading-[1] tracking-tighter mix-blend-normal">
+                Redefining <br/> <span className="italic font-light text-brand-600 dark:text-brand-400 block mt-2">Luxury.</span>
+              </h1>
+            </div>
+            <div className="overflow-hidden mt-8 max-w-lg">
+              <p className="text-lg md:text-xl text-gray-800 dark:text-gray-200 font-light leading-relaxed">
+                Experience clinically proven formulas encased in architectural, sustainable design.
+              </p>
+            </div>
+            <div className="overflow-hidden mt-10 flex flex-wrap items-center gap-4 md:gap-6">
+              <MagneticButton>
+                <Link to="/products" className="inline-flex items-center justify-center bg-brand-900 dark:bg-brand-500 text-white px-8 md:px-10 py-4 md:py-5 rounded-full font-bold transition-all hover:bg-black dark:hover:bg-brand-400 uppercase tracking-widest text-xs md:text-sm shadow-xl hover:shadow-brand-900/20">
+                  Shop Collection
+                </Link>
+              </MagneticButton>
+              <MagneticButton>
+                 <a href="#story" className="inline-flex items-center justify-center bg-white/70 dark:bg-black/50 backdrop-blur-md border border-brand-900/20 dark:border-white/20 text-brand-900 dark:text-white px-8 md:px-10 py-4 md:py-5 rounded-full font-bold transition-all hover:bg-white dark:hover:bg-gray-800 uppercase tracking-widest text-xs md:text-sm shadow-sm">
+                    Our Story
+                 </a>
+              </MagneticButton>
+            </div>
           </div>
         </div>
       </section>
@@ -145,10 +149,10 @@ const Home = () => {
       {/* Featured Grid Section */}
       <section id="story" className="py-32 px-4 sm:px-8 lg:px-16 max-w-[100rem] mx-auto relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
-          <h2 className="text-5xl md:text-7xl font-serif font-bold text-brand-900 max-w-2xl leading-tight">
+          <h2 className="text-5xl md:text-7xl font-serif font-bold text-brand-900 dark:text-white max-w-2xl leading-tight">
             Curated for the modern muse.
           </h2>
-          <p className="text-lg text-gray-600 font-light max-w-md">
+          <p className="text-lg text-gray-600 dark:text-gray-300 font-light max-w-md">
             Every product is a testament to quality, merging cutting-edge science with the purest botanical extracts.
           </p>
         </div>
@@ -163,12 +167,12 @@ const Home = () => {
              </div>
           </div>
           <div className="md:col-span-5 flex flex-col gap-8">
-             <div className="h-[calc(35vh-1rem)] rounded-[2rem] overflow-hidden group relative bg-brand-200 p-10 flex flex-col justify-center">
-                <h3 className="text-3xl font-serif text-brand-900 mb-4">Clean Ingredients</h3>
-                <p className="text-brand-800 font-light">Sourced ethically, formulated without compromises. Our promise to you and the planet.</p>
+             <div className="h-[calc(35vh-1rem)] rounded-[2rem] overflow-hidden group relative bg-brand-200 dark:bg-gray-800 p-10 flex flex-col justify-center transition-colors duration-300">
+                <h3 className="text-3xl font-serif text-brand-900 dark:text-white mb-4">Clean Ingredients</h3>
+                <p className="text-brand-800 dark:text-gray-300 font-light">Sourced ethically, formulated without compromises. Our promise to you and the planet.</p>
                 <div className="mt-8">
                    <MagneticButton>
-                     <span className="border-b border-brand-900 pb-1 text-sm font-bold uppercase tracking-wider text-brand-900 cursor-pointer">Learn More</span>
+                     <Link to="/about" className="border-b border-brand-900 dark:border-white pb-1 text-sm font-bold uppercase tracking-wider text-brand-900 dark:text-white cursor-pointer block w-max transition-colors">Learn More</Link>
                    </MagneticButton>
                 </div>
              </div>

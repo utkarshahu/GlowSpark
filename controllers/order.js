@@ -6,6 +6,10 @@ module.exports.placeOrder = async (req, res) => {
         const { shippingAddress } = req.body;
         const user = await User.findById(req.user._id).populate('cart.product');
         
+        if (user.isBlocked) {
+            return res.status(403).json({ success: false, message: "Your account has been blocked from placing orders. Please contact support." });
+        }
+
         if (user.cart.length === 0) {
             return res.status(400).json({ success: false, message: "Your cart is empty!" });
         }
@@ -25,6 +29,8 @@ module.exports.placeOrder = async (req, res) => {
             totalAmount += item.product.price * item.quantity;
             orderProducts.push({
                 product: item.product._id,
+                name: item.product.title,
+                image: item.product.image?.url,
                 quantity: item.quantity,
                 price: item.product.price
             });
@@ -93,7 +99,19 @@ module.exports.requestReturn = async (req, res) => {
 
         order.returnStatus = 'Requested';
         order.returnReason = returnReason;
+        
+        if (req.files && req.files.length > 0) {
+            order.returnImages = req.files.map(f => ({ url: f.path, filename: f.filename }));
+        }
+        
         await order.save();
+
+        const io = req.app.get('io');
+        if (io) {
+            // Populate necessary fields for the admin view before emitting
+            const populatedOrder = await Order.findById(order._id).populate('user', 'email username').populate('products.product', 'title image price');
+            io.emit('returnRequested', populatedOrder);
+        }
 
         res.status(200).json({ success: true, message: "Return requested successfully", order });
     } catch (error) {
@@ -105,7 +123,7 @@ module.exports.updateReturnStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { returnStatus } = req.body;
-        const order = await Order.findById(id).populate('products.product');
+        const order = await Order.findById(id).populate('user', 'email username phoneNumber addresses createdAt').populate('products.product');
 
         if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
@@ -123,6 +141,11 @@ module.exports.updateReturnStatus = async (req, res) => {
         }
 
         await order.save();
+
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('orderStatusUpdated', order);
+        }
 
         res.status(200).json({ success: true, message: `Return status updated to ${returnStatus}`, order });
     } catch (error) {

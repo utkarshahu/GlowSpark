@@ -12,7 +12,14 @@ const orderSchema = new Schema({
             product: {
                 type: Schema.Types.ObjectId,
                 ref: "Product",
+                required: false
+            },
+            name: {
+                type: String,
                 required: true
+            },
+            image: {
+                type: String
             },
             quantity: {
                 type: Number,
@@ -50,6 +57,12 @@ const orderSchema = new Schema({
     returnReason: {
         type: String
     },
+    returnImages: [
+        {
+            url: String,
+            filename: String
+        }
+    ],
     couponApplied: {
         type: Schema.Types.ObjectId,
         ref: 'Coupon'

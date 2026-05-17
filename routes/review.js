@@ -24,5 +24,14 @@ const reviewController = require("../controllers/reviews.js");
     isReviewAuthor,
     wrapAsync(reviewController.destroyReview));
 
+  // Toggle Helpful Route
+  router.put("/:reviewId/helpful",
+    isLoggedIn,
+    wrapAsync(reviewController.toggleHelpful));
 
-  module.exports = router;  
+  // Toggle Not Helpful Route
+  router.put("/:reviewId/not-helpful",
+    isLoggedIn,
+    wrapAsync(reviewController.toggleNotHelpful));
+
+  module.exports = router;

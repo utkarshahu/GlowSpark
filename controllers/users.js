@@ -73,3 +73,56 @@ module.exports.removeFromWishlist = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to remove from wishlist' });
     }
 };
+
+const { cloudinary } = require('../cloudConfig');
+
+module.exports.updateProfile = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (req.user._id.toString() !== id) {
+            return res.status(403).json({ success: false, message: "Unauthorized to update this profile" });
+        }
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        const { username, email, phoneNumber, oldPassword, newPassword, addresses } = req.body;
+
+        if (username !== undefined) user.username = username;
+        if (email !== undefined) user.email = email;
+        if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
+        if (addresses !== undefined) user.addresses = addresses;
+
+        if (req.file) {
+            if (user.profilePhoto && user.profilePhoto.filename) {
+                await cloudinary.uploader.destroy(user.profilePhoto.filename);
+            }
+            user.profilePhoto = {
+                url: req.file.path,
+                filename: req.file.filename
+            };
+        }
+
+        if (oldPassword && newPassword) {
+            try {
+                await user.changePassword(oldPassword, newPassword);
+            } catch (err) {
+                return res.status(400).json({ success: false, message: "Old password is incorrect" });
+            }
+        }
+
+        await user.save();
+        
+        // Remove salt and hash from response
+        const userObj = user.toObject();
+        delete userObj.salt;
+        delete userObj.hash;
+
+        res.json({ success: true, message: "Profile updated successfully", user: userObj });
+    } catch (err) {
+        console.error("Profile update error:", err);
+        res.status(500).json({ success: false, message: err.message || "Failed to update profile" });
+    }
+};

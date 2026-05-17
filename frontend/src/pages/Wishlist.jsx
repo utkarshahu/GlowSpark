@@ -4,11 +4,17 @@ import { FaTrash, FaShoppingCart, FaHeartBroken } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
 import api from '../api/axios';
+import { useDispatch } from 'react-redux';
+import { updateWishlist } from '../store/userSlice';
+import { setCart } from '../store/cartSlice';
+import EmptyState from '../components/EmptyState';
+import SmartImage from '../components/SmartImage';
 
 const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchWishlist();
@@ -38,8 +44,11 @@ const Wishlist = () => {
 
   const removeFromWishlist = async (productId) => {
     try {
-      await api.delete(`/users/wishlist/${productId}`);
+      const res = await api.delete(`/users/wishlist/${productId}`);
       setWishlistItems(wishlistItems.filter(item => item._id !== productId));
+      if (res.data.success) {
+         dispatch(updateWishlist(res.data.wishlist));
+      }
       toast.info("Removed from wishlist", { theme: "dark" });
     } catch (err) {
       toast.error("Failed to remove item");
@@ -48,10 +57,16 @@ const Wishlist = () => {
 
   const moveToCart = async (product) => {
     try {
-      await api.post('/cart/add', { productId: product._id });
+      const cartRes = await api.post('/cart/add', { productId: product._id });
+      if (cartRes.data.success) {
+          dispatch(setCart(cartRes.data.cart));
+      }
       // Optionally remove from wishlist after moving
-      await api.delete(`/users/wishlist/${product._id}`);
+      const wishRes = await api.delete(`/users/wishlist/${product._id}`);
       setWishlistItems(wishlistItems.filter(item => item._id !== product._id));
+      if (wishRes.data.success) {
+          dispatch(updateWishlist(wishRes.data.wishlist));
+      }
       toast.success(`${product.title} moved to cart`, { theme: "dark" });
     } catch (err) {
       toast.error("Failed to move to cart");
@@ -69,22 +84,19 @@ const Wishlist = () => {
              <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin"></div>
           </div>
         ) : wishlistItems.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-3xl p-16 text-center shadow-sm border border-brand-100 dark:border-gray-700 max-w-2xl mx-auto">
-            <div className="w-24 h-24 bg-brand-50 dark:bg-gray-700 text-brand-300 dark:text-gray-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
-              <FaHeartBroken />
-            </div>
-            <h2 className="text-2xl font-serif font-bold text-gray-900 dark:text-white mb-4">Your wishlist is empty</h2>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">Save items you love here to easily find them later or move them to your bag.</p>
-            <Link to="/products" className="inline-block bg-brand-900 text-white px-8 py-4 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-black transition-colors">
-              Continue Shopping
-            </Link>
-          </div>
+          <EmptyState 
+            icon={FaHeartBroken}
+            title="Your wishlist is empty"
+            description="Save items you love here to easily find them later or move them to your bag."
+            actionText="Continue Shopping"
+            actionLink="/products"
+          />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {wishlistItems.map((product) => (
               <div key={product._id} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-brand-100 dark:border-gray-700 flex flex-col group">
                 <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-900 p-4">
-                  <img src={product.image.url} alt={product.title} className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" />
+                  <SmartImage src={product.image.url} alt={product.title} className="w-full h-full rounded-xl group-hover:scale-105 transition-transform duration-500" />
                   <button 
                     onClick={() => removeFromWishlist(product._id)}
                     className="absolute top-4 right-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-2 rounded-full text-red-500 hover:text-red-700 transition-colors shadow-sm"

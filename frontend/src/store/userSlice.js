@@ -26,8 +26,18 @@ export const userSlice = createSlice({
       state.currentUser = null;
       state.isAuthenticated = false;
     },
+    updateWishlist: (state, action) => {
+      if (state.currentUser) {
+        state.currentUser.wishlist = action.payload;
+      }
+    },
+    updateProfile: (state, action) => {
+      if (state.currentUser) {
+        state.currentUser = { ...state.currentUser, ...action.payload };
+      }
+    }
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout } = userSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, updateWishlist, updateProfile } = userSlice.actions;
 export default userSlice.reducer;

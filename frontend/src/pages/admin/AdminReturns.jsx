@@ -1,14 +1,41 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaUndo, FaCheck, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import api from '../../api/axios';
+import { socket } from '../../api/socket';
 
 const AdminReturns = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchReturnRequests();
+
+    socket.on('returnRequested', (newReturn) => {
+      setOrders((prev) => {
+        const exists = prev.find(o => o._id === newReturn._id);
+        if (exists) return prev.map(o => o._id === newReturn._id ? newReturn : o);
+        return [newReturn, ...prev];
+      });
+      toast.info(`New Return Request: #${newReturn._id.substring(newReturn._id.length - 6)}`, {
+        icon: "🔄"
+      });
+    });
+
+    socket.on('orderStatusUpdated', (updatedOrder) => {
+      if (updatedOrder.returnStatus !== 'None') {
+        setOrders((prev) => prev.map(o => o._id === updatedOrder._id ? updatedOrder : o));
+      } else {
+        setOrders((prev) => prev.filter(o => o._id !== updatedOrder._id));
+      }
+    });
+
+    return () => {
+      socket.off('returnRequested');
+      socket.off('orderStatusUpdated');
+    };
   }, []);
 
   const fetchReturnRequests = async () => {
@@ -64,8 +91,14 @@ const AdminReturns = () => {
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {orders.map(order => (
-                <tr key={order._id} className="hover:bg-brand-50/50 dark:hover:bg-gray-700/50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-mono text-gray-500">{order._id.substring(order._id.length - 6)}</td>
+                <tr 
+                  key={order._id} 
+                  onClick={() => navigate(`/admin/orders/${order._id}`)}
+                  className="hover:bg-brand-50/50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                >
+                  <td className="px-6 py-4 text-sm font-mono text-brand-600 dark:text-brand-400">
+                    #{order._id.substring(order._id.length - 6)}
+                  </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-gray-300 text-sm">{order.user?.email || 'Guest'}</td>
                   <td className="px-6 py-4 text-gray-900 dark:text-gray-300 text-sm max-w-xs truncate">{order.returnReason}</td>
                   <td className="px-6 py-4 font-bold text-gray-900 dark:text-gray-300">₹{order.totalAmount}</td>
@@ -82,16 +115,16 @@ const AdminReturns = () => {
                   <td className="px-6 py-4">
                     {order.returnStatus === 'Requested' && (
                       <div className="flex gap-2">
-                        <button onClick={() => handleUpdateStatus(order._id, 'Approved')} className="text-green-500 hover:text-green-700 p-2" title="Approve">
+                        <button onClick={(e) => { e.stopPropagation(); handleUpdateStatus(order._id, 'Approved'); }} className="text-green-500 hover:text-green-700 p-2" title="Approve">
                           <FaCheck />
                         </button>
-                        <button onClick={() => handleUpdateStatus(order._id, 'Rejected')} className="text-red-500 hover:text-red-700 p-2" title="Reject">
+                        <button onClick={(e) => { e.stopPropagation(); handleUpdateStatus(order._id, 'Rejected'); }} className="text-red-500 hover:text-red-700 p-2" title="Reject">
                           <FaTimes />
                         </button>
                       </div>
                     )}
                     {order.returnStatus === 'Approved' && (
-                      <button onClick={() => handleUpdateStatus(order._id, 'Refunded')} className="text-brand-600 hover:text-brand-800 text-sm font-medium">
+                      <button onClick={(e) => { e.stopPropagation(); handleUpdateStatus(order._id, 'Refunded'); }} className="text-brand-600 hover:text-brand-800 text-sm font-medium">
                         Mark Refunded
                       </button>
                     )}

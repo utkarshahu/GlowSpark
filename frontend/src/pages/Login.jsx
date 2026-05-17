@@ -9,6 +9,7 @@ import api from '../api/axios';
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -23,7 +24,8 @@ const Login = () => {
     
     try {
       const endpoint = isLogin ? '/auth/login' : '/auth/signup';
-      const response = await api.post(endpoint, { email, password });
+      const payload = isLogin ? { email, password } : { username, email, password };
+      const response = await api.post(endpoint, payload);
       
       if (response.data.success) {
         dispatch(loginSuccess(response.data.user));
@@ -57,6 +59,19 @@ const Login = () => {
         {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {!isLogin && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+              <input 
+                type="text" 
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-brand-500 focus:border-brand-500 outline-none transition-colors"
+                placeholder="johndoe"
+                required={!isLogin} 
+              />
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
             <input 

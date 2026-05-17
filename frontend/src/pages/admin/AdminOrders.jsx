@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { toast } from 'react-toastify';
+import { socket } from '../../api/socket';
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -20,6 +23,14 @@ const AdminOrders = () => {
       }
     };
     fetchOrders();
+
+    socket.on('orderStatusUpdated', (updatedOrder) => {
+      setOrders((prev) => prev.map(o => o._id === updatedOrder._id ? updatedOrder : o));
+    });
+
+    return () => {
+      socket.off('orderStatusUpdated');
+    };
   }, []);
 
   const handleStatusUpdate = async (orderId, newStatus) => {
@@ -39,7 +50,7 @@ const AdminOrders = () => {
   return (
     <div>
       <h1 className="text-3xl font-serif font-bold text-gray-900 mb-8">Order Management</h1>
-      <div className="bg-white rounded-2xl border border-brand-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-brand-100 shadow-sm overflow-x-auto">
         <table className="w-full text-left">
           <thead className="bg-brand-50 border-b border-brand-100">
             <tr>
@@ -53,7 +64,11 @@ const AdminOrders = () => {
           </thead>
           <tbody className="divide-y divide-brand-100">
             {orders.map(order => (
-              <tr key={order._id}>
+              <tr 
+                key={order._id} 
+                onClick={() => navigate(`/admin/orders/${order._id}`)}
+                className="hover:bg-brand-50 cursor-pointer transition-colors"
+              >
                 <td className="p-4 text-sm text-gray-800">#{order._id.substring(order._id.length - 8).toUpperCase()}</td>
                 <td className="p-4 text-sm text-gray-800">{order.user?.email || 'Guest'}</td>
                 <td className="p-4 text-sm text-gray-800">{new Date(order.createdAt).toLocaleDateString()}</td>
@@ -67,7 +82,7 @@ const AdminOrders = () => {
                     {order.status}
                   </span>
                 </td>
-                <td className="p-4">
+                <td className="p-4" onClick={(e) => e.stopPropagation()}>
                   <select 
                     value={order.status}
                     onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
@@ -77,6 +92,12 @@ const AdminOrders = () => {
                     <option value="Shipped">Shipped</option>
                     <option value="Delivered">Delivered</option>
                   </select>
+                  <Link 
+                    to={`/admin/orders/${order._id}`} 
+                    className="ml-4 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors"
+                  >
+                    View
+                  </Link>
                 </td>
               </tr>
             ))}
