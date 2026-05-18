@@ -12,8 +12,21 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // You can also log the error to an error reporting service
     console.error("Uncaught error:", error, errorInfo);
+    
+    // Check if it's a dynamic import failure (e.g., chunk loading error due to a new deployment)
+    const errorStr = error ? error.toString() : '';
+    if (
+      errorStr.includes("Failed to fetch dynamically imported module") ||
+      errorStr.includes("Loading chunk") ||
+      errorStr.includes("dynamic import") ||
+      errorStr.includes("typeerror") && errorStr.includes("imported module")
+    ) {
+      console.warn("Dynamic import failed. Forcing a hard reload to sync with the latest build...");
+      window.location.reload();
+      return;
+    }
+
     this.setState({ error, errorInfo });
   }
 
