@@ -165,3 +165,42 @@ module.exports.updateReturnStatus = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+module.exports.cancelOrder = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { cancelReason } = req.body;
+        const order = await Order.findById(id).populate('products.product');
+
+        if (!order || !order.user.equals(req.user._id)) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        if (order.status !== 'Pending' && order.status !== 'Processing') {
+            return res.status(400).json({ success: false, message: "Order cannot be cancelled once it is shipped or delivered." });
+        }
+
+        order.status = 'Cancelled';
+        order.cancelReason = cancelReason;
+
+        // Restore / Restock inventory
+        for (let item of order.products) {
+            if (item.product) {
+                item.product.stock += item.quantity;
+                item.product.orderCount = Math.max(0, item.product.orderCount - 1);
+                await item.product.save();
+            }
+        }
+
+        await order.save();
+
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('orderStatusUpdated', order);
+        }
+
+        res.status(200).json({ success: true, message: "Order cancelled successfully!", order });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

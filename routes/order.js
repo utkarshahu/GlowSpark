@@ -11,5 +11,6 @@ router.post("/", isLoggedIn, wrapAsync(orderController.placeOrder));
 router.get("/:id", isLoggedIn, wrapAsync(orderController.viewOrder));
 router.get("/", isLoggedIn, wrapAsync(orderController.orderHistory));
 router.post("/:id/return", isLoggedIn, upload.array('images', 5), wrapAsync(orderController.requestReturn));
+router.post("/:id/cancel", isLoggedIn, wrapAsync(orderController.cancelOrder));
 
 module.exports = router;

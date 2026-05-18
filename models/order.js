@@ -57,6 +57,9 @@ const orderSchema = new Schema({
     returnReason: {
         type: String
     },
+    cancelReason: {
+        type: String
+    },
     returnImages: [
         {
             url: String,

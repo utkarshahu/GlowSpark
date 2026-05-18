@@ -74,6 +74,34 @@ const Orders = () => {
     }
   };
 
+  const [cancelModal, setCancelModal] = useState({ isOpen: false, orderId: null });
+  const [cancelForm, setCancelForm] = useState({ reason: '' });
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const handleCancelRequest = (orderId) => {
+    setCancelModal({ isOpen: true, orderId });
+  };
+
+  const submitCancel = async (e) => {
+    e.preventDefault();
+    if (!cancelForm.reason) return;
+    
+    setIsCancelling(true);
+    try {
+      const res = await api.post(`/orders/${cancelModal.orderId}/cancel`, { cancelReason: cancelForm.reason });
+      if (res.data.success) {
+        toast.success("Order cancelled successfully");
+        setCancelModal({ isOpen: false, orderId: null });
+        setCancelForm({ reason: '' });
+        fetchOrders();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to cancel order");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   return (
     <div className="bg-brand-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
       <Navbar />
@@ -147,6 +175,17 @@ const Orders = () => {
                   })}
                 </div>
 
+                {(order.status === 'Pending' || order.status === 'Processing') && (
+                  <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                     <button 
+                       onClick={() => handleCancelRequest(order._id)}
+                       className="flex items-center gap-2 text-sm font-bold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors bg-red-50 dark:bg-red-950/30 px-5 py-2.5 rounded-xl border border-red-100 dark:border-red-900/50 hover:bg-red-100 hover:scale-105 active:scale-95 transition-all shadow-sm"
+                     >
+                       Cancel Order
+                     </button>
+                  </div>
+                )}
+
                 {order.status === 'Delivered' && order.returnStatus === 'None' && (
                   <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
                      <button 
@@ -194,6 +233,34 @@ const Orders = () => {
                 <button type="button" onClick={() => setReturnModal({ isOpen: false, orderId: null })} className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 font-medium transition-colors">Cancel</button>
                 <button type="submit" disabled={isReturning} className="bg-brand-900 text-white px-8 py-2 rounded-xl font-medium hover:bg-black disabled:bg-gray-400 transition-colors">
                   {isReturning ? 'Submitting...' : 'Submit Request'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Modal */}
+      {cancelModal.isOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-lg p-8 border border-brand-100 dark:border-gray-700 shadow-2xl">
+            <h2 className="text-2xl font-serif font-bold text-gray-900 dark:text-white mb-6">Cancel Order</h2>
+            <form onSubmit={submitCancel} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reason for Cancellation</label>
+                <textarea 
+                  required
+                  rows="4"
+                  value={cancelForm.reason}
+                  onChange={(e) => setCancelForm({...cancelForm, reason: e.target.value})}
+                  placeholder="Please describe why you are cancelling this order..."
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-transparent dark:text-white focus:ring-brand-500 focus:border-brand-500 outline-none resize-none"
+                ></textarea>
+              </div>
+              <div className="flex justify-end gap-4 mt-8">
+                <button type="button" onClick={() => setCancelModal({ isOpen: false, orderId: null })} className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 font-medium transition-colors">Cancel</button>
+                <button type="submit" disabled={isCancelling} className="bg-brand-900 text-white px-8 py-2 rounded-xl font-medium hover:bg-black disabled:bg-gray-400 transition-colors">
+                  {isCancelling ? 'Submitting...' : 'Submit Cancellation'}
                 </button>
               </div>
             </form>
