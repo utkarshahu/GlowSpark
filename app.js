@@ -7,10 +7,11 @@ const http = require("http");
 const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
-const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+const isProd = process.env.NODE_ENV === "production";
+const frontendUrl = isProd ? (process.env.FRONTEND_URL || "https://glowspark-store.onrender.com") : "http://localhost:5173";
 const io = new Server(server, {
   cors: {
-    origin: frontendUrl,
+    origin: isProd ? [frontendUrl, "http://localhost:5173"] : ["http://localhost:5173", frontendUrl],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   }
@@ -66,7 +67,7 @@ async function main() {
 
 // CORS setup to allow frontend to communicate with backend
 app.use(cors({
-  origin: frontendUrl,
+  origin: isProd ? [frontendUrl, "http://localhost:5173"] : ["http://localhost:5173", frontendUrl],
   credentials: true,
 }));
 
@@ -105,13 +106,13 @@ const sessionOptions = {
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: false, // Don't create sessions for unauthenticated requests
- cookie: {
-  expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-  httpOnly: true,
-  secure: true,
-  sameSite: "none"
-}
+  cookie: {
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax"
+  }
 };
 
 

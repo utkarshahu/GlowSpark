@@ -84,7 +84,15 @@ const Navbar = () => {
                           <Link to="/products?sort=new" className="inline-block border-b-2 border-brand-900 dark:border-white text-brand-900 dark:text-white font-bold pb-1 hover:text-brand-600 transition-colors">Shop Now</Link>
                         </div>
                         <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden shadow-inner">
-                          <img src="https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=400&q=80" alt="New Arrival" className="w-full h-full object-cover" />
+                          <img 
+                            src="https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=400&q=80" 
+                            alt="New Arrival" 
+                            className="w-full h-full object-cover" 
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=400&q=80";
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -127,7 +135,15 @@ const Navbar = () => {
               <div className="group relative">
                 <button className="flex items-center space-x-2 text-gray-600 hover:text-brand-600">
                   {currentUser.profilePhoto?.url ? (
-                    <img src={currentUser.profilePhoto.url} alt="Profile" className="h-8 w-8 rounded-full object-cover border border-brand-200" />
+                    <img 
+                      src={currentUser.profilePhoto.url} 
+                      alt="Profile" 
+                      className="h-8 w-8 rounded-full object-cover border border-brand-200" 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = `https://ui-avatars.com/api/?name=${currentUser.email?.charAt(0).toUpperCase()}&background=473129&color=fff`;
+                      }}
+                    />
                   ) : (
                     <img src={`https://ui-avatars.com/api/?name=${currentUser.email?.charAt(0).toUpperCase()}&background=473129&color=fff`} alt="Default Avatar" className="h-8 w-8 rounded-full border border-brand-200" />
                   )}
