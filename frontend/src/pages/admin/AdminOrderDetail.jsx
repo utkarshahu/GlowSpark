@@ -54,8 +54,48 @@ const AdminOrderDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+      <div className="animate-pulse max-w-6xl mx-auto pb-12">
+        {/* Header Skeleton */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+          <div className="space-y-2">
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 w-48 rounded-lg"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 w-32 rounded-md"></div>
+          </div>
+        </div>
+
+        {/* 3-Column Layout Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content Skeleton */}
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm space-y-6">
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 w-1/4 rounded-md"></div>
+              {[1, 2].map((n) => (
+                <div key={n} className="flex justify-between items-center py-4 border-b border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                    <div className="space-y-2">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 w-32 rounded-md"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 w-16 rounded-md"></div>
+                    </div>
+                  </div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 w-16 rounded-md"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sidebar Skeleton */}
+          <div className="space-y-8">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm space-y-4">
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 w-1/2 rounded-md"></div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 w-3/4 rounded-md"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 w-1/2 rounded-md"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

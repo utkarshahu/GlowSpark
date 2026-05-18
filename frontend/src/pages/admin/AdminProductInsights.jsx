@@ -101,8 +101,67 @@ const AdminProductInsights = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+      <div className="animate-pulse">
+        {/* Header Skeleton */}
+        <div className="mb-8">
+          <div className="h-9 bg-gray-200 dark:bg-gray-700 w-1/3 rounded-lg mb-2"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 w-1/2 rounded-md"></div>
+        </div>
+
+        {/* Large Chart Skeleton */}
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-brand-100 dark:border-gray-700 mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 w-40 rounded-lg"></div>
+            </div>
+            <div className="w-48 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+          </div>
+          <div className="h-80 bg-gray-100 dark:bg-gray-700 rounded-2xl"></div>
+        </div>
+
+        {/* Lower Grid Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Card 1 */}
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-brand-100 dark:border-gray-700">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 w-48 rounded-lg"></div>
+            </div>
+            <div className="space-y-6">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="flex items-center gap-4">
+                  <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 w-3/4 rounded-md"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 w-1/2 rounded-md"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-brand-100 dark:border-gray-700">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 w-48 rounded-lg"></div>
+            </div>
+            <div className="space-y-6">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50/50 dark:bg-gray-900/10">
+                  <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 w-2/3 rounded-md"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 w-1/3 rounded-md"></div>
+                  </div>
+                  <div className="w-10 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

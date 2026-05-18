@@ -56,8 +56,59 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+      <div className="animate-pulse">
+        {/* Header Title Skeleton */}
+        <div className="h-9 bg-gray-200 dark:bg-gray-700 w-1/4 rounded-lg mb-8"></div>
+
+        {/* Top 3 KPI Metric Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-brand-100 dark:border-gray-700">
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 w-1/3 rounded-md mb-3"></div>
+              <div className="h-10 bg-gray-200 dark:bg-gray-700 w-2/3 rounded-lg"></div>
+            </div>
+          ))}
+        </div>
+
+        {/* Main Section Skeletons (Chart + Alerts) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Chart card */}
+          <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-8 rounded-2xl border border-brand-100 dark:border-gray-700 h-96">
+            <div className="h-5 bg-gray-200 dark:bg-gray-700 w-1/4 rounded-md mb-6"></div>
+            <div className="h-[75%] bg-gray-100 dark:bg-gray-700 rounded-xl"></div>
+          </div>
+          {/* Low Stock card */}
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-brand-100 dark:border-gray-700 h-96">
+            <div className="h-5 bg-gray-200 dark:bg-gray-700 w-1/3 rounded-md mb-6"></div>
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900/10 rounded-xl">
+                  <div className="space-y-2 flex-1 mr-4">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 w-2/3 rounded-md"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 w-1/3 rounded-md"></div>
+                  </div>
+                  <div className="w-12 h-6 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Orders table card */}
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-brand-100 dark:border-gray-700">
+          <div className="h-5 bg-gray-200 dark:bg-gray-700 w-1/4 rounded-md mb-6"></div>
+          <div className="space-y-4">
+            <div className="h-10 bg-gray-100 dark:bg-gray-700/50 rounded-lg"></div>
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="grid grid-cols-4 gap-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

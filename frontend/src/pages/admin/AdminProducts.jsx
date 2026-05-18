@@ -76,8 +76,36 @@ const AdminProducts = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+      <div className="animate-pulse">
+        {/* Header Skeleton */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="h-9 bg-gray-200 dark:bg-gray-700 w-1/4 rounded-lg"></div>
+          <div className="h-12 bg-gray-200 dark:bg-gray-700 w-40 rounded-xl"></div>
+        </div>
+        
+        {/* Search Bar Skeleton */}
+        <div className="flex justify-center mb-8">
+          <div className="w-full max-w-md h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+        </div>
+
+        {/* Table Skeleton */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-brand-100 dark:border-gray-700 shadow-sm overflow-hidden">
+          <div className="bg-brand-50 dark:bg-gray-700 h-14 border-b border-brand-100 dark:border-gray-600"></div>
+          <div className="divide-y divide-brand-100 dark:divide-gray-700">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <div key={n} className="p-5 flex justify-between items-center">
+                <div className="flex items-center gap-3 w-1/3">
+                  <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 w-24 rounded-md"></div>
+                </div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 w-24 rounded-md"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 w-16 rounded-md"></div>
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 w-20 rounded-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 w-24 rounded-md"></div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

@@ -105,8 +105,20 @@ const AdminCoupons = () => {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-24">
-          <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+        <div className="animate-pulse bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-brand-100 dark:border-gray-700 overflow-hidden">
+          <div className="bg-brand-50 dark:bg-gray-700 h-14 border-b border-brand-100 dark:border-gray-600"></div>
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            {[1, 2, 3, 4].map((n) => (
+              <div key={n} className="p-5 flex justify-between items-center">
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 w-24 rounded-lg"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 w-16 rounded-md"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 w-16 rounded-md"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 w-16 rounded-md"></div>
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 w-20 rounded-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 w-12 rounded-md"></div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-brand-100 dark:border-gray-700 overflow-hidden">

@@ -40,8 +40,34 @@ const AdminUserDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+      <div className="animate-pulse max-w-4xl mx-auto pb-12">
+        {/* Header Skeleton */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 w-48 rounded-lg"></div>
+          </div>
+          <div className="w-32 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+        </div>
+
+        {/* Profile Details Card Skeleton */}
+        <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm">
+          <div className="flex items-start gap-8 mb-8 border-b border-gray-100 dark:border-gray-700 pb-8">
+            <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0"></div>
+            <div className="space-y-3 flex-1">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 w-1/3 rounded-md"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 w-1/4 rounded-md"></div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <div key={n} className="space-y-2">
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 w-1/4 rounded-md"></div>
+                <div className="h-5 bg-gray-200 dark:bg-gray-700 w-3/4 rounded-md"></div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
