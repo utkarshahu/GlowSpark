@@ -140,10 +140,10 @@ const AdminReturns = () => {
                   <td className="px-6 py-4 font-bold text-gray-900 dark:text-gray-300">₹{order.totalAmount}</td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      order.returnStatus === 'Requested' ? 'bg-yellow-100 text-yellow-700' :
-                      order.returnStatus === 'Approved' ? 'bg-blue-100 text-blue-700' :
-                      order.returnStatus === 'Refunded' ? 'bg-green-100 text-green-700' :
-                      'bg-red-100 text-red-700'
+                      order.returnStatus === 'Requested' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                      order.returnStatus === 'Approved' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                      order.returnStatus === 'Refunded' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                      'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                     }`}>
                       {order.returnStatus}
                     </span>
@@ -151,16 +151,16 @@ const AdminReturns = () => {
                   <td className="px-6 py-4">
                     {order.returnStatus === 'Requested' && (
                       <div className="flex gap-2">
-                        <button onClick={(e) => { e.stopPropagation(); handleUpdateStatus(order._id, 'Approved'); }} className="text-green-500 hover:text-green-700 p-2" title="Approve">
+                        <button onClick={(e) => { e.stopPropagation(); handleUpdateStatus(order._id, 'Approved'); }} className="text-green-500 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 p-2" title="Approve">
                           <FaCheck />
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); handleUpdateStatus(order._id, 'Rejected'); }} className="text-red-500 hover:text-red-700 p-2" title="Reject">
+                        <button onClick={(e) => { e.stopPropagation(); handleUpdateStatus(order._id, 'Rejected'); }} className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-2" title="Reject">
                           <FaTimes />
                         </button>
                       </div>
                     )}
                     {order.returnStatus === 'Approved' && (
-                      <button onClick={(e) => { e.stopPropagation(); handleUpdateStatus(order._id, 'Refunded'); }} className="text-brand-600 hover:text-brand-800 text-sm font-medium">
+                      <button onClick={(e) => { e.stopPropagation(); handleUpdateStatus(order._id, 'Refunded'); }} className="text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 text-sm font-medium">
                         Mark Refunded
                       </button>
                     )}

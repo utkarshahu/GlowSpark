@@ -136,17 +136,20 @@ const AdminOrders = () => {
               <tr 
                 key={order._id} 
                 onClick={() => navigate(`/admin/orders/${order._id}`)}
-                className="hover:bg-brand-50 cursor-pointer transition-colors"
+                className="hover:bg-brand-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors"
               >
-                <td className="p-4 text-sm text-gray-800">#{order._id.substring(order._id.length - 8).toUpperCase()}</td>
-                <td className="p-4 text-sm text-gray-800">{order.user?.email || 'Guest'}</td>
-                <td className="p-4 text-sm text-gray-800">{new Date(order.createdAt).toLocaleDateString()}</td>
-                <td className="p-4 text-sm font-medium">&#8377; {order.totalAmount?.toLocaleString("en-IN") || order.items?.reduce((t, i) => t + (i.product.price * i.quantity), 0).toLocaleString("en-IN")}</td>
+                <td className="p-4 text-sm text-gray-800 dark:text-gray-200">#{order._id.substring(order._id.length - 8).toUpperCase()}</td>
+                <td className="p-4 text-sm text-gray-800 dark:text-gray-200">{order.user?.email || 'Guest'}</td>
+                <td className="p-4 text-sm text-gray-800 dark:text-gray-200">{new Date(order.createdAt).toLocaleDateString()}</td>
+                <td className="p-4 text-sm font-medium text-gray-800 dark:text-gray-200">&#8377; {order.totalAmount?.toLocaleString("en-IN") || order.items?.reduce((t, i) => t + (i.product.price * i.quantity), 0).toLocaleString("en-IN")}</td>
                 <td className="p-4">
                   <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
-                    order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                    order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
-                    'bg-green-100 text-green-800'
+                    order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                    order.status === 'Processing' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' :
+                    order.status === 'Shipped' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
+                    order.status === 'Cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
+                    order.status === 'Returned' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' :
+                    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                   }`}>
                     {order.status}
                   </span>
@@ -155,15 +158,18 @@ const AdminOrders = () => {
                   <select 
                     value={order.status}
                     onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                    className="border border-gray-300 rounded-md text-sm p-1"
+                    className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-md text-sm p-1"
                   >
                     <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
                     <option value="Shipped">Shipped</option>
                     <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="Returned">Returned</option>
                   </select>
                   <Link 
                     to={`/admin/orders/${order._id}`} 
-                    className="ml-4 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors"
+                    className="ml-4 text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 font-medium text-sm transition-colors"
                   >
                     View
                   </Link>

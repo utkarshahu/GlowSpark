@@ -19,6 +19,33 @@ h1, h2, h3, h4, h5, h6, .font-serif {
   font-family: 'Playfair Display', serif;
 }
 
+/* Mobile Slide-in Drawer keyframe animations */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes spinOnce {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(90deg);
+  }
+}
+
+.animate-spin-once {
+  animation: spinOnce 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Lenis Smooth Scrolling */
 html.lenis {
   height: auto;
@@ -34,4 +61,28 @@ html.lenis {
 }
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
+}
+
+/* Compact floating mobile toast notifications (iOS/Android Push Pill Style) */
+@media (max-width: 480px) {
+  .Toastify__toast-container {
+    width: 85% !important;
+    max-width: 320px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    top: 16px !important;
+    margin: 0 auto !important;
+    position: fixed !important;
+  }
+  .Toastify__toast {
+    margin-bottom: 8px !important;
+    border-radius: 16px !important;
+    font-size: 11px !important;
+    padding: 8px 12px !important;
+    min-height: 40px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4) !important;
+  }
+  .Toastify__close-button {
+    align-self: center !important;
+  }
 }

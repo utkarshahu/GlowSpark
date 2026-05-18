@@ -13,6 +13,20 @@ const AdminProductDetail = () => {
   const [editForm, setEditForm] = useState({});
   const [newImageFiles, setNewImageFiles] = useState([]);
   const [newImagePreviews, setNewImagePreviews] = useState([]);
+  const [reviewSort, setReviewSort] = useState('newest'); // newest, highest, lowest
+
+  const sortedReviews = React.useMemo(() => {
+    if (!product || !product.reviews) return [];
+    const list = [...product.reviews];
+    if (reviewSort === 'newest') {
+      return list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    } else if (reviewSort === 'highest') {
+      return list.sort((a, b) => b.rating - a.rating);
+    } else if (reviewSort === 'lowest') {
+      return list.sort((a, b) => a.rating - b.rating);
+    }
+    return list;
+  }, [product?.reviews, reviewSort]);
 
   useEffect(() => {
     fetchProduct();
@@ -432,16 +446,32 @@ const AdminProductDetail = () => {
         {/* Reviews Management */}
         <div className="lg:col-span-2">
            <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm h-full">
-             <div className="flex justify-between items-center mb-6">
-               <h2 className="text-2xl font-serif font-bold text-gray-900 dark:text-white">Customer Reviews ({product.reviews?.length || 0})</h2>
-               <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 px-4 py-2 rounded-lg text-yellow-700 dark:text-yellow-500 font-bold">
+             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
+               <div>
+                 <h2 className="text-2xl font-serif font-bold text-gray-900 dark:text-white">Customer Reviews ({product.reviews?.length || 0})</h2>
+                 {product.reviews && product.reviews.length > 0 && (
+                   <div className="mt-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                     <span>Sort:</span>
+                     <select
+                       value={reviewSort}
+                       onChange={(e) => setReviewSort(e.target.value)}
+                       className="bg-transparent font-bold text-brand-600 dark:text-brand-400 outline-none cursor-pointer border-b border-brand-500/50 pb-0.5"
+                     >
+                       <option value="newest" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">Newest First</option>
+                       <option value="highest" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">Highest Rating</option>
+                       <option value="lowest" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">Lowest Rating</option>
+                     </select>
+                   </div>
+                 )}
+               </div>
+               <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 px-4 py-2 rounded-lg text-yellow-700 dark:text-yellow-500 font-bold shrink-0 self-start sm:self-auto">
                  <FaStar /> {(product.ratingAverage || 0).toFixed(1)} / 5.0
                </div>
              </div>
              
              <div className="space-y-4">
-               {product.reviews && product.reviews.length > 0 ? (
-                 product.reviews.map(review => (
+               {sortedReviews.length > 0 ? (
+                 sortedReviews.map(review => (
                    <div key={review._id} className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between md:items-start gap-4">
                      <div className="flex gap-4">
                         <img 

@@ -40,12 +40,12 @@ const AdminLayout = () => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-brand-50 font-sans">
+    <div className="flex min-h-screen bg-brand-50 dark:bg-gray-950 font-sans transition-colors duration-300">
       {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-brand-100 flex flex-col justify-between shadow-sm sticky top-0 h-screen">
+      <div className="w-64 bg-white dark:bg-gray-900 border-r border-brand-100 dark:border-gray-800 flex flex-col justify-between shadow-sm sticky top-0 h-screen transition-colors duration-300">
         <div>
-          <div className="h-20 flex items-center px-8 border-b border-brand-100">
-            <h1 className="text-2xl font-serif font-bold text-brand-900 tracking-tight">
+          <div className="h-20 flex items-center px-8 border-b border-brand-100 dark:border-gray-800">
+            <h1 className="text-2xl font-serif font-bold text-brand-900 dark:text-white tracking-tight">
               Glow<span className="text-brand-500">Admin</span>
             </h1>
           </div>
@@ -58,8 +58,8 @@ const AdminLayout = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
                     isActive 
-                      ? 'bg-brand-900 text-white shadow-md' 
-                      : 'text-gray-600 hover:bg-brand-100 hover:text-brand-900'
+                      ? 'bg-brand-900 dark:bg-brand-600 text-white shadow-md' 
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-brand-100 dark:hover:bg-gray-800 hover:text-brand-900 dark:hover:text-white'
                   }`
                 }
               >
@@ -70,16 +70,16 @@ const AdminLayout = () => {
           </nav>
         </div>
 
-        <div className="p-4 border-t border-brand-100">
+        <div className="p-4 border-t border-brand-100 dark:border-gray-800">
           <NavLink
             to="/"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-600 hover:bg-gray-100 transition-colors mb-2"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mb-2"
           >
             <FaStore /> View Store
           </NavLink>
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
           >
             <FaSignOutAlt /> Logout
           </button>
@@ -87,7 +87,7 @@ const AdminLayout = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 bg-[#Fdf8f6]">
+      <div className="flex-1 bg-[#Fdf8f6] dark:bg-gray-950 transition-colors duration-300">
         <div className="p-8">
           <Outlet />
         </div>

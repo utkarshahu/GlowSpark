@@ -102,8 +102,61 @@ const Cart = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-brand-50 dark:bg-gray-900 flex items-center justify-center transition-colors duration-300">
-        <div className="w-16 h-16 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+      <div className="bg-brand-50 dark:bg-gray-900 min-h-screen pb-20 transition-colors duration-300">
+        <div className="fixed w-full z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-gray-800 h-20"></div>
+        <div className="pt-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-pulse">
+          {/* Page Title Skeleton */}
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 w-1/4 rounded-lg mb-10"></div>
+          
+          <div className="flex flex-col lg:flex-row gap-10">
+            {/* Cart Items Column */}
+            <div className="w-full lg:w-2/3 space-y-6">
+              {/* Select All Bar Skeleton */}
+              <div className="h-14 bg-white dark:bg-gray-800 p-4 rounded-xl border border-brand-100 dark:border-gray-700 flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 w-32 rounded"></div>
+              </div>
+
+              {/* Cart Items Skeletons */}
+              {[1, 2].map((n) => (
+                <div key={n} className="flex gap-4 sm:gap-6 items-center bg-white dark:bg-gray-800 p-6 rounded-2xl border border-brand-100 dark:border-gray-700">
+                  <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0"></div>
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl bg-gray-200 dark:bg-gray-700 shrink-0"></div>
+                  <div className="flex-1 space-y-3">
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 w-1/6 rounded"></div>
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 w-2/3 rounded"></div>
+                    <div className="flex justify-between items-center pt-4">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 w-12 rounded"></div>
+                      <div className="h-6 bg-gray-200 dark:bg-gray-700 w-24 rounded-lg"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Order Summary Card Skeleton */}
+            <div className="w-full lg:w-1/3">
+              <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-brand-100 dark:border-gray-700 space-y-6">
+                <div className="h-7 bg-gray-200 dark:bg-gray-700 w-1/2 rounded-md pb-4 border-b border-brand-100 dark:border-gray-700"></div>
+                <div className="space-y-4">
+                  <div className="flex justify-between">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 w-16 rounded"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 w-20 rounded"></div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 w-16 rounded"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 w-10 rounded"></div>
+                  </div>
+                </div>
+                <div className="border-t border-brand-100 dark:border-gray-700 pt-6 flex justify-between">
+                  <div className="h-5 bg-gray-200 dark:bg-gray-700 w-12 rounded"></div>
+                  <div className="h-7 bg-gray-200 dark:bg-gray-700 w-24 rounded-lg"></div>
+                </div>
+                <div className="h-14 bg-gray-200 dark:bg-gray-700 rounded-xl w-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

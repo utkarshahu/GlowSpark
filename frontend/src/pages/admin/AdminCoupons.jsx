@@ -149,7 +149,11 @@ const AdminCoupons = () => {
                     {coupon.usedCount} / {coupon.usageLimit || '∞'}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${coupon.active && new Date(coupon.expiresAt) > new Date() ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      coupon.active && new Date(coupon.expiresAt) > new Date() 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
+                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                    }`}>
                       {coupon.active && new Date(coupon.expiresAt) > new Date() ? 'Active' : 'Expired/Inactive'}
                     </span>
                   </td>
@@ -178,35 +182,35 @@ const AdminCoupons = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Coupon Code</label>
-                <input required type="text" name="code" value={formData.code} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border-none uppercase" placeholder="SUMMER50" />
+                <input required type="text" name="code" value={formData.code} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 uppercase text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm transition-all" placeholder="SUMMER50" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Discount %</label>
-                  <input type="number" name="discountPercent" value={formData.discountPercent} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border-none" />
+                  <input type="number" name="discountPercent" value={formData.discountPercent} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Or Flat Discount (₹)</label>
-                  <input type="number" name="flatDiscount" value={formData.flatDiscount} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border-none" />
+                  <input type="number" name="flatDiscount" value={formData.flatDiscount} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm transition-all" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min Order Value (₹)</label>
-                  <input type="number" name="minOrderValue" value={formData.minOrderValue} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border-none" />
+                  <input type="number" name="minOrderValue" value={formData.minOrderValue} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Usage Limit</label>
-                  <input type="number" name="usageLimit" value={formData.usageLimit} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border-none" placeholder="Leave empty for infinite" />
+                  <input type="number" name="usageLimit" value={formData.usageLimit} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm transition-all" placeholder="Leave empty for infinite" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expiry Date</label>
-                <input required type="date" name="expiresAt" value={formData.expiresAt} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border-none text-gray-900 dark:text-white" />
+                <input required type="date" name="expiresAt" value={formData.expiresAt} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm transition-all" />
               </div>
               <div className="flex justify-end gap-4 mt-8">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2 text-gray-600 hover:text-gray-900 font-medium">Cancel</button>
-                <button type="submit" className="bg-brand-900 text-white px-8 py-2 rounded-xl font-medium hover:bg-black">Create</button>
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium">Cancel</button>
+                <button type="submit" className="bg-brand-900 dark:bg-brand-600 text-white px-8 py-2.5 rounded-xl font-medium hover:bg-black dark:hover:bg-brand-700 shadow-md transition-all">Create Coupon</button>
               </div>
             </form>
           </div>

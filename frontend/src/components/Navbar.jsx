@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart } from 'react-icons/fa';
+import { FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart, FaBars, FaTimes, FaChevronDown } from 'react-icons/fa';
 import { logout } from '../store/userSlice';
 import api from '../api/axios';
 import logo from '../assets/glow_spark_logo.png';
@@ -17,6 +17,9 @@ const Navbar = () => {
     return localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark');
   });
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileShopOpen, setIsMobileShopOpen] = useState(false);
+
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -27,6 +30,18 @@ const Navbar = () => {
     }
   }, [isDarkMode]);
 
+  // Lock scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
@@ -35,6 +50,7 @@ const Navbar = () => {
     try {
       await api.post('/auth/logout');
       dispatch(logout());
+      setIsMobileMenuOpen(false);
       navigate('/login');
     } catch (err) {
       console.error(err);
@@ -42,137 +58,267 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed w-full z-50 transition-all duration-300 bg-white/80 dark:bg-black/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 items-center">
-          <Link to="/" className="flex items-center group transition-transform hover:scale-[1.02]">
-            <span className="text-3xl font-serif tracking-tighter font-black text-gray-900 dark:text-white transition-colors duration-300">
-              Glow<span className="text-brand-600 dark:text-brand-400">Spark</span><span className="text-brand-400 text-4xl leading-none">.</span>
-            </span>
-          </Link>
-          
-          <div className="hidden md:flex space-x-8">
-            <div className="group py-6">
-              <Link to="/products" className="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors">Shop</Link>
-              
-              {/* Mega Menu Dropdown */}
-              <div className="absolute left-0 top-[100%] w-full bg-white dark:bg-gray-900 border-t border-brand-100 dark:border-gray-800 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                  <div className="grid grid-cols-4 gap-8">
-                    <div>
-                      <h3 className="text-brand-900 dark:text-white font-serif font-bold text-lg mb-4">Categories</h3>
-                      <ul className="space-y-3">
-                        <li><Link to="/products?category=Skincare" className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">Premium Skincare</Link></li>
-                        <li><Link to="/products?category=Makeup" className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">Cosmetics & Makeup</Link></li>
-                        <li><Link to="/products?category=Haircare" className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">Luxury Haircare</Link></li>
-                        <li><Link to="/products?category=Fragrance" className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">Signature Fragrances</Link></li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h3 className="text-brand-900 dark:text-white font-serif font-bold text-lg mb-4">Featured Brands</h3>
-                      <ul className="space-y-3">
-                        <li><span className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer">Lumière</span></li>
-                        <li><span className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer">Aura Botanicals</span></li>
-                        <li><span className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer">Velvet Touch</span></li>
-                      </ul>
-                    </div>
-                    <div className="col-span-2">
-                      <div className="bg-brand-50 dark:bg-gray-800 rounded-2xl p-6 flex items-center justify-between h-full border border-brand-100 dark:border-gray-700">
-                        <div>
-                          <h3 className="text-2xl font-serif font-bold text-brand-900 dark:text-white mb-2">New Arrivals</h3>
-                          <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">Discover the latest additions to our premium collection.</p>
-                          <Link to="/products?sort=new" className="inline-block border-b-2 border-brand-900 dark:border-white text-brand-900 dark:text-white font-bold pb-1 hover:text-brand-600 transition-colors">Shop Now</Link>
-                        </div>
-                        <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden shadow-inner">
-                          <img 
-                            src="https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=400&q=80" 
-                            alt="New Arrival" 
-                            className="w-full h-full object-cover" 
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=400&q=80";
-                            }}
-                          />
+    <>
+      {/* Navbar Container */}
+      <nav className="fixed w-full z-50 transition-all duration-300 bg-white/80 dark:bg-black/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-20 items-center">
+            {/* Logo */}
+            <Link to="/" className="flex items-center group transition-transform hover:scale-[1.02] z-50">
+              <span className="text-2xl sm:text-3xl font-serif tracking-tighter font-black text-gray-900 dark:text-white transition-colors duration-300">
+                Glow<span className="text-brand-600 dark:text-brand-400">Spark</span><span className="text-brand-400 text-3xl sm:text-4xl leading-none">.</span>
+              </span>
+            </Link>
+            
+            {/* Desktop Nav Links */}
+            <div className="hidden md:flex space-x-8">
+              <div className="group py-6">
+                <Link to="/products" className="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors">Shop</Link>
+                
+                {/* Mega Menu Dropdown */}
+                <div className="absolute left-0 top-[100%] w-full bg-white dark:bg-gray-900 border-t border-brand-100 dark:border-gray-800 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                    <div className="grid grid-cols-4 gap-8">
+                      <div>
+                        <h3 className="text-brand-900 dark:text-white font-serif font-bold text-lg mb-4">Categories</h3>
+                        <ul className="space-y-3 text-sm">
+                          <li><Link to="/products?category=Skincare" className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">Premium Skincare</Link></li>
+                          <li><Link to="/products?category=Makeup" className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">Cosmetics & Makeup</Link></li>
+                          <li><Link to="/products?category=Haircare" className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">Luxury Haircare</Link></li>
+                          <li><Link to="/products?category=Fragrance" className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400">Signature Fragrances</Link></li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h3 className="text-brand-900 dark:text-white font-serif font-bold text-lg mb-4">Featured Brands</h3>
+                        <ul className="space-y-3 text-sm">
+                          <li><span className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer">Lumière</span></li>
+                          <li><span className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer">Aura Botanicals</span></li>
+                          <li><span className="text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer">Velvet Touch</span></li>
+                        </ul>
+                      </div>
+                      <div className="col-span-2">
+                        <div className="bg-brand-50 dark:bg-gray-800 rounded-2xl p-6 flex items-center justify-between h-full border border-brand-100 dark:border-gray-700">
+                          <div>
+                            <h3 className="text-2xl font-serif font-bold text-brand-900 dark:text-white mb-2">New Arrivals</h3>
+                            <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">Discover the latest additions to our premium collection.</p>
+                            <Link to="/products?sort=new" className="inline-block border-b-2 border-brand-900 dark:border-white text-brand-900 dark:text-white font-bold pb-1 hover:text-brand-600 transition-colors">Shop Now</Link>
+                          </div>
+                          <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden shadow-inner">
+                            <img 
+                              src="https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=400&q=80" 
+                              alt="New Arrival" 
+                              className="w-full h-full object-cover" 
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=400&q=80";
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+              <Link to="/products?sort=bestseller" className="py-6 text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors">Bestsellers</Link>
+              <Link to="/about" className="py-6 text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors">About Us</Link>
             </div>
-            <Link to="/products?sort=bestseller" className="py-6 text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors">Bestsellers</Link>
-            <Link to="/about" className="py-6 text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors">About Us</Link>
-          </div>
 
-          <div className="flex items-center space-x-6">
-            <button 
-              onClick={toggleTheme} 
-              className="text-gray-600 dark:text-gray-300 hover:text-brand-900 dark:hover:text-white transition-colors"
-              aria-label="Toggle Dark Mode"
-            >
-              {isDarkMode ? <FaSun className="text-xl" /> : <FaMoon className="text-xl" />}
-            </button>
+            {/* Icons Bar */}
+            <div className="flex items-center space-x-3 sm:space-x-6">
+              {/* Theme Toggle */}
+              <button 
+                onClick={toggleTheme} 
+                className="text-gray-600 dark:text-gray-300 hover:text-brand-900 dark:hover:text-white transition-colors p-2"
+                aria-label="Toggle Dark Mode"
+              >
+                {isDarkMode ? <FaSun className="text-lg sm:text-xl" /> : <FaMoon className="text-lg sm:text-xl" />}
+              </button>
 
-            <Link to="/wishlist" className="text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 relative transition-colors">
-              <FaHeart className="text-2xl" />
-              {currentUser?.wishlist?.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                  {currentUser.wishlist.length}
-                </span>
-              )}
-            </Link>
-
-            <Link to="/cart" className="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 relative transition-colors">
-              <FaShoppingCart className="text-2xl" />
-              {totalQuantity > 0 && (
-                <span className="absolute -top-2 -right-2 bg-brand-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                  {totalQuantity}
-                </span>
-              )}
-            </Link>
-            
-            {currentUser ? (
-              <div className="group relative">
-                <button className="flex items-center space-x-2 text-gray-600 hover:text-brand-600">
-                  {currentUser.profilePhoto?.url ? (
-                    <img 
-                      src={currentUser.profilePhoto.url} 
-                      alt="Profile" 
-                      className="h-8 w-8 rounded-full object-cover border border-brand-200" 
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = `https://ui-avatars.com/api/?name=${currentUser.email?.charAt(0).toUpperCase()}&background=473129&color=fff`;
-                      }}
-                    />
-                  ) : (
-                    <img src={`https://ui-avatars.com/api/?name=${currentUser.email?.charAt(0).toUpperCase()}&background=473129&color=fff`} alt="Default Avatar" className="h-8 w-8 rounded-full border border-brand-200" />
-                  )}
-                </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                  <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 mb-2">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{currentUser.username || currentUser.email}</p>
-                  </div>
-                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-gray-800 transition-colors">My Profile</Link>
-                  <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-gray-800 transition-colors">My Orders</Link>
-                  <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-gray-800 transition-colors">My Wishlist</Link>
-                  
-                  {currentUser.role === 'admin' && (
-                    <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-gray-800 transition-colors">Admin Dashboard</Link>
-                  )}
-                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center transition-colors">
-                    <FaSignOutAlt className="mr-2" /> Logout
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <Link to="/login" className="flex items-center space-x-2 bg-brand-900 dark:bg-brand-100 text-white dark:text-brand-900 px-5 py-2 rounded-full hover:bg-black dark:hover:bg-white transition-colors font-medium">
-                <FaUser /> <span>Sign In</span>
+              {/* Wishlist */}
+              <Link to="/wishlist" className="text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 relative transition-colors p-2">
+                <FaHeart className="text-lg sm:text-xl" />
+                {currentUser?.wishlist?.length > 0 && (
+                  <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                    {currentUser.wishlist.length}
+                  </span>
+                )}
               </Link>
-            )}
+
+              {/* Cart */}
+              <Link to="/cart" className="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 relative transition-colors p-2">
+                <FaShoppingCart className="text-lg sm:text-xl" />
+                {totalQuantity > 0 && (
+                  <span className="absolute top-0 right-0 bg-brand-500 text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                    {totalQuantity}
+                  </span>
+                )}
+              </Link>
+              
+              {/* Desktop User Menu */}
+              <div className="hidden md:block">
+                {currentUser ? (
+                  <div className="group relative">
+                    <button className="flex items-center space-x-2 text-gray-600 hover:text-brand-600 focus:outline-none">
+                      {currentUser.profilePhoto?.url ? (
+                        <img 
+                          src={currentUser.profilePhoto.url} 
+                          alt="Profile" 
+                          className="h-8 w-8 rounded-full object-cover border border-brand-200" 
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = `https://ui-avatars.com/api/?name=${currentUser.email?.charAt(0).toUpperCase()}&background=473129&color=fff`;
+                          }}
+                        />
+                      ) : (
+                        <img src={`https://ui-avatars.com/api/?name=${currentUser.email?.charAt(0).toUpperCase()}&background=473129&color=fff`} alt="Default Avatar" className="h-8 w-8 rounded-full border border-brand-200" />
+                      )}
+                    </button>
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 mb-2">
+                        <p className="text-xs font-medium text-gray-900 dark:text-white truncate">{currentUser.username || currentUser.email}</p>
+                      </div>
+                      <Link to="/profile" className="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-gray-800 transition-colors">My Profile</Link>
+                      <Link to="/orders" className="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-gray-800 transition-colors">My Orders</Link>
+                      <Link to="/wishlist" className="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-gray-800 transition-colors">My Wishlist</Link>
+                      
+                      {currentUser.role === 'admin' && (
+                        <Link to="/admin" className="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-gray-800 transition-colors">Admin Dashboard</Link>
+                      )}
+                      <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center transition-colors">
+                        <FaSignOutAlt className="mr-2" /> Logout
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <Link to="/login" className="flex items-center space-x-2 bg-brand-900 dark:bg-brand-100 text-white dark:text-brand-900 px-5 py-2 rounded-full hover:bg-black dark:hover:bg-white transition-colors text-xs font-semibold uppercase tracking-wider">
+                    <FaUser /> <span>Sign In</span>
+                  </Link>
+                )}
+              </div>
+
+              {/* Mobile Hamburger Menu Toggle */}
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+                className="md:hidden text-gray-600 dark:text-gray-300 hover:text-brand-900 dark:hover:text-white transition-colors p-2 z-50 focus:outline-none"
+                aria-label="Toggle Mobile Menu"
+              >
+                {isMobileMenuOpen ? <FaTimes className="text-xl sm:text-2xl animate-spin-once" /> : <FaBars className="text-xl sm:text-2xl" />}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Mobile Drawer Navigation Menu (Rendered OUTSIDE <nav> to prevent backdrop clipping) */}
+      {isMobileMenuOpen && (
+        <>
+          {/* Backdrop Overlay */}
+          <div 
+            className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-40 md:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          
+          {/* Slide-out Menu Panel */}
+          <div className="fixed top-0 right-0 bottom-0 w-[80%] max-w-sm bg-white dark:bg-gray-900 border-l border-gray-150 dark:border-gray-800 z-50 shadow-2xl p-6 flex flex-col md:hidden transition-transform duration-300 ease-out overflow-y-auto">
+            {/* Header / Brand */}
+            <div className="flex justify-between items-center pb-6 border-b border-gray-150 dark:border-gray-800 mb-6">
+              <span className="text-xl font-serif tracking-tighter font-black text-gray-900 dark:text-white">
+                Glow<span className="text-brand-600 dark:text-brand-400">Spark</span><span className="text-brand-400">.</span>
+              </span>
+            </div>
+
+            {/* Mobile Nav Options */}
+            <div className="flex-grow space-y-6">
+              {/* Shop Categories Accordion */}
+              <div>
+                <button 
+                  onClick={() => setIsMobileShopOpen(!isMobileShopOpen)}
+                  className="w-full flex justify-between items-center text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider py-2 focus:outline-none"
+                >
+                  <span>Shop Collection</span>
+                  <FaChevronDown className={`text-[10px] text-brand-500 transition-transform duration-200 ${isMobileShopOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isMobileShopOpen && (
+                  <div className="mt-3 pl-4 space-y-3 border-l-2 border-brand-100 dark:border-brand-900/50">
+                    <Link to="/products" onClick={() => setIsMobileMenuOpen(false)} className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 hover:text-brand-600">All Products</Link>
+                    <Link to="/products?category=Skincare" onClick={() => setIsMobileMenuOpen(false)} className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 hover:text-brand-600">Premium Skincare</Link>
+                    <Link to="/products?category=Makeup" onClick={() => setIsMobileMenuOpen(false)} className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 hover:text-brand-600">Cosmetics & Makeup</Link>
+                    <Link to="/products?category=Haircare" onClick={() => setIsMobileMenuOpen(false)} className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 hover:text-brand-600">Luxury Haircare</Link>
+                    <Link to="/products?category=Fragrance" onClick={() => setIsMobileMenuOpen(false)} className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 hover:text-brand-600">Signature Fragrances</Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Bestsellers Link */}
+              <Link 
+                to="/products?sort=bestseller" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider py-2 border-b border-gray-50 dark:border-gray-800"
+              >
+                Bestsellers
+              </Link>
+
+              {/* About Us Link */}
+              <Link 
+                to="/about" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider py-2 border-b border-gray-50 dark:border-gray-800"
+              >
+                About Us
+              </Link>
+            </div>
+
+            {/* Footer / User Details */}
+            <div className="border-t border-gray-150 dark:border-gray-800 pt-6 mt-auto">
+              {currentUser ? (
+                <div className="space-y-4">
+                  {/* Account Name */}
+                  <div className="flex items-center gap-3">
+                    {currentUser.profilePhoto?.url ? (
+                      <img src={currentUser.profilePhoto.url} alt="Profile" className="h-10 w-10 rounded-full object-cover border border-brand-200" />
+                    ) : (
+                      <img src={`https://ui-avatars.com/api/?name=${currentUser.email?.charAt(0).toUpperCase()}&background=473129&color=fff`} alt="Default" className="h-10 w-10 rounded-full border border-brand-200" />
+                    )}
+                    <div className="overflow-hidden">
+                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{currentUser.username || 'Account Member'}</p>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{currentUser.email}</p>
+                    </div>
+                  </div>
+
+                  {/* Profile Links */}
+                  <div className="grid grid-cols-2 gap-2 text-center pt-2">
+                    <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="px-3 py-2 bg-brand-50 dark:bg-gray-800 text-[10px] uppercase font-bold tracking-wider rounded-xl text-brand-900 dark:text-brand-350">My Profile</Link>
+                    <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)} className="px-3 py-2 bg-brand-50 dark:bg-gray-800 text-[10px] uppercase font-bold tracking-wider rounded-xl text-brand-900 dark:text-brand-350">My Orders</Link>
+                    <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="col-span-2 px-3 py-2 bg-brand-50 dark:bg-gray-800 text-[10px] uppercase font-bold tracking-wider rounded-xl text-brand-900 dark:text-brand-350">My Wishlist</Link>
+                    {currentUser.role === 'admin' && (
+                      <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="col-span-2 px-3 py-2 bg-amber-500/10 text-[10px] uppercase font-bold tracking-wider rounded-xl text-amber-700 dark:text-amber-450 border border-amber-500/20">Admin Panel</Link>
+                    )}
+                  </div>
+
+                  {/* Logout Button */}
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full py-3 bg-red-500 hover:bg-red-650 text-white rounded-xl text-[10px] uppercase font-bold tracking-wider flex items-center justify-center gap-2"
+                  >
+                    <FaSignOutAlt /> Sign Out
+                  </button>
+                </div>
+              ) : (
+                <Link 
+                  to="/login" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full py-3 bg-brand-900 dark:bg-brand-100 text-white dark:text-brand-900 rounded-xl text-[10px] uppercase font-bold tracking-wider flex items-center justify-center gap-2"
+                >
+                  <FaUser /> Sign In
+                </Link>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </>
   );
 };
 

@@ -86,7 +86,7 @@ const AdminUserDetail = () => {
         </div>
         <button 
           onClick={handleToggleBlock}
-          className={`px-6 py-2 rounded-xl font-bold text-sm ${user.isBlocked ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'} transition-colors`}
+          className={`px-6 py-2 rounded-xl font-bold text-sm ${user.isBlocked ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50'} transition-colors`}
         >
           {user.isBlocked ? 'Unblock User' : 'Block User'}
         </button>
@@ -105,7 +105,7 @@ const AdminUserDetail = () => {
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{user.username || 'Anonymous'}</h2>
             <p className="text-gray-500 dark:text-gray-400 font-medium">{user.role.toUpperCase()}</p>
             <div className="mt-4 flex gap-3">
-               <span className={`px-3 py-1 rounded-full text-xs font-bold ${user.isBlocked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+               <span className={`px-3 py-1 rounded-full text-xs font-bold ${user.isBlocked ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'}`}>
                  {user.isBlocked ? 'Blocked' : 'Active'}
                </span>
                <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-bold">

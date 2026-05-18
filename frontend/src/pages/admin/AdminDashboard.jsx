@@ -209,13 +209,14 @@ const AdminDashboard = () => {
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {recentOrders.map(order => (
                 <tr key={order._id} className="hover:bg-brand-50/50 dark:hover:bg-gray-700/50 transition-colors">
-                  <td className="px-6 py-4 font-mono text-sm text-gray-500">{order._id.substring(order._id.length - 6)}</td>
+                  <td className="px-6 py-4 font-mono text-sm text-gray-500 dark:text-gray-400">#{order._id.substring(order._id.length - 6).toUpperCase()}</td>
                   <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{order.user?.email || 'Guest'}</td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      order.status === 'Delivered' ? 'bg-green-100 text-green-700' :
-                      order.status === 'Shipped' ? 'bg-blue-100 text-blue-700' :
-                      'bg-yellow-100 text-yellow-700'
+                      order.status === 'Delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                      order.status === 'Shipped' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                      order.status === 'Cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                      'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
                     }`}>
                       {order.status}
                     </span>

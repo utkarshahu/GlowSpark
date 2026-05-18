@@ -83,7 +83,7 @@ const Home = () => {
           trigger: heroRef.current,
           start: "top top",
           end: "bottom top",
-          scrub: 1.5 // Smooth scrubbing
+          scrub: 1.5
         }
       });
 
@@ -196,7 +196,7 @@ const Home = () => {
           <h2 className="text-5xl md:text-7xl font-serif font-bold text-brand-900 dark:text-white max-w-2xl leading-tight">
             Curated for the modern muse.
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 font-light max-w-md">
+          <p className="text-lg text-gray-650 dark:text-gray-300 font-light max-w-md">
             Every product is a testament to quality, merging cutting-edge science with the purest botanical extracts.
           </p>
         </div>
