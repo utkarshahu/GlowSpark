@@ -66,7 +66,8 @@ module.exports.logout = (req, res, next) => {
 
 module.exports.oauthCallback = (req, res) => {
     // Successful authentication, redirect to frontend.
-    res.redirect("http://localhost:5173/");
+    const redirectUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    res.redirect(redirectUrl);
 };
 
 const crypto = require("crypto");

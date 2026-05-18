@@ -18,11 +18,13 @@ router.get("/me", authController.getCurrentUser);
 router.post("/logout", authController.logout);
 
 // OAuth Routes
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/google/callback', passport.authenticate('google', { failureRedirect: 'http://localhost:5173/login' }), authController.oauthCallback);
+router.get('/google/callback', passport.authenticate('google', { failureRedirect: `${frontendUrl}/login` }), authController.oauthCallback);
 
 router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
-router.get('/facebook/callback', passport.authenticate('facebook', { failureRedirect: 'http://localhost:5173/login' }), authController.oauthCallback);
+router.get('/facebook/callback', passport.authenticate('facebook', { failureRedirect: `${frontendUrl}/login` }), authController.oauthCallback);
 
 // OTP & Password Reset
 router.post("/forgot-password", wrapAsync(authController.forgotPassword));

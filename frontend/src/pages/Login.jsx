@@ -41,11 +41,13 @@ const Login = () => {
   };
 
   const handleFacebookLogin = () => {
-    window.location.href = 'http://localhost:8080/api/auth/facebook';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+    window.location.href = `${apiUrl}/auth/facebook`;
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/api/auth/google';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+    window.location.href = `${apiUrl}/auth/google`;
   };
 
   return (
