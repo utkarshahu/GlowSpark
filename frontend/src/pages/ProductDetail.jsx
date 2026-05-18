@@ -118,7 +118,13 @@ const ProductDetail = () => {
     ? (product.reviews.reduce((acc, rev) => acc + rev.rating, 0) / product.reviews.length).toFixed(1)
     : 0;
 
-  if (loading) return <div className="min-h-screen bg-brand-50 dark:bg-gray-900 pt-32 text-center text-gray-900 dark:text-white">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-brand-50 dark:bg-gray-900 flex items-center justify-center transition-colors duration-300">
+        <div className="w-16 h-16 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
   if (!product) return <div className="min-h-screen bg-brand-50 dark:bg-gray-900 pt-32 text-center text-red-500">Product not found</div>;
 
   return (

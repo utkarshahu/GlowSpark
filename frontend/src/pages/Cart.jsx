@@ -75,7 +75,13 @@ const Cart = () => {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-brand-50 pt-32 text-center">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-brand-50 dark:bg-gray-900 flex items-center justify-center transition-colors duration-300">
+        <div className="w-16 h-16 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-brand-50 dark:bg-gray-900 min-h-screen pb-20 transition-colors duration-300">
