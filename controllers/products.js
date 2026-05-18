@@ -23,7 +23,9 @@ module.exports.index = async (req, res) => {
 
     let sortStage = { createdAt: -1 }; // default: newest first
 
-    if (sort === 'bestseller') {
+    if (sort === 'new') {
+      matchStage.isNewArrival = true;
+    } else if (sort === 'bestseller') {
       sortStage = { orderCount: -1, ratingAverage: -1 };
       matchStage.ratingAverage = { $gte: 3 };
       matchStage.orderCount = { $gt: 5 };

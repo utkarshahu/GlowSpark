@@ -238,8 +238,13 @@ const Products = () => {
                           >
                             <FaHeart />
                           </button>
+                        {product.isNewArrival && (
+                          <div className="absolute top-4 left-4 bg-brand-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10">
+                              New Arrival
+                          </div>
+                        )}
                         {product.stock < 10 && product.stock > 0 && (
-                          <div className="absolute top-4 left-4 bg-brand-900 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10">
+                          <div className={`absolute ${product.isNewArrival ? 'top-12' : 'top-4'} left-4 bg-brand-900 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10`}>
                               Low Stock
                           </div>
                         )}

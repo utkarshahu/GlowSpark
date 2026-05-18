@@ -84,7 +84,7 @@ const Navbar = () => {
                           <Link to="/products?sort=new" className="inline-block border-b-2 border-brand-900 dark:border-white text-brand-900 dark:text-white font-bold pb-1 hover:text-brand-600 transition-colors">Shop Now</Link>
                         </div>
                         <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden shadow-inner">
-                          <img src="https://images.unsplash.com/photo-1596462502278-27bf85033e5a?auto=format&fit=crop&w=400&q=80" alt="New Arrival" className="w-full h-full object-cover" />
+                          <img src="https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=400&q=80" alt="New Arrival" className="w-full h-full object-cover" />
                         </div>
                       </div>
                     </div>
