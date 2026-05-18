@@ -7,4 +7,5 @@ const URL = apiUrl.replace(/\/api$/, '');
 export const socket = io(URL, {
   autoConnect: true,
   withCredentials: true,
+  transports: ['websocket'] // Force direct WebSockets to bypass Render load-balancer polling CORS/session errors!
 });

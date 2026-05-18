@@ -29,7 +29,8 @@ const corsOptions = {
 };
 
 const io = new Server(server, {
-  cors: corsOptions
+  cors: corsOptions,
+  transports: ['websocket', 'polling'] // Support both, allowing clean websocket negotiation on Render
 });
 
 // Make io accessible in routers/controllers
