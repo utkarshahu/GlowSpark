@@ -9,12 +9,27 @@ const app = express();
 const server = http.createServer(app);
 const isProd = process.env.NODE_ENV === "production";
 const frontendUrl = isProd ? (process.env.FRONTEND_URL || "https://glowspark-store.onrender.com") : "http://localhost:5173";
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!isProd) {
+      // Allow any local origin in development (e.g. localhost:5173, localhost:5174, etc.)
+      callback(null, true);
+    } else {
+      const allowed = [frontendUrl, "https://glowspark-store.onrender.com"];
+      if (!origin || allowed.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS in production"));
+      }
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"]
+};
+
 const io = new Server(server, {
-  cors: {
-    origin: isProd ? [frontendUrl, "http://localhost:5173"] : ["http://localhost:5173", frontendUrl],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
-  }
+  cors: corsOptions
 });
 
 // Make io accessible in routers/controllers
@@ -66,10 +81,7 @@ async function main() {
 }
 
 // CORS setup to allow frontend to communicate with backend
-app.use(cors({
-  origin: isProd ? [frontendUrl, "http://localhost:5173"] : ["http://localhost:5173", frontendUrl],
-  credentials: true,
-}));
+app.use(cors(corsOptions));
 
 // Security Middleware
 app.use(helmet());
