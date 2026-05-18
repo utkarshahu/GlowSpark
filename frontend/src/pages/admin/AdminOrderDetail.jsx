@@ -180,24 +180,29 @@ const AdminOrderDetail = () => {
           <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
             <h2 className="text-xl font-bold text-gray-900 mb-6">Order Items</h2>
             <div className="space-y-6">
-              {order.products.map((item, idx) => (
-                <div key={idx} className="flex gap-6 items-center p-4 rounded-2xl border border-gray-50 hover:bg-gray-50 transition-colors">
-                  <div className="w-20 h-20 bg-gray-100 rounded-xl overflow-hidden shrink-0">
-                    {item.image ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-300"><FaBox className="text-3xl" /></div>
-                    )}
+              {order.products.map((item, idx) => {
+                const itemImageUrl = item.image || 
+                  (item.product?.images && item.product.images[item.product.thumbnailIndex || 0]?.url) || 
+                  (item.product?.images && item.product.images[0]?.url);
+                return (
+                  <div key={idx} className="flex gap-6 items-center p-4 rounded-2xl border border-gray-50 hover:bg-gray-50 transition-colors">
+                    <div className="w-20 h-20 bg-gray-100 rounded-xl overflow-hidden shrink-0">
+                      {itemImageUrl ? (
+                        <img src={itemImageUrl} alt={item.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300"><FaBox className="text-3xl" /></div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-gray-900 truncate">{item.name}</h4>
+                      <p className="text-gray-500 text-sm mt-1">Qty: {item.quantity} × &#8377;{item.price.toLocaleString("en-IN")}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-bold text-gray-900">&#8377;{(item.price * item.quantity).toLocaleString("en-IN")}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-gray-900 truncate">{item.name}</h4>
-                    <p className="text-gray-500 text-sm mt-1">Qty: {item.quantity} × &#8377;{item.price.toLocaleString("en-IN")}</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="font-bold text-gray-900">&#8377;{(item.price * item.quantity).toLocaleString("en-IN")}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end">

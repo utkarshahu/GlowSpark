@@ -125,21 +125,26 @@ const Orders = () => {
                 </div>
 
                 <div className="space-y-4">
-                  {order.products.map((item) => (
-                     <div key={item.product?._id || Math.random()} className="flex items-center gap-4">
-                       <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                         {item.product?.image?.url || item.image ? (
-                           <img src={item.product?.image?.url || item.image} alt={item.product?.title || item.name} className="w-full h-full object-cover" />
-                         ) : (
-                           <div className="w-full h-full bg-gray-200"></div>
-                         )}
-                       </div>
-                       <div className="flex-1">
-                         <h4 className="font-medium text-gray-900 dark:text-white line-clamp-1">{item.product?.title || item.name || 'Product Unavailable'}</h4>
-                         <p className="text-sm text-gray-500 dark:text-gray-400">Qty: {item.quantity} × &#8377; {item.price.toLocaleString("en-IN")}</p>
-                       </div>
-                     </div>
-                  ))}
+                  {order.products.map((item) => {
+                    const itemImageUrl = item.image || 
+                      (item.product?.images && item.product.images[item.product.thumbnailIndex || 0]?.url) || 
+                      (item.product?.images && item.product.images[0]?.url);
+                    return (
+                      <div key={item.product?._id || Math.random()} className="flex items-center gap-4">
+                        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                          {itemImageUrl ? (
+                            <img src={itemImageUrl} alt={item.product?.title || item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-gray-200"></div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900 dark:text-white line-clamp-1">{item.product?.title || item.name || 'Product Unavailable'}</h4>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Qty: {item.quantity} × &#8377; {item.price.toLocaleString("en-IN")}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {order.status === 'Delivered' && order.returnStatus === 'None' && (

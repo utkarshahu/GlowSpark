@@ -34,10 +34,16 @@ module.exports.placeOrder = async (req, res) => {
             await item.product.save();
 
             totalAmount += item.product.price * item.quantity;
+            
+            // Resolve the product's main image from the images array
+            const itemImage = item.product.images && item.product.images[item.product.thumbnailIndex || 0]
+                ? item.product.images[item.product.thumbnailIndex || 0].url
+                : (item.product.images && item.product.images[0]?.url);
+
             orderProducts.push({
                 product: item.product._id,
                 name: item.product.title,
-                image: item.product.image?.url,
+                image: itemImage,
                 quantity: item.quantity,
                 price: item.product.price
             });
