@@ -93,6 +93,14 @@ module.exports.placeOrder = async (req, res) => {
             await user.save();
         }
 
+        const io = req.app.get('io');
+        if (io) {
+            const populatedOrder = await Order.findById(order._id)
+                .populate('user', 'email username')
+                .populate('products.product', 'title image price');
+            io.emit('newOrderPlaced', populatedOrder);
+        }
+
         res.status(201).json({ success: true, message: "Order placed successfully!", order });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

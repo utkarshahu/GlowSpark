@@ -14,7 +14,17 @@ const Orders = () => {
     fetchOrders();
 
     socket.on('orderStatusUpdated', (updatedOrder) => {
-      setOrders((prev) => prev.map(o => o._id === updatedOrder._id ? updatedOrder : o));
+      setOrders((prev) => {
+        const existing = prev.find(o => o._id === updatedOrder._id);
+        if (existing && existing.status !== updatedOrder.status) {
+          toast.info(`📦 Order Status Updated! Your order #${updatedOrder._id.slice(-6)} is now: ${updatedOrder.status}`, {
+            position: "top-right",
+            autoClose: 5000,
+            theme: "colored"
+          });
+        }
+        return prev.map(o => o._id === updatedOrder._id ? updatedOrder : o);
+      });
     });
 
     return () => {

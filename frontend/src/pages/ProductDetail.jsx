@@ -13,6 +13,7 @@ import 'swiper/css/pagination';
 import { FaStar, FaCheckCircle, FaTruck, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCart } from '../store/cartSlice';
+import { socket } from '../api/socket';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -39,7 +40,29 @@ const ProductDetail = () => {
       }
     };
     fetchProduct();
-  }, [id]);
+
+    socket.on('productUpdated', (updatedProduct) => {
+      if (updatedProduct._id === id) {
+        setProduct((prev) => ({
+          ...updatedProduct,
+          reviews: prev ? prev.reviews : []
+        }));
+        toast.info("ℹ️ Product details updated in real-time by admin", { theme: "colored" });
+      }
+    });
+
+    socket.on('productDeleted', (deletedId) => {
+      if (deletedId === id) {
+        toast.error("⚠️ This product is no longer available.", { theme: "colored" });
+        navigate('/products');
+      }
+    });
+
+    return () => {
+      socket.off('productUpdated');
+      socket.off('productDeleted');
+    };
+  }, [id, navigate]);
 
   const handleAddToCart = async () => {
     try {

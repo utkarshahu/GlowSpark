@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../api/axios';
+import { socket } from '../../api/socket';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -36,7 +37,7 @@ const AdminDashboard = () => {
         if (productsRes.data.success) {
           setLowStockProducts(productsRes.data.products.filter(p => p.stock < 10));
         }
-
+ 
         if (ordersRes.data.success) {
           setRecentOrders(ordersRes.data.orders.slice(0, 5)); // Last 5 orders
         }
@@ -46,12 +47,30 @@ const AdminDashboard = () => {
         setLoading(false);
       }
     };
-
+ 
     fetchData(); // Initial fetch
     
-    // Polling every 5 seconds for real-time updates
-    const interval = setInterval(fetchData, 5000);
-    return () => clearInterval(interval);
+    // Web socket real-time integrations
+    socket.on('newOrderPlaced', (newOrder) => {
+      setStats((prev) => ({
+        ...prev,
+        totalOrders: prev.totalOrders + 1,
+        totalRevenue: prev.totalRevenue + newOrder.totalAmount
+      }));
+      setRecentOrders((prev) => [newOrder, ...prev].slice(0, 5));
+    });
+
+    socket.on('orderStatusUpdated', (updatedOrder) => {
+      setRecentOrders((prev) => prev.map(o => o._id === updatedOrder._id ? updatedOrder : o));
+    });
+
+    // Polling every 10 seconds as backup
+    const interval = setInterval(fetchData, 10000);
+    return () => {
+      socket.off('newOrderPlaced');
+      socket.off('orderStatusUpdated');
+      clearInterval(interval);
+    };
   }, []);
 
   if (loading) {

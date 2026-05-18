@@ -30,8 +30,25 @@ const AdminOrders = () => {
       setOrders((prev) => prev.map(o => o._id === updatedOrder._id ? updatedOrder : o));
     });
 
+    socket.on('newOrderPlaced', (newOrder) => {
+      setOrders((prev) => {
+        if (prev.find(o => o._id === newOrder._id)) return prev;
+        return [newOrder, ...prev];
+      });
+      toast.success(`✨ New order received! Order #${newOrder._id.slice(-6)}`, { 
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored"
+      });
+    });
+
     return () => {
       socket.off('orderStatusUpdated');
+      socket.off('newOrderPlaced');
     };
   }, []);
 
