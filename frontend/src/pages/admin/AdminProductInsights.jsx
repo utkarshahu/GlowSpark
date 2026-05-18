@@ -176,7 +176,7 @@ const AdminProductInsights = () => {
               <div key={product._id} className="flex items-center gap-4">
                 <div className="text-2xl font-bold text-gray-200 dark:text-gray-700 w-6 text-center">{idx + 1}</div>
                 <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                  <img src={product.image.url} alt={product.title} className="w-full h-full object-cover" />
+                  <img src={product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=100'} alt={product.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900 dark:text-white line-clamp-1">{product.title}</h3>
@@ -202,7 +202,7 @@ const AdminProductInsights = () => {
             {insights.lowStock.length > 0 ? insights.lowStock.map((product) => (
               <div key={product._id} className="flex items-center gap-4 p-4 rounded-2xl border border-red-100 bg-red-50/50 dark:bg-red-900/10 dark:border-red-900/30">
                 <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                  <img src={product.image.url} alt={product.title} className="w-full h-full object-cover" />
+                  <img src={product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=100'} alt={product.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900 dark:text-white line-clamp-1">{product.title}</h3>

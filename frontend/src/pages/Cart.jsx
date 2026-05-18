@@ -52,7 +52,8 @@ const Cart = () => {
     }
   };
 
-  const totalAmount = cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
+  const validCart = cart.filter(item => item && item.product);
+  const totalAmount = validCart.reduce((total, item) => total + ((item.product.price || 0) * item.quantity), 0);
   const finalTotal = Math.max(0, totalAmount - discountAmount);
 
   const applyCoupon = async () => {
@@ -82,7 +83,7 @@ const Cart = () => {
       <div className="pt-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl font-serif font-bold text-gray-900 dark:text-white mb-10">Your Shopping Bag</h1>
         
-        {cart.length === 0 ? (
+        {validCart.length === 0 ? (
           <EmptyState 
             icon={FaTrash}
             title="Your bag is empty"
@@ -94,15 +95,15 @@ const Cart = () => {
           <div className="flex flex-col lg:flex-row gap-10">
             {/* Cart Items */}
             <div className="w-full lg:w-2/3 space-y-6">
-              {cart.map((item) => (
+              {validCart.map((item) => (
                 <div key={item.product._id} className="flex gap-6 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-brand-100 dark:border-gray-700 transition-colors duration-300">
                   <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-900 flex-shrink-0">
-                    <SmartImage src={item.product.image.url} alt={item.product.title} className="w-full h-full" />
+                    <SmartImage src={item.product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400'} alt={item.product.title} className="w-full h-full" />
                   </div>
                   <div className="flex-1 flex flex-col justify-between">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-xs font-bold text-brand-500 dark:text-brand-400 uppercase tracking-widest mb-1">{item.product.brand}</p>
+                        <p className="text-xs font-bold text-brand-500 dark:text-brand-400 uppercase tracking-widest mb-1">{item.product.brand || 'GlowSpark'}</p>
                         <h3 className="font-medium text-gray-900 dark:text-white text-lg sm:text-xl line-clamp-1">{item.product.title}</h3>
                       </div>
                       <button onClick={() => handleRemove(item.product._id)} className="text-gray-400 dark:text-gray-500 hover:text-red-500 p-2 transition-colors">
@@ -111,7 +112,7 @@ const Cart = () => {
                     </div>
                     <div className="flex justify-between items-end">
                       <div className="text-gray-600 dark:text-gray-400">Qty: {item.quantity}</div>
-                      <div className="font-serif font-bold text-xl text-brand-800">&#8377; {(item.product.price * item.quantity).toLocaleString("en-IN")}</div>
+                      <div className="font-serif font-bold text-xl text-brand-800">&#8377; {((item.product.price || 0) * item.quantity).toLocaleString("en-IN")}</div>
                     </div>
                   </div>
                 </div>

@@ -96,7 +96,7 @@ const Wishlist = () => {
             {wishlistItems.map((product) => (
               <div key={product._id} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-brand-100 dark:border-gray-700 flex flex-col group">
                 <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-900 p-4">
-                  <SmartImage src={product.image.url} alt={product.title} className="w-full h-full rounded-xl group-hover:scale-105 transition-transform duration-500" />
+                  <SmartImage src={product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400'} alt={product.title} className="w-full h-full rounded-xl group-hover:scale-105 transition-transform duration-500" />
                   <button 
                     onClick={() => removeFromWishlist(product._id)}
                     className="absolute top-4 right-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-2 rounded-full text-red-500 hover:text-red-700 transition-colors shadow-sm"

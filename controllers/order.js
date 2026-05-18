@@ -6,6 +6,13 @@ module.exports.placeOrder = async (req, res) => {
         const { shippingAddress } = req.body;
         const user = await User.findById(req.user._id).populate('cart.product');
         
+        // Filter out cart items where product no longer exists
+        const initialLength = user.cart.length;
+        user.cart = user.cart.filter(item => item.product !== null && item.product !== undefined);
+        if (user.cart.length !== initialLength) {
+            await user.save();
+        }
+        
         if (user.isBlocked) {
             return res.status(403).json({ success: false, message: "Your account has been blocked from placing orders. Please contact support." });
         }
