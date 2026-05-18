@@ -219,9 +219,9 @@ const AdminProductDetail = () => {
     ...newImagePreviews
   ];
 
-  const mainImageUrl = product.images && product.images[product.thumbnailIndex || 0]
-    ? product.images[product.thumbnailIndex || 0].url
-    : (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=600');
+  const mainImageUrl = (product.images && product.images[product.thumbnailIndex || 0]?.url) || 
+    (product.images && product.images[0]?.url) || 
+    (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=600');
 
   return (
     <div className="max-w-6xl mx-auto pb-12">

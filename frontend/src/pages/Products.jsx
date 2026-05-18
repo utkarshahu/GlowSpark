@@ -201,8 +201,25 @@ const Products = () => {
           {/* Product Grid */}
           <div className="w-full lg:w-3/4 flex flex-col min-h-[50vh]">
             {loading ? (
-              <div className="flex justify-center items-center flex-grow">
-                <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin"></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-brand-100/50 dark:border-gray-700 p-6 flex flex-col h-full space-y-4">
+                    {/* Image Skeleton */}
+                    <div className="relative aspect-[4/5] rounded-xl bg-gray-100 dark:bg-gray-700/40 animate-pulse shadow-inner"></div>
+                    
+                    {/* Details Row */}
+                    <div className="flex justify-between items-center mb-1">
+                      <div className="h-3 w-16 bg-brand-100/70 dark:bg-brand-900/30 rounded-full animate-pulse"></div>
+                      <div className="h-5 w-12 bg-gray-150 dark:bg-gray-700/60 rounded-full animate-pulse"></div>
+                    </div>
+                    
+                    {/* Title Skeleton */}
+                    <div className="h-5 w-3/4 bg-gray-200 dark:bg-gray-700/60 rounded-full animate-pulse"></div>
+                    
+                    {/* Button Skeleton */}
+                    <div className="h-12 w-full bg-gray-200 dark:bg-gray-700/80 rounded-xl animate-pulse mt-auto"></div>
+                  </div>
+                ))}
               </div>
             ) : products.length === 0 ? (
               <EmptyState 
@@ -220,9 +237,9 @@ const Products = () => {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 mb-12" ref={gridRef}>
                   {products.map(product => {
-                    const thumbnailUrl = product.images && product.images[product.thumbnailIndex || 0]
-                      ? product.images[product.thumbnailIndex || 0].url
-                      : (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400');
+                    const thumbnailUrl = (product.images && product.images[product.thumbnailIndex || 0]?.url) || 
+                      (product.images && product.images[0]?.url) || 
+                      (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400');
 
                     return (
                       <Link to={`/products/${product._id}`} key={product._id} className="group block bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-brand-100/50 dark:border-gray-700 flex flex-col h-full">

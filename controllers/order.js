@@ -3,28 +3,51 @@ const User = require("../models/user");
 
 module.exports.placeOrder = async (req, res) => {
     try {
-        const { shippingAddress } = req.body;
+        const { shippingAddress, checkoutItems } = req.body;
         const user = await User.findById(req.user._id).populate('cart.product');
-        
-        // Filter out cart items where product no longer exists
-        const initialLength = user.cart.length;
-        user.cart = user.cart.filter(item => item.product !== null && item.product !== undefined);
-        if (user.cart.length !== initialLength) {
-            await user.save();
-        }
         
         if (user.isBlocked) {
             return res.status(403).json({ success: false, message: "Your account has been blocked from placing orders. Please contact support." });
         }
 
-        if (user.cart.length === 0) {
-            return res.status(400).json({ success: false, message: "Your cart is empty!" });
+        let itemsToOrder = [];
+        let isDirectBuyOrPartial = false;
+
+        if (checkoutItems && checkoutItems.length > 0) {
+            isDirectBuyOrPartial = true;
+            const Product = require("../models/product");
+            for (let chItem of checkoutItems) {
+                // Find product by id (safely supporting both item.product as object and item.product as ID string)
+                const targetId = chItem.product?._id || chItem.product;
+                const prod = await Product.findById(targetId);
+                if (prod) {
+                    itemsToOrder.push({
+                        product: prod,
+                        quantity: chItem.quantity
+                    });
+                }
+            }
+        } else {
+            // Default: entire cart
+            const initialLength = user.cart.length;
+            user.cart = user.cart.filter(item => item.product !== null && item.product !== undefined);
+            if (user.cart.length !== initialLength) {
+                await user.save();
+            }
+            if (user.cart.length === 0) {
+                return res.status(400).json({ success: false, message: "Your cart is empty!" });
+            }
+            itemsToOrder = user.cart;
+        }
+
+        if (itemsToOrder.length === 0) {
+            return res.status(400).json({ success: false, message: "No products selected for checkout!" });
         }
 
         let totalAmount = 0;
         const orderProducts = [];
 
-        for(let item of user.cart) {
+        for(let item of itemsToOrder) {
             // Stock Reservation Logic
             if (item.product.stock < item.quantity) {
                 return res.status(400).json({ success: false, message: `Product ${item.product.title} is out of stock` });
@@ -59,9 +82,16 @@ module.exports.placeOrder = async (req, res) => {
 
         await order.save();
         
-        // Clear user cart
-        user.cart = [];
-        await user.save();
+        // Remove only ordered items from user's cart if this came from direct/partial checkout
+        if (isDirectBuyOrPartial) {
+            const orderedProductIds = checkoutItems.map(ch => (ch.product?._id || ch.product).toString());
+            user.cart = user.cart.filter(item => item.product && !orderedProductIds.includes(item.product._id.toString()));
+            await user.save();
+        } else {
+            // Clear entire user cart
+            user.cart = [];
+            await user.save();
+        }
 
         res.status(201).json({ success: true, message: "Order placed successfully!", order });
     } catch (error) {

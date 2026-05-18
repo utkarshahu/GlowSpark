@@ -80,8 +80,21 @@ const Wishlist = () => {
         <h1 className="text-4xl font-serif font-bold text-gray-900 dark:text-white mb-8 text-center">Your Wishlist</h1>
         
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-             <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-brand-100 dark:border-gray-700 p-5 flex flex-col space-y-4">
+                {/* Image Aspect Square Skeleton */}
+                <div className="relative aspect-square rounded-xl bg-gray-100 dark:bg-gray-700/40 animate-pulse shadow-inner"></div>
+                {/* Brand */}
+                <div className="h-3 w-16 bg-brand-100/70 dark:bg-brand-900/30 rounded-full animate-pulse"></div>
+                {/* Title */}
+                <div className="h-5 w-3/4 bg-gray-200 dark:bg-gray-700/60 rounded-full animate-pulse"></div>
+                {/* Price */}
+                <div className="h-5 w-1/3 bg-gray-250 dark:bg-gray-700/40 rounded-full animate-pulse"></div>
+                {/* Action button */}
+                <div className="h-12 w-full bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse mt-auto"></div>
+              </div>
+            ))}
           </div>
         ) : wishlistItems.length === 0 ? (
           <EmptyState 
@@ -96,7 +109,15 @@ const Wishlist = () => {
             {wishlistItems.map((product) => (
               <div key={product._id} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-brand-100 dark:border-gray-700 flex flex-col group">
                 <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-900 p-4">
-                  <SmartImage src={product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400'} alt={product.title} className="w-full h-full rounded-xl group-hover:scale-105 transition-transform duration-500" />
+                  <SmartImage 
+                    src={
+                      (product.images && product.images[product.thumbnailIndex || 0]?.url) || 
+                      (product.images && product.images[0]?.url) || 
+                      (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400')
+                    } 
+                    alt={product.title} 
+                    className="w-full h-full rounded-xl group-hover:scale-105 transition-transform duration-500" 
+                  />
                   <button 
                     onClick={() => removeFromWishlist(product._id)}
                     className="absolute top-4 right-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-2 rounded-full text-red-500 hover:text-red-700 transition-colors shadow-sm"

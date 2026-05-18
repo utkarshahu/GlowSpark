@@ -146,9 +146,9 @@ const AdminProducts = () => {
           </thead>
           <tbody className="divide-y divide-brand-100 dark:divide-gray-700">
             {filteredProducts.map(product => {
-              const thumbnailUrl = product.images && product.images[product.thumbnailIndex || 0] 
-                ? product.images[product.thumbnailIndex || 0].url 
-                : (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=100');
+              const thumbnailUrl = (product.images && product.images[product.thumbnailIndex || 0]?.url) || 
+                (product.images && product.images[0]?.url) || 
+                (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=100');
               
               return (
                 <tr 

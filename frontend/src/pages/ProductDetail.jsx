@@ -11,13 +11,14 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { FaStar, FaCheckCircle, FaTruck, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setCart } from '../store/cartSlice';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const currentUser = useSelector(state => state.user?.currentUser);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(5);
@@ -55,6 +56,25 @@ const ProductDetail = () => {
         toast.error("Failed to add to cart");
       }
     }
+  };
+
+  const handleProceedToBuy = () => {
+    if (!currentUser) {
+      toast.error("Please login to proceed to checkout", { theme: "dark" });
+      navigate('/login');
+      return;
+    }
+    navigate("/checkout", {
+      state: {
+        checkoutItems: [
+          {
+            product: product,
+            quantity: 1
+          }
+        ],
+        finalTotal: product.price
+      }
+    });
   };
 
   const submitReview = async (e) => {
@@ -228,13 +248,20 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-4">
               <button 
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
-                className="flex-1 bg-brand-900 hover:bg-black disabled:bg-gray-400 text-white py-4 rounded-xl font-medium transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 text-lg uppercase tracking-wider"
+                className="w-full bg-brand-900 hover:bg-black disabled:bg-gray-400 text-white py-4 rounded-xl font-medium transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 text-base uppercase tracking-wider"
               >
                 Add to Cart
+              </button>
+              <button 
+                onClick={handleProceedToBuy}
+                disabled={product.stock === 0}
+                className="w-full bg-transparent hover:bg-brand-900 text-brand-900 hover:text-white border border-brand-900 disabled:bg-gray-200 disabled:text-gray-400 disabled:border-gray-200 py-4 rounded-xl font-bold transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 text-base uppercase tracking-wider"
+              >
+                Proceed to Buy
               </button>
             </div>
           </div>

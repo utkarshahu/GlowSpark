@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearCart } from '../store/cartSlice';
+import { clearCart, setCart as setReduxCart } from '../store/cartSlice';
 import api from '../api/axios';
 import Navbar from '../components/Navbar';
 import { toast } from 'react-toastify';
@@ -16,11 +16,23 @@ const Checkout = () => {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector(state => state.user.currentUser);
   const isBlocked = user?.isBlocked;
 
   useEffect(() => {
+    // If the checkout route was called with custom checkout items (direct buy / subset selection)
+    if (location.state?.checkoutItems) {
+      setCart(location.state.checkoutItems);
+      // Pre-apply discount/coupons if they were already applied in Cart!
+      if (location.state.discountAmount) {
+        setDiscountAmount(location.state.discountAmount);
+      }
+      setLoading(false);
+      return;
+    }
+
     const fetchCart = async () => {
       try {
         const res = await api.get('/cart');
@@ -39,7 +51,7 @@ const Checkout = () => {
       }
     };
     fetchCart();
-  }, [navigate]);
+  }, [navigate, location.state]);
 
   const handleApplyCoupon = async (e) => {
     e.preventDefault();
@@ -65,15 +77,29 @@ const Checkout = () => {
     // Simulate secure payment processing delay
     setTimeout(async () => {
       try {
-        const res = await api.post('/orders', { shippingAddress });
+        const isCustomCheckout = !!location.state?.checkoutItems;
+        const res = await api.post('/orders', { 
+          shippingAddress, 
+          checkoutItems: isCustomCheckout ? location.state.checkoutItems : undefined 
+        });
         if (res.data.success) {
           toast.success("Payment successful! Order Confirmed!");
           
-          // Clear backend cart
-          await api.delete('/cart/clear');
-          
-          // Clear frontend redux cart
-          dispatch(clearCart());
+          if (!isCustomCheckout) {
+            // Clear backend cart completely (full checkout)
+            await api.delete('/cart/clear');
+            dispatch(clearCart());
+          } else {
+            // Re-fetch the updated cart from the backend to keep Redux in sync
+            try {
+              const cartRes = await api.get('/cart');
+              if (cartRes.data.success) {
+                dispatch(setReduxCart(cartRes.data.cart));
+              }
+            } catch (err) {
+              console.error(err);
+            }
+          }
 
           navigate('/products');
         }

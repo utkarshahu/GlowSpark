@@ -109,8 +109,38 @@ const Orders = () => {
         <h1 className="text-4xl font-serif font-bold text-gray-900 dark:text-white mb-8">My Orders</h1>
         
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-             <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin"></div>
+          <div className="space-y-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-brand-100 dark:border-gray-700 space-y-4">
+                {/* Header Skeleton */}
+                <div className="flex flex-col md:flex-row justify-between md:items-center border-b border-gray-100 dark:border-gray-700 pb-4 gap-4">
+                  <div className="space-y-2">
+                    <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+                    <div className="h-3.5 w-32 bg-gray-100 dark:bg-gray-700/60 rounded-full animate-pulse"></div>
+                  </div>
+                  <div className="flex flex-col md:items-end space-y-2">
+                    <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+                    <div className="h-6 w-20 bg-brand-100/70 dark:bg-brand-900/30 rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+                {/* Items List Skeleton */}
+                <div className="space-y-3">
+                  {[1, 2].map((itemIdx) => (
+                    <div key={itemIdx} className="flex gap-4 items-center">
+                      <div className="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-700/40 animate-pulse shrink-0"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 w-1/3 bg-gray-200 dark:bg-gray-700/60 rounded-full animate-pulse"></div>
+                        <div className="h-3 w-16 bg-gray-100 dark:bg-gray-750 rounded-full animate-pulse"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Footer Buttons Skeleton */}
+                <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex gap-4">
+                  <div className="h-10 w-28 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : orders.length === 0 ? (
            <div className="bg-white dark:bg-gray-800 rounded-3xl p-16 text-center shadow-sm border border-brand-100 dark:border-gray-700 max-w-2xl mx-auto">

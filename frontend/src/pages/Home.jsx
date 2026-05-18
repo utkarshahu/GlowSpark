@@ -246,9 +246,9 @@ const Home = () => {
             ) : (
               <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {newArrivals.map((product) => {
-                  const thumbnailUrl = product.images && product.images[product.thumbnailIndex || 0]
-                    ? product.images[product.thumbnailIndex || 0].url
-                    : (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=600');
+                  const thumbnailUrl = (product.images && product.images[product.thumbnailIndex || 0]?.url) || 
+                    (product.images && product.images[0]?.url) || 
+                    (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=600');
 
                   return (
                     <motion.div

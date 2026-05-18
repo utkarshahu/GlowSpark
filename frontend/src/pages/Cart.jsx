@@ -16,6 +16,7 @@ const Cart = () => {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [appliedCouponId, setAppliedCouponId] = useState(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [selectedItems, setSelectedItems] = useState(new Set());
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -26,6 +27,10 @@ const Cart = () => {
         if (res.data.success) {
           setCart(res.data.cart);
           dispatch(setReduxCart(res.data.cart));
+          
+          // Auto-select all items by default on load
+          const activeItems = res.data.cart.filter(item => item && item.product);
+          setSelectedItems(new Set(activeItems.map(item => item.product._id)));
         }
       } catch (err) {
         if (err.response?.status === 401) {
@@ -37,6 +42,25 @@ const Cart = () => {
     };
     fetchCart();
   }, [navigate, dispatch]);
+
+  const toggleSelectItem = (productId) => {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(productId)) {
+      newSelected.delete(productId);
+    } else {
+      newSelected.add(productId);
+    }
+    setSelectedItems(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    const validItems = cart.filter(item => item && item.product);
+    if (selectedItems.size === validItems.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(validItems.map(item => item.product._id)));
+    }
+  };
 
   const handleRemove = async (productId) => {
     try {
@@ -53,7 +77,8 @@ const Cart = () => {
   };
 
   const validCart = cart.filter(item => item && item.product);
-  const totalAmount = validCart.reduce((total, item) => total + ((item.product.price || 0) * item.quantity), 0);
+  const selectedCartItems = validCart.filter(item => selectedItems.has(item.product._id));
+  const totalAmount = selectedCartItems.reduce((total, item) => total + ((item.product.price || 0) * item.quantity), 0);
   const finalTotal = Math.max(0, totalAmount - discountAmount);
 
   const applyCoupon = async () => {
@@ -101,10 +126,53 @@ const Cart = () => {
           <div className="flex flex-col lg:flex-row gap-10">
             {/* Cart Items */}
             <div className="w-full lg:w-2/3 space-y-6">
+              <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-brand-100 dark:border-gray-700 mb-2">
+                <button 
+                  onClick={toggleSelectAll} 
+                  className="flex items-center gap-3 text-sm font-bold text-gray-700 dark:text-gray-300 hover:text-brand-900 transition-colors"
+                >
+                  <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                    selectedItems.size === validCart.length 
+                      ? "bg-brand-900 border-brand-900 text-white" 
+                      : "border-gray-300 dark:border-gray-600"
+                  }`}>
+                    {selectedItems.size === validCart.length && (
+                      <svg className="w-3.5 h-3.5 stroke-current" viewBox="0 0 24 24" fill="none" strokeWidth="3">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    )}
+                  </span>
+                  <span>Select All ({selectedItems.size} / {validCart.length})</span>
+                </button>
+              </div>
+
               {validCart.map((item) => (
-                <div key={item.product._id} className="flex gap-6 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-brand-100 dark:border-gray-700 transition-colors duration-300">
+                <div key={item.product._id} className="flex gap-4 sm:gap-6 items-center bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-brand-100 dark:border-gray-700 transition-colors duration-300">
+                  {/* Circular Checkbox */}
+                  <button 
+                    onClick={() => toggleSelectItem(item.product._id)} 
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                      selectedItems.has(item.product._id) 
+                        ? "bg-brand-900 border-brand-900 text-white" 
+                        : "border-gray-300 dark:border-gray-600 hover:border-brand-900"
+                    }`}
+                  >
+                    {selectedItems.has(item.product._id) && (
+                      <svg className="w-4.5 h-4.5 stroke-current" viewBox="0 0 24 24" fill="none" strokeWidth="3">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    )}
+                  </button>
                   <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-900 flex-shrink-0">
-                    <SmartImage src={item.product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400'} alt={item.product.title} className="w-full h-full" />
+                    <SmartImage 
+                      src={
+                        (item.product.images && item.product.images[item.product.thumbnailIndex || 0]?.url) || 
+                        (item.product.images && item.product.images[0]?.url) || 
+                        (item.product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400')
+                      } 
+                      alt={item.product.title} 
+                      className="w-full h-full" 
+                    />
                   </div>
                   <div className="flex-1 flex flex-col justify-between">
                     <div className="flex justify-between items-start">
@@ -154,8 +222,21 @@ const Cart = () => {
                   <span className="text-2xl font-bold font-serif text-brand-800">&#8377; {finalTotal.toLocaleString("en-IN")}</span>
                 </div>
                 
-                {/* We can pass coupon data to Checkout page via state */}
-                <Link to="/checkout" state={{ appliedCouponId, discountAmount, finalTotal }} className="block w-full text-center bg-brand-900 hover:bg-black text-white py-4 rounded-xl font-medium transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                <Link 
+                  to={selectedCartItems.length > 0 ? "/checkout" : "#"} 
+                  state={{ checkoutItems: selectedCartItems, appliedCouponId, discountAmount, finalTotal }} 
+                  onClick={(e) => {
+                    if (selectedCartItems.length === 0) {
+                      e.preventDefault();
+                      toast.error("Please select at least one item to proceed to checkout", { theme: "dark" });
+                    }
+                  }}
+                  className={`block w-full text-center py-4 rounded-xl font-medium transition-all shadow-xl hover:shadow-2xl ${
+                    selectedCartItems.length > 0 
+                      ? "bg-brand-900 hover:bg-black text-white hover:-translate-y-1" 
+                      : "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
                   Proceed to Checkout
                 </Link>
               </div>
