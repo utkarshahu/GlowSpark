@@ -52,7 +52,13 @@ const AdminOrderDetail = () => {
     }
   };
 
-  if (loading) return <div className="p-8 text-gray-500">Loading order details...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
   if (!order) return <div className="p-8 text-red-500">Order not found</div>;
 
   const timelineSteps = ['Pending', 'Processing', 'Shipped', 'Delivered'];

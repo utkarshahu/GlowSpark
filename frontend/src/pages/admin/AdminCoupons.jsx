@@ -105,7 +105,9 @@ const AdminCoupons = () => {
       </div>
 
       {loading ? (
-        <div className="text-center py-10 text-gray-500">Loading coupons...</div>
+        <div className="flex items-center justify-center py-24">
+          <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+        </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-brand-100 dark:border-gray-700 overflow-hidden">
           <table className="w-full text-left">

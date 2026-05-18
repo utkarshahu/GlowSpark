@@ -120,8 +120,46 @@ const ProductDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-brand-50 dark:bg-gray-900 flex items-center justify-center transition-colors duration-300">
-        <div className="w-16 h-16 border-4 border-brand-200 border-t-brand-900 dark:border-t-brand-200 rounded-full animate-spin"></div>
+      <div className="bg-brand-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+        <Navbar />
+        <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row gap-12 bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm border border-brand-100 dark:border-gray-700 p-8 md:p-12 transition-colors duration-300">
+            
+            {/* Left Column: Image Skeleton */}
+            <div className="w-full md:w-1/2">
+              <div className="w-full aspect-[4/5] rounded-2xl bg-gray-200 dark:bg-gray-700/60 animate-pulse shadow-inner"></div>
+              <div className="flex gap-4 mt-6">
+                <div className="w-20 h-20 rounded-xl bg-gray-200 dark:bg-gray-700/60 animate-pulse"></div>
+                <div className="w-20 h-20 rounded-xl bg-gray-200 dark:bg-gray-700/60 animate-pulse"></div>
+                <div className="w-20 h-20 rounded-xl bg-gray-200 dark:bg-gray-700/60 animate-pulse"></div>
+              </div>
+            </div>
+
+            {/* Right Column: Text & Info Skeletons */}
+            <div className="w-full md:w-1/2 flex flex-col justify-center">
+              <div className="mb-8 border-b border-gray-100 dark:border-gray-700 pb-8">
+                <div className="h-4 w-24 bg-brand-200 dark:bg-brand-900/40 rounded-full animate-pulse mb-4"></div>
+                <div className="h-10 w-3/4 bg-gray-200 dark:bg-gray-700/80 rounded-xl animate-pulse mb-6"></div>
+                <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700/60 rounded-xl animate-pulse mb-6"></div>
+                <div className="space-y-3">
+                  <div className="h-4 w-full bg-gray-200 dark:bg-gray-700/50 rounded-full animate-pulse"></div>
+                  <div className="h-4 w-full bg-gray-200 dark:bg-gray-700/50 rounded-full animate-pulse"></div>
+                  <div className="h-4 w-4/5 bg-gray-200 dark:bg-gray-700/50 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+
+              <div className="space-y-6 mb-10">
+                <div className="h-5 w-40 bg-gray-200 dark:bg-gray-700/60 rounded-full animate-pulse"></div>
+                <div className="h-14 w-full bg-gray-100 dark:bg-gray-700/30 rounded-xl animate-pulse"></div>
+                <div className="h-24 w-full bg-gray-100 dark:bg-gray-700/30 rounded-xl animate-pulse"></div>
+                <div className="h-14 w-full bg-gray-100 dark:bg-gray-700/30 rounded-xl animate-pulse"></div>
+              </div>
+
+              <div className="h-14 w-full bg-gray-300 dark:bg-gray-600 rounded-xl animate-pulse"></div>
+            </div>
+            
+          </div>
+        </div>
       </div>
     );
   }
