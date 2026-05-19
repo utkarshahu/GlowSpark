@@ -289,51 +289,69 @@ const Products = () => {
                       (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400');
 
                     return (
-                      <Link to={`/products/${product._id}`} key={product._id} className="group block bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-brand-100/50 dark:border-gray-700 flex flex-col h-full">
+                      <Link to={`/products/${product._id}`} key={product._id} className="group block bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-brand-100/50 dark:border-gray-700 flex flex-col h-full relative">
                         {/* Aspect image frame p-4 on desktop, p-3 on mobile */}
-                        <div className="relative aspect-[4/5] overflow-hidden bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-3 lg:p-4">
+                        <div className="relative aspect-[4/5] overflow-hidden bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-3 lg:p-4 shrink-0">
                           <SmartImage 
                             src={thumbnailUrl} 
                             alt={product.title} 
-                            className="w-full h-full rounded-xl group-hover:scale-105 lg:group-hover:scale-110 transition-transform duration-700 ease-out drop-shadow-md lg:drop-shadow-xl"
+                            className="w-full h-full rounded-2xl group-hover:scale-105 transition-transform duration-700 ease-out object-cover"
                           />
+                          
+                          {/* Desktop Heart Icon Overlay (hidden on mobile) */}
                           <button 
                             onClick={(e) => handleWishlist(e, product._id)}
-                            className={`absolute top-3 right-3 lg:top-4 lg:right-4 transition-colors p-2 rounded-full backdrop-blur-sm z-10 ${wishlist.includes(product._id) ? 'text-red-500 bg-red-50' : 'text-gray-300 hover:text-red-500 bg-white/80'}`}
+                            className={`hidden lg:flex absolute top-4 right-4 transition-colors p-2.5 rounded-full backdrop-blur-sm z-10 shadow-sm ${wishlist.includes(product._id) ? 'text-red-500 bg-red-50' : 'text-gray-400 hover:text-red-500 bg-white/90'}`}
                           >
-                            <FaHeart className="text-xs lg:text-sm" />
+                            <FaHeart className="text-sm" />
                           </button>
-                        {product.isNewArrival && (
-                          <div className="absolute top-3 left-3 lg:top-4 lg:left-4 bg-brand-600 text-white text-[8px] lg:text-[10px] font-bold px-2 py-0.5 lg:px-3 lg:py-1 rounded-md lg:rounded-full uppercase tracking-wider z-10">
-                              New Arrival
-                          </div>
-                        )}
-                        {product.stock < 10 && product.stock > 0 && (
-                          <div className={`absolute ${product.isNewArrival ? 'top-8 lg:top-12' : 'top-3 lg:top-4'} left-3 lg:left-4 bg-brand-900 text-white text-[8px] lg:text-[10px] font-bold px-2 py-0.5 lg:px-3 lg:py-1 rounded-md lg:rounded-full uppercase tracking-wider z-10`}>
+
+                          {product.isNewArrival && (
+                            <div className="absolute top-3 left-3 lg:top-4 lg:left-4 bg-black text-white text-[8px] lg:text-[10px] font-bold px-2 py-0.5 lg:px-3 lg:py-1 rounded-md uppercase tracking-wider z-10">
+                              New
+                            </div>
+                          )}
+                          {product.stock < 10 && product.stock > 0 && (
+                            <div className={`absolute ${product.isNewArrival ? 'top-8 lg:top-12' : 'top-3 lg:top-4'} left-3 lg:left-4 bg-brand-900 text-white text-[8px] lg:text-[10px] font-bold px-2 py-0.5 lg:px-3 lg:py-1 rounded-md uppercase tracking-wider z-10`}>
                               Low Stock
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Details card p-6 on desktop, p-3 on mobile */}
-                      <div className="p-3 lg:p-6 flex flex-col flex-grow">
-                        <div className="flex justify-between items-start mb-1 lg:mb-2 gap-2">
-                          <p className="text-[10px] lg:text-xs font-bold text-brand-500 dark:text-brand-400 uppercase tracking-widest truncate">{product.brand}</p>
-                          <p className="font-serif font-black lg:font-bold text-gray-900 dark:text-white text-xs lg:text-lg shrink-0">&#8377; {product.price.toLocaleString("en-IN")}</p>
+                            </div>
+                          )}
                         </div>
-                        {/* Text sizes remain large (text-lg) on desktop, compact (text-xs) on mobile */}
-                        <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-3 lg:mb-4 text-xs lg:text-lg leading-snug lg:leading-normal truncate group-hover:text-brand-600 transition-colors">{product.title}</h3>
                         
-                        <div className="mt-auto">
-                          {/* Button py-3, text-sm, normal-case Add to Cart on desktop. Mobile uses compact py-2.5, text-[10px], uppercase Add to Bag */}
-                          <button 
-                            onClick={(e) => handleAddToCart(product, e)}
-                            className="w-full py-2.5 lg:py-3 bg-white dark:bg-gray-800 border border-brand-200 dark:border-gray-600 text-brand-800 dark:text-gray-200 text-[10px] lg:text-sm font-bold lg:font-medium uppercase lg:normal-case tracking-widest lg:tracking-normal rounded-xl group-hover:bg-brand-900 group-hover:text-white dark:group-hover:bg-brand-500 dark:group-hover:text-white dark:group-hover:border-brand-500 transition-all duration-300 shadow-sm"
-                          >
-                            Add to Cart
-                          </button>
+                        {/* Details card p-3 on mobile, p-5 on desktop */}
+                        <div className="p-3 lg:p-5 flex flex-col flex-grow">
+                          <p className="text-[9px] lg:text-xs font-bold text-brand-500 dark:text-brand-400 uppercase tracking-widest mb-1 truncate">{product.brand}</p>
+                          <h3 className="font-serif font-bold text-gray-900 dark:text-white mb-2 text-xs lg:text-base leading-snug truncate group-hover:text-brand-900 transition-colors">{product.title}</h3>
+                          
+                          {/* Price & Mobile Wishlist Heart Row */}
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="font-serif font-extrabold text-brand-955 dark:text-white text-xs lg:text-lg">
+                              &#8377; {product.price.toLocaleString("en-IN")}
+                            </span>
+                            
+                            {/* Mobile Heart Button (hidden on desktop, styled exactly like Image 3 screen 1) */}
+                            <button 
+                              onClick={(e) => handleWishlist(e, product._id)}
+                              className={`lg:hidden p-2 rounded-full border shadow-sm transition-all ${
+                                wishlist.includes(product._id) 
+                                  ? 'text-red-500 bg-red-50 border-red-100' 
+                                  : 'text-gray-400 bg-white border-gray-150'
+                              }`}
+                            >
+                              <FaHeart className="text-[10px]" />
+                            </button>
+                          </div>
+
+                          {/* Desktop Add to Cart (hidden on mobile to match image 3 clean shop grid layout) */}
+                          <div className="mt-auto hidden lg:block">
+                            <button 
+                              onClick={(e) => handleAddToCart(product, e)}
+                              className="w-full py-2.5 bg-black text-white hover:bg-brand-900 text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 shadow-md"
+                            >
+                              Add to Cart
+                            </button>
+                          </div>
                         </div>
-                      </div>
                       </Link>
                     );
                   })}

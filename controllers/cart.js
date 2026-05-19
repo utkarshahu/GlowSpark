@@ -72,3 +72,26 @@ module.exports.clearCart = async (req, res) => {
         res.status(500).json({ success: false, message: e.message });
     }
 };
+
+module.exports.updateCartQuantity = async (req, res) => {
+    try {
+        const { productId, quantity } = req.body;
+        const user = await User.findById(req.user._id);
+
+        const item = user.cart.find(item => item.product && item.product.toString() === productId);
+        if (item) {
+            item.quantity = Math.max(1, quantity);
+            await user.save();
+        }
+
+        await user.populate('cart.product');
+        const initialLength = user.cart.length;
+        user.cart = user.cart.filter(item => item.product !== null && item.product !== undefined);
+        if (user.cart.length !== initialLength) {
+            await user.save();
+        }
+        res.status(200).json({ success: true, message: "Cart quantity updated", cart: user.cart });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+};

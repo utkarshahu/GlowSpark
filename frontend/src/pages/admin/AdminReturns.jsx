@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FaUndo, FaCheck, FaTimes, FaSearch } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import api from '../../api/axios';
@@ -131,11 +131,12 @@ const AdminReturns = () => {
                 {filteredOrders.map(order => (
                   <tr 
                     key={order._id} 
-                    onClick={() => navigate(`/admin/orders/${order._id}`)}
-                    className="hover:bg-brand-50/50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                    className="hover:bg-brand-50/20 dark:hover:bg-gray-700/20 transition-colors"
                   >
-                    <td className="px-6 py-4 text-sm font-mono text-brand-600 dark:text-brand-400">
-                      #{order._id.substring(order._id.length - 6)}
+                    <td className="px-6 py-4 text-sm font-mono font-bold text-brand-600 dark:text-brand-400">
+                      <Link to={`/admin/orders/${order._id}`} className="hover:underline hover:text-brand-800">
+                        #{order._id.substring(order._id.length - 6)}
+                      </Link>
                     </td>
                     <td className="px-6 py-4 text-gray-900 dark:text-gray-300 text-sm">{order.user?.email || 'Guest'}</td>
                     <td className="px-6 py-4 text-gray-900 dark:text-gray-300 text-sm max-w-xs truncate">{order.returnReason}</td>
@@ -183,11 +184,12 @@ const AdminReturns = () => {
             {filteredOrders.map(order => (
               <div 
                 key={order._id} 
-                onClick={() => navigate(`/admin/orders/${order._id}`)}
-                className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-brand-100/60 dark:border-gray-700/80 shadow-sm space-y-3 cursor-pointer hover:bg-brand-50/10 transition-all flex flex-col"
+                className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-brand-100/60 dark:border-gray-700/80 shadow-sm space-y-3 transition-all flex flex-col"
               >
                 <div className="flex justify-between items-center">
-                  <span className="font-mono text-xs font-bold text-brand-600 dark:text-brand-400">#{order._id.substring(order._id.length - 6)}</span>
+                  <Link to={`/admin/orders/${order._id}`} className="font-mono text-xs font-bold text-brand-600 hover:underline">
+                    #{order._id.substring(order._id.length - 6)}
+                  </Link>
                   <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
                     order.returnStatus === 'Requested' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
                     order.returnStatus === 'Approved' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :

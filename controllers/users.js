@@ -126,3 +126,48 @@ module.exports.updateProfile = async (req, res) => {
         res.status(500).json({ success: false, message: err.message || "Failed to update profile" });
     }
 };
+
+module.exports.deleteAccount = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { password } = req.body;
+
+        if (req.user._id.toString() !== id) {
+            return res.status(403).json({ success: false, message: "Unauthorized to delete this account" });
+        }
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Verify password
+        const { user: authenticatedUser, error } = await user.authenticate(password);
+        if (error || !authenticatedUser) {
+            return res.status(400).json({ success: false, message: "Incorrect password. Account deletion aborted." });
+        }
+
+        // Delete profile photo from Cloudinary if it exists
+        if (user.profilePhoto && user.profilePhoto.filename) {
+            try {
+                await cloudinary.uploader.destroy(user.profilePhoto.filename);
+            } catch (cloudErr) {
+                console.error("Cloudinary photo delete error:", cloudErr);
+            }
+        }
+
+        // Delete the user from MongoDB
+        await User.findByIdAndDelete(id);
+
+        // Log out user session
+        req.logout((err) => {
+            if (err) {
+                return next(err);
+            }
+            res.json({ success: true, message: "Your account has been permanently deleted. We are sorry to see you go!" });
+        });
+    } catch (err) {
+        console.error("Account deletion error:", err);
+        res.status(500).json({ success: false, message: err.message || "Failed to delete account" });
+    }
+};

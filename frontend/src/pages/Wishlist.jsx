@@ -105,10 +105,12 @@ const Wishlist = () => {
             actionLink="/products"
           />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
             {wishlistItems.map((product) => (
-              <div key={product._id} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-brand-100 dark:border-gray-700 flex flex-col group">
-                <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-900 p-4">
+              <div key={product._id} className="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-brand-100/55 dark:border-gray-700 flex flex-col group relative">
+                
+                {/* Product Image Frame */}
+                <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-900 p-3 sm:p-4">
                   <SmartImage 
                     src={
                       (product.images && product.images[product.thumbnailIndex || 0]?.url) || 
@@ -116,32 +118,38 @@ const Wishlist = () => {
                       (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400')
                     } 
                     alt={product.title} 
-                    className="w-full h-full rounded-xl group-hover:scale-105 transition-transform duration-500" 
+                    className="w-full h-full rounded-2xl group-hover:scale-105 transition-transform duration-500 object-cover" 
                   />
+                  
+                  {/* Remove Button */}
                   <button 
                     onClick={() => removeFromWishlist(product._id)}
-                    className="absolute top-4 right-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-2 rounded-full text-red-500 hover:text-red-700 transition-colors shadow-sm"
+                    className="absolute top-4 right-4 bg-white/95 dark:bg-gray-800/90 backdrop-blur-sm p-2 rounded-full text-red-500 hover:text-red-750 transition-colors shadow-sm z-10"
                     title="Remove"
                   >
-                    <FaTrash size={14} />
+                    <FaTrash size={12} />
                   </button>
                 </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <p className="text-xs font-bold text-brand-500 uppercase tracking-wider mb-1">{product.brand}</p>
-                  <h3 className="font-medium text-gray-900 dark:text-white mb-2 line-clamp-1">{product.title}</h3>
-                  <p className="font-serif font-bold text-gray-900 dark:text-white mb-4">&#8377; {product.price.toLocaleString("en-IN")}</p>
+
+                {/* Details Content */}
+                <div className="p-3 sm:p-5 flex flex-col flex-grow">
+                  <p className="text-[9px] sm:text-xs font-bold text-brand-500 uppercase tracking-widest mb-1 truncate">{product.brand}</p>
+                  <h3 className="font-serif font-bold text-gray-900 dark:text-white mb-2 text-xs sm:text-sm line-clamp-1 group-hover:text-brand-900 transition-colors">{product.title}</h3>
+                  <p className="font-serif font-extrabold text-brand-950 dark:text-brand-400 text-xs sm:text-lg mb-4">₹{product.price.toLocaleString("en-IN")}</p>
                   
-                  <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
+                  {/* Move to Cart Pill Button */}
+                  <div className="mt-auto">
                     <button 
                       onClick={() => moveToCart(product)}
                       disabled={product.stock === 0}
-                      className="w-full flex items-center justify-center gap-2 py-3 bg-brand-50 dark:bg-gray-700 text-brand-900 dark:text-white font-medium rounded-xl hover:bg-brand-900 hover:text-white dark:hover:bg-brand-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-black text-white hover:bg-brand-900 font-bold text-[10px] sm:text-xs uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                     >
-                      <FaShoppingCart />
-                      {product.stock === 0 ? 'Out of Stock' : 'Move to Cart'}
+                      <FaShoppingCart size={11} />
+                      {product.stock === 0 ? 'Out of Stock' : 'Add to Bag'}
                     </button>
                   </div>
                 </div>
+
               </div>
             ))}
           </div>

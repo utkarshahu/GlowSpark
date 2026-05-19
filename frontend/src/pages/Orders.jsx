@@ -9,6 +9,7 @@ import { socket } from '../api/socket';
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -112,42 +113,33 @@ const Orders = () => {
     }
   };
 
+  const steps = [
+    { status: 'Pending', label: 'Order Placed', desc: 'Your order was successfully registered on our system.' },
+    { status: 'Processing', label: 'Processing', desc: 'Your luxurious items are being carefully inspected and hand-packed.' },
+    { status: 'Shipped', label: 'Shipped', desc: 'Your package is on its way to you via our express courier.' },
+    { status: 'Delivered', label: 'Delivered', desc: 'Package delivered! We hope you love your new GlowSpark selection.' }
+  ];
+
+  const stepsCancelled = [
+    { status: 'Pending', label: 'Order Placed', desc: 'Order request received.' },
+    { status: 'Cancelled', label: 'Cancelled', desc: 'This order was cancelled.' }
+  ];
+
   return (
     <div className="bg-brand-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
       <Navbar />
-      <div className="pt-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <h1 className="text-4xl font-serif font-bold text-gray-900 dark:text-white mb-8">My Orders</h1>
+      <div className="pt-32 max-w-2xl mx-auto px-4 pb-20">
+        <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white mb-8 text-center">My Orders</h1>
         
         {loading ? (
           <div className="space-y-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-brand-100 dark:border-gray-700 space-y-4">
-                {/* Header Skeleton */}
                 <div className="flex flex-col md:flex-row justify-between md:items-center border-b border-gray-100 dark:border-gray-700 pb-4 gap-4">
                   <div className="space-y-2">
                     <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
                     <div className="h-3.5 w-32 bg-gray-100 dark:bg-gray-700/60 rounded-full animate-pulse"></div>
                   </div>
-                  <div className="flex flex-col md:items-end space-y-2">
-                    <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-                    <div className="h-6 w-20 bg-brand-100/70 dark:bg-brand-900/30 rounded-full animate-pulse"></div>
-                  </div>
-                </div>
-                {/* Items List Skeleton */}
-                <div className="space-y-3">
-                  {[1, 2].map((itemIdx) => (
-                    <div key={itemIdx} className="flex gap-4 items-center">
-                      <div className="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-700/40 animate-pulse shrink-0"></div>
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 w-1/3 bg-gray-200 dark:bg-gray-700/60 rounded-full animate-pulse"></div>
-                        <div className="h-3 w-16 bg-gray-100 dark:bg-gray-750 rounded-full animate-pulse"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {/* Footer Buttons Skeleton */}
-                <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex gap-4">
-                  <div className="h-10 w-28 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
                 </div>
               </div>
             ))}
@@ -166,25 +158,26 @@ const Orders = () => {
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
-              <div key={order._id} className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-brand-100 dark:border-gray-700">
-                <div className="flex flex-col md:flex-row justify-between md:items-center border-b border-gray-100 dark:border-gray-700 pb-4 mb-4 gap-4">
+              <div key={order._id} className="bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-brand-100/50 dark:border-gray-700">
+                <div className="flex justify-between items-start border-b border-gray-100 dark:border-gray-700 pb-4 mb-4">
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Order #{order._id}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
+                    <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Order ID</p>
+                    <p className="text-xs font-mono font-bold text-brand-700">#{order._id.substring(order._id.length - 8)}</p>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">{new Date(order.createdAt).toLocaleDateString()}</p>
                   </div>
-                  <div className="flex flex-col md:items-end">
-                    <p className="font-serif font-bold text-xl text-gray-900 dark:text-white">&#8377; {order.totalAmount.toLocaleString("en-IN")}</p>
-                    <div className="flex gap-2 mt-2">
-                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  <div className="text-right">
+                    <p className="font-serif font-black text-brand-950 dark:text-white text-base">&#8377; {order.totalAmount.toLocaleString("en-IN")}</p>
+                    <div className="flex gap-1.5 mt-2 justify-end">
+                       <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
                         order.status === 'Delivered' ? 'bg-green-100 text-green-700' :
                         order.status === 'Shipped' ? 'bg-blue-100 text-blue-700' :
-                        'bg-yellow-100 text-yellow-700'
+                        'bg-yellow-100 text-yellow-755'
                       }`}>
                         {order.status}
                       </span>
                       
                       {order.returnStatus !== 'None' && (
-                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
+                        <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-purple-105 text-purple-700">
                           Return: {order.returnStatus}
                         </span>
                       )}
@@ -199,41 +192,102 @@ const Orders = () => {
                       (item.product?.images && item.product.images[0]?.url);
                     return (
                       <div key={item.product?._id || Math.random()} className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                        <div className="w-14 h-14 bg-gray-50 rounded-xl overflow-hidden border shrink-0">
                           {itemImageUrl ? (
                             <img src={itemImageUrl} alt={item.product?.title || item.name} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full bg-gray-200"></div>
                           )}
                         </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900 dark:text-white line-clamp-1">{item.product?.title || item.name || 'Product Unavailable'}</h4>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Qty: {item.quantity} × &#8377; {item.price.toLocaleString("en-IN")}</p>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-gray-900 dark:text-white text-xs truncate">{item.product?.title || item.name || 'Product Unavailable'}</h4>
+                          <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Qty: {item.quantity} × &#8377; {item.price.toLocaleString("en-IN")}</p>
                         </div>
                       </div>
                     );
                   })}
                 </div>
 
-                {(order.status === 'Pending' || order.status === 'Processing') && (
-                  <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
-                     <button 
-                       onClick={() => handleCancelRequest(order._id)}
-                       className="flex items-center gap-2 text-sm font-bold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors bg-red-50 dark:bg-red-950/30 px-5 py-2.5 rounded-xl border border-red-100 dark:border-red-900/50 hover:bg-red-100 hover:scale-105 active:scale-95 transition-all shadow-sm"
-                     >
-                       Cancel Order
-                     </button>
+                {/* Timeline and Actions Control Row */}
+                <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                  <button 
+                    onClick={() => setExpandedOrderId(expandedOrderId === order._id ? null : order._id)}
+                    className="text-[10px] font-black uppercase tracking-wider text-brand-900 hover:text-black dark:text-brand-400 dark:hover:text-white flex items-center gap-1"
+                  >
+                    {expandedOrderId === order._id ? 'Hide Tracker' : 'Track Order'}
+                    <svg className={`w-3.5 h-3.5 transition-transform duration-300 ${expandedOrderId === order._id ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </button>
+                  
+                  <div className="flex gap-2">
+                    {(order.status === 'Pending' || order.status === 'Processing') && (
+                       <button 
+                         onClick={() => handleCancelRequest(order._id)}
+                         className="text-[10px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 px-3.5 py-2 rounded-xl border border-red-100 hover:bg-red-100 transition-all"
+                       >
+                         Cancel
+                       </button>
+                    )}
+                    {order.status === 'Delivered' && order.returnStatus === 'None' && (
+                       <button 
+                         onClick={() => handleReturnRequest(order._id)}
+                         className="text-[10px] font-bold uppercase tracking-wider text-brand-900 hover:text-black bg-brand-50 px-3.5 py-2 rounded-xl border border-brand-100 hover:bg-brand-100 transition-all"
+                       >
+                         Return
+                       </button>
+                    )}
                   </div>
-                )}
+                </div>
 
-                {order.status === 'Delivered' && order.returnStatus === 'None' && (
-                  <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
-                     <button 
-                       onClick={() => handleReturnRequest(order._id)}
-                       className="flex items-center gap-2 text-sm font-medium text-brand-600 dark:text-brand-400 hover:text-brand-800 transition-colors"
-                     >
-                       <FaUndo /> Request Return
-                     </button>
+                {/* Expanded Tracking Timeline (4th Image high-fidelity replica) */}
+                {expandedOrderId === order._id && (
+                  <div className="mt-5 p-4 bg-gray-50 dark:bg-gray-900/40 rounded-2xl border border-brand-100/40 dark:border-gray-800 transition-all duration-300">
+                    <h4 className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-5">Order Progress</h4>
+                    
+                    <div className="relative pl-1">
+                      {/* Vertical connector line */}
+                      <div className="absolute left-[15px] top-1.5 bottom-1.5 w-[2px] bg-gray-200 dark:bg-gray-800 z-0"></div>
+                      
+                      {(order.status === 'Cancelled' ? stepsCancelled : steps).map((step, idx) => {
+                        const statusOrder = ['Pending', 'Processing', 'Shipped', 'Delivered'];
+                        const currentIdx = statusOrder.indexOf(order.status);
+                        const stepIdx = statusOrder.indexOf(step.status);
+                        
+                        const isCompleted = order.status === 'Cancelled' 
+                          ? (step.status === 'Pending' || order.status === step.status)
+                          : (stepIdx <= currentIdx);
+                        
+                        const isActive = order.status === step.status;
+                        
+                        return (
+                          <div key={step.status} className="relative pl-10 pb-5 last:pb-1 flex flex-col z-10">
+                            
+                            {/* Milestone Dot Bubble */}
+                            <div className={`absolute left-0 top-0.5 w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs transition-all ${
+                              isActive ? 'bg-black border-black text-white animate-pulse font-extrabold shadow-sm' :
+                              isCompleted ? 'bg-black border-black text-white font-bold' :
+                              'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400'
+                            }`}>
+                              {isCompleted ? (
+                                <svg className="w-3.5 h-3.5 stroke-current" fill="none" viewBox="0 0 24 24" strokeWidth="3.5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                              ) : (
+                                <span>{idx + 1}</span>
+                              )}
+                            </div>
+                            
+                            {/* Text detail */}
+                            <div>
+                              <h5 className={`text-xs font-extrabold ${isActive ? 'text-black dark:text-white font-black' : 'text-gray-900 dark:text-gray-300'}`}>{step.label}</h5>
+                              <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">{step.desc}</p>
+                            </div>
+                            
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
@@ -298,7 +352,7 @@ const Orders = () => {
                 ></textarea>
               </div>
               <div className="flex justify-end gap-4 mt-8">
-                <button type="button" onClick={() => setCancelModal({ isOpen: false, orderId: null })} className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 font-medium transition-colors">Cancel</button>
+                <button type="button" onClick={() => setCancelModal({ isOpen: false, orderId: null })} className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-950 font-medium transition-colors">Cancel</button>
                 <button type="submit" disabled={isCancelling} className="bg-brand-900 text-white px-8 py-2 rounded-xl font-medium hover:bg-black disabled:bg-gray-400 transition-colors">
                   {isCancelling ? 'Submitting...' : 'Submit Cancellation'}
                 </button>

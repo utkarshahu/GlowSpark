@@ -14,5 +14,6 @@ router.delete("/wishlist/:productId", isLoggedIn, wrapAsync(userController.remov
 
 // Profile routes
 router.put("/:id", isLoggedIn, upload.single("avatar"), validateProfile, wrapAsync(userController.updateProfile));
+router.delete("/:id", isLoggedIn, wrapAsync(userController.deleteAccount));
 
 module.exports = router;

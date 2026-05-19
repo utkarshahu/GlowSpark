@@ -276,6 +276,20 @@ const ProductDetail = () => {
             <div className="mb-6 border-b border-gray-100 dark:border-gray-750 pb-6">
               <p className="text-brand-500 dark:text-brand-400 font-bold tracking-widest uppercase text-[10px] mb-2">{product.brand}</p>
               <h1 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 dark:text-white mb-3 leading-snug">{product.title}</h1>
+              
+              {/* Premium Ingredient & Feature Badges */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="flex items-center gap-1.5 px-3 py-1 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 rounded-full text-[9px] font-bold uppercase tracking-wider border border-green-100/50">
+                  🍃 Natural
+                </span>
+                <span className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 rounded-full text-[9px] font-bold uppercase tracking-wider border border-blue-100/50">
+                  🐰 Vegan
+                </span>
+                <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 rounded-full text-[9px] font-bold uppercase tracking-wider border border-amber-100/50">
+                  ✨ Organic
+                </span>
+              </div>
+
               <p className="text-2xl font-serif font-black text-brand-850 dark:text-brand-300 mb-4">&#8377; {product.price.toLocaleString("en-IN")}</p>
               <p className="text-xs text-gray-600 dark:text-gray-300 font-light leading-relaxed">{product.description}</p>
             </div>
@@ -312,8 +326,8 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-3">
+            {/* Action Buttons (Visible on Desktop) */}
+            <div className="hidden md:flex flex-col gap-3">
               <button 
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
@@ -576,6 +590,24 @@ const ProductDetail = () => {
           )}
         </div>
       </div>
+
+      {/* Premium Sticky Bottom checkout bar on Mobile */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-850/95 backdrop-blur-md border-t border-brand-100/40 dark:border-gray-850/60 p-4 px-6 flex items-center justify-between gap-4 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+        <div className="min-w-0">
+          <p className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest truncate">{product.brand}</p>
+          <p className="font-serif font-black text-brand-950 dark:text-white text-base">₹{product.price.toLocaleString("en-IN")}</p>
+        </div>
+        <div className="shrink-0">
+          <button 
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+            className="px-6 py-3 bg-black hover:bg-brand-900 disabled:bg-gray-300 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all shadow-md"
+          >
+            {product.stock === 0 ? 'Out of Stock' : 'Add to Bag'}
+          </button>
+        </div>
+      </div>
+
     </div>
   );
 };

@@ -1,19 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { FaUserEdit, FaMapMarkerAlt, FaLock, FaCamera } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaUserEdit, FaMapMarkerAlt, FaLock, FaCamera, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
 import api from '../api/axios';
-import { updateProfile } from '../store/userSlice';
+import { updateProfile, logout } from '../store/userSlice';
 
 const Profile = () => {
   const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState('general');
   const [isEditingGeneral, setIsEditingGeneral] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
   const [formData, setFormData] = useState({
     username: '',
     phoneNumber: '',
@@ -122,6 +125,29 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteAccount = async (e) => {
+    e.preventDefault();
+    if (!window.confirm("ARE YOU ABSOLUTELY SURE you want to permanently delete your GlowSpark account? This action is IRREVERSIBLE!")) {
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await api.delete(`/users/${currentUser._id}`, {
+        data: { password: deletePassword }
+      });
+      if (res.data.success) {
+        toast.success(res.data.message || "Your account has been deleted successfully", { theme: "dark" });
+        localStorage.removeItem('sessionId');
+        dispatch(logout());
+        navigate('/');
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete account. Please verify your password.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!currentUser) return null;
 
   return (
@@ -173,6 +199,12 @@ const Profile = () => {
                   className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-colors ${activeTab === 'security' ? 'bg-brand-900 text-white' : 'text-gray-600 hover:bg-brand-50 dark:text-gray-300 dark:hover:bg-gray-700'}`}
                 >
                   <FaLock /> Security
+                </button>
+                <button 
+                  onClick={() => setActiveTab('delete')}
+                  className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-colors ${activeTab === 'delete' ? 'bg-red-600 text-white' : 'text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20 font-semibold'}`}
+                >
+                  <FaTrash /> Delete Account
                 </button>
               </div>
             </div>
@@ -285,6 +317,53 @@ const Profile = () => {
                     {loading ? 'Updating...' : 'Update Password'}
                   </button>
                 </form>
+              )}
+
+              {activeTab === 'delete' && (
+                <div>
+                  <h2 className="text-2xl font-serif font-bold text-red-600 dark:text-red-400 mb-4 flex items-center gap-2">
+                    <FaTrash /> Delete Account
+                  </h2>
+                  <div className="bg-red-50 dark:bg-red-950/20 rounded-3xl p-6 border border-red-100 dark:border-red-900/30 mb-6">
+                    <p className="text-red-850 dark:text-red-300 font-bold mb-2">Warning: Irreversible Action!</p>
+                    <p className="text-sm text-red-700 dark:text-red-400 leading-relaxed">
+                      Deleting your account will permanently remove all your profile data, delivery addresses, order histories, wishlists, and active sessions. This action is 100% permanent and cannot be undone.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleDeleteAccount} className="max-w-md space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Verify Current Password
+                      </label>
+                      <input 
+                        required
+                        type="password" 
+                        value={deletePassword} 
+                        onChange={(e) => setDeletePassword(e.target.value)} 
+                        placeholder="Enter password to confirm"
+                        className="w-full px-4 py-3 bg-brand-50 dark:bg-gray-700 border-none rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-gray-900 dark:text-white" 
+                      />
+                    </div>
+
+                    <div className="flex gap-4">
+                      <button 
+                        type="submit" 
+                        disabled={loading} 
+                        className="bg-red-650 hover:bg-red-700 text-white px-8 py-3 rounded-full font-bold uppercase tracking-widest text-sm transition-colors disabled:opacity-50"
+                      >
+                        {loading ? 'Deleting...' : 'Delete Account Permanently'}
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => setActiveTab('general')} 
+                        className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-8 py-3 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
               )}
 
             </div>
