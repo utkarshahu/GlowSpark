@@ -5,6 +5,7 @@ const initialState = {
   isAuthenticated: false,
   loading: false,
   currentMode: 'user', // 'user' or 'admin'
+  unreadOrdersCount: 0,
 };
 
 export const userSlice = createSlice({
@@ -29,6 +30,7 @@ export const userSlice = createSlice({
       state.currentUser = null;
       state.isAuthenticated = false;
       state.currentMode = 'user';
+      state.unreadOrdersCount = 0;
     },
     setMode: (state, action) => {
       state.currentMode = action.payload;
@@ -42,9 +44,15 @@ export const userSlice = createSlice({
       if (state.currentUser) {
         state.currentUser = { ...state.currentUser, ...action.payload };
       }
+    },
+    incrementUnreadOrders: (state) => {
+      state.unreadOrdersCount += 1;
+    },
+    clearUnreadOrders: (state) => {
+      state.unreadOrdersCount = 0;
     }
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, setMode, updateWishlist, updateProfile } = userSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, setMode, updateWishlist, updateProfile, incrementUnreadOrders, clearUnreadOrders } = userSlice.actions;
 export default userSlice.reducer;

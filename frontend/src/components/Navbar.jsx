@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart, FaBars, FaTimes, FaChevronDown, FaUserShield, FaUserCog } from 'react-icons/fa';
-import { logout, setMode } from '../store/userSlice';
+import { FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart, FaBars, FaTimes, FaChevronDown, FaUserShield, FaUserCog, FaChartLine, FaClipboardList } from 'react-icons/fa';
+import { logout, setMode, incrementUnreadOrders, clearUnreadOrders } from '../store/userSlice';
+import { socket } from '../api/socket';
+import { toast } from 'react-toastify';
 import api from '../api/axios';
 import logo from '../assets/glow_spark_logo.png';
 
 const Navbar = () => {
-  const { currentUser, currentMode } = useSelector((state) => state.user);
+  const { currentUser, currentMode, unreadOrdersCount } = useSelector((state) => state.user || {});
   const { totalQuantity } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -41,6 +43,46 @@ const Navbar = () => {
       document.body.style.overflow = 'unset';
     };
   }, [isMobileMenuOpen]);
+
+  // Real-Time Socket Orders Listener for Admins
+  useEffect(() => {
+    if (currentUser && currentUser.role === 'admin') {
+      const handleNewOrder = (order) => {
+        // Trigger real-time beautiful notification
+        toast.info(
+          <div className="flex flex-col gap-1.5 p-1 text-left">
+            <span className="font-extrabold text-[10px] uppercase tracking-widest text-amber-500 flex items-center gap-1">
+              🔔 Real-Time Order Alert!
+            </span>
+            <span className="text-xs font-semibold text-gray-900 dark:text-white">
+              New order placed by <span className="text-amber-600 dark:text-amber-400 font-extrabold">{order.user?.username || 'Customer'}</span>!
+            </span>
+            <span className="text-[10px] text-gray-500 font-mono">
+              Total Amount: ₹{order.totalAmount?.toLocaleString("en-IN")}
+            </span>
+          </div>,
+          {
+            position: "top-right",
+            autoClose: 10000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: isDarkMode ? "dark" : "light"
+          }
+        );
+        
+        // Dispatch to increment count
+        dispatch(incrementUnreadOrders());
+      };
+
+      socket.on('newOrderPlaced', handleNewOrder);
+
+      return () => {
+        socket.off('newOrderPlaced', handleNewOrder);
+      };
+    }
+  }, [currentUser, isDarkMode, dispatch]);
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -127,34 +169,65 @@ const Navbar = () => {
 
             {/* Icons Bar */}
             <div className="flex items-center space-x-3 sm:space-x-6">
-              {/* Theme Toggle */}
+               {/* Theme Toggle */}
               <button 
                 onClick={toggleTheme} 
-                className="text-gray-600 dark:text-gray-300 hover:text-brand-900 dark:hover:text-white transition-colors p-2"
+                className={`${currentMode === 'admin' ? 'text-black dark:text-white hover:text-amber-500' : 'text-gray-600 dark:text-gray-300 hover:text-brand-900 dark:hover:text-white'} transition-colors p-2`}
                 aria-label="Toggle Dark Mode"
               >
                 {isDarkMode ? <FaSun className="text-lg sm:text-xl" /> : <FaMoon className="text-lg sm:text-xl" />}
               </button>
 
-              {/* Wishlist */}
-              <Link to="/wishlist" className="text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 relative transition-colors p-2">
-                <FaHeart className="text-lg sm:text-xl" />
-                {currentUser?.wishlist?.length > 0 && (
-                  <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
-                    {currentUser.wishlist.length}
-                  </span>
-                )}
-              </Link>
+              {/* Conditional Icons based on Mode */}
+              {currentMode === 'admin' ? (
+                <>
+                  {/* Dashboard Icon option */}
+                  <Link 
+                    to="/admin" 
+                    title="Dashboard" 
+                    className="text-black dark:text-white hover:text-amber-500 relative transition-colors p-2 flex items-center"
+                  >
+                    <FaChartLine className="text-lg sm:text-xl" />
+                  </Link>
 
-              {/* Cart */}
-              <Link to="/cart" className="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 relative transition-colors p-2">
-                <FaShoppingCart className="text-lg sm:text-xl" />
-                {totalQuantity > 0 && (
-                  <span className="absolute top-0 right-0 bg-brand-500 text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
-                    {totalQuantity}
-                  </span>
-                )}
-              </Link>
+                  {/* Orders Icon option with real-time notification badge */}
+                  <Link 
+                    to="/admin/orders" 
+                    title="Manage Orders" 
+                    onClick={() => dispatch(clearUnreadOrders())}
+                    className="text-black dark:text-white hover:text-amber-500 relative transition-colors p-2 flex items-center"
+                  >
+                    <FaClipboardList className="text-lg sm:text-xl" />
+                    {unreadOrdersCount > 0 && (
+                      <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold animate-bounce shadow-md">
+                        {unreadOrdersCount}
+                      </span>
+                    )}
+                  </Link>
+                </>
+              ) : (
+                <>
+                  {/* Wishlist */}
+                  <Link to="/wishlist" className="text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 relative transition-colors p-2 flex items-center">
+                    <FaHeart className="text-lg sm:text-xl" />
+                    {currentUser?.wishlist?.length > 0 && (
+                      <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                        {currentUser.wishlist.length}
+                      </span>
+                    )}
+                  </Link>
+
+                  {/* Cart */}
+                  <Link to="/cart" className="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 relative transition-colors p-2 flex items-center">
+                    <FaShoppingCart className="text-lg sm:text-xl" />
+                    {totalQuantity > 0 && (
+                      <span className="absolute top-0 right-0 bg-brand-500 text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                        {totalQuantity}
+                      </span>
+                    )}
+                  </Link>
+                </>
+              )}
               
               {/* Desktop Mode Switcher */}
               {currentUser && currentUser.role === 'admin' && (
@@ -226,7 +299,7 @@ const Navbar = () => {
               {/* Mobile Hamburger Menu Toggle */}
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-                className="md:hidden text-gray-600 dark:text-gray-300 hover:text-brand-900 dark:hover:text-white transition-colors p-2 z-50 focus:outline-none"
+                className={`md:hidden ${currentMode === 'admin' ? 'text-black dark:text-white hover:text-amber-500' : 'text-gray-600 dark:text-gray-300 hover:text-brand-900 dark:hover:text-white'} transition-colors p-2 z-50 focus:outline-none`}
                 aria-label="Toggle Mobile Menu"
               >
                 {isMobileMenuOpen ? <FaTimes className="text-xl sm:text-2xl animate-spin-once" /> : <FaBars className="text-xl sm:text-2xl" />}

@@ -4,14 +4,18 @@ import api from '../../api/axios';
 import { toast } from 'react-toastify';
 import { socket } from '../../api/socket';
 import { FaSearch } from 'react-icons/fa';
+import { useDispatch } from 'react-redux';
+import { clearUnreadOrders } from '../../store/userSlice';
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(clearUnreadOrders());
     const fetchOrders = async () => {
       try {
         const res = await api.get('/admin/orders');
