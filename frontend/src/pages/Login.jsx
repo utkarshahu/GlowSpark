@@ -33,7 +33,11 @@ const Login = () => {
         }
         dispatch(loginSuccess(response.data.user));
         toast.success(isLogin ? "Welcome back to Glow Spark!" : "Welcome to the Glow Spark family!");
-        navigate('/products');
+        if (response.data.user.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
       }
     } catch (err) {
       dispatch(loginFailure());

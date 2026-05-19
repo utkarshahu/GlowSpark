@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart, FaBars, FaTimes, FaChevronDown } from 'react-icons/fa';
-import { logout } from '../store/userSlice';
+import { logout, setMode } from '../store/userSlice';
 import api from '../api/axios';
 import logo from '../assets/glow_spark_logo.png';
 
 const Navbar = () => {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, currentMode } = useSelector((state) => state.user);
   const { totalQuantity } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -156,6 +156,28 @@ const Navbar = () => {
                 )}
               </Link>
               
+              {/* Desktop Mode Switcher */}
+              {currentUser && currentUser.role === 'admin' && (
+                <button
+                  onClick={() => {
+                    const nextMode = currentMode === 'admin' ? 'user' : 'admin';
+                    dispatch(setMode(nextMode));
+                    if (nextMode === 'admin') {
+                      navigate('/admin');
+                    } else {
+                      navigate('/');
+                    }
+                  }}
+                  className={`hidden md:inline-block px-4 py-2.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all shadow-sm border ${
+                    currentMode === 'admin'
+                      ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-900/50 hover:bg-amber-250'
+                      : 'bg-brand-100 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400 border-brand-300 dark:border-brand-900/50 hover:bg-brand-200'
+                  }`}
+                >
+                  {currentMode === 'admin' ? '🛡️ Admin Mode' : '👤 User Mode'}
+                </button>
+              )}
+              
               {/* Desktop User Menu */}
               <div className="hidden md:block">
                 {currentUser ? (
@@ -294,7 +316,25 @@ const Navbar = () => {
                     <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)} className="px-3 py-2 bg-brand-50 dark:bg-gray-800 text-[10px] uppercase font-bold tracking-wider rounded-xl text-brand-900 dark:text-brand-350">My Orders</Link>
                     <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="col-span-2 px-3 py-2 bg-brand-50 dark:bg-gray-800 text-[10px] uppercase font-bold tracking-wider rounded-xl text-brand-900 dark:text-brand-350">My Wishlist</Link>
                     {currentUser.role === 'admin' && (
-                      <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="col-span-2 px-3 py-2 bg-amber-500/10 text-[10px] uppercase font-bold tracking-wider rounded-xl text-amber-700 dark:text-amber-450 border border-amber-500/20">Admin Panel</Link>
+                      <button
+                        onClick={() => {
+                          const nextMode = currentMode === 'admin' ? 'user' : 'admin';
+                          dispatch(setMode(nextMode));
+                          setIsMobileMenuOpen(false);
+                          if (nextMode === 'admin') {
+                            navigate('/admin');
+                          } else {
+                            navigate('/');
+                          }
+                        }}
+                        className={`col-span-2 px-3 py-2 text-[10px] uppercase font-bold tracking-wider rounded-xl border transition-all ${
+                          currentMode === 'admin'
+                            ? 'bg-amber-500/10 text-amber-750 dark:text-amber-450 border-amber-500/20'
+                            : 'bg-brand-500/10 text-brand-750 dark:text-brand-400 border-brand-500/20'
+                        }`}
+                      >
+                        {currentMode === 'admin' ? '🛡️ Switch to User Mode' : '🛡️ Switch to Admin Mode'}
+                      </button>
                     )}
                   </div>
 

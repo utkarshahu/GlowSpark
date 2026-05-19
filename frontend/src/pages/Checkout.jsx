@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart, setCart as setReduxCart } from '../store/cartSlice';
+import { setMode } from '../store/userSlice';
 import api from '../api/axios';
 import Navbar from '../components/Navbar';
 import { toast } from 'react-toastify';
@@ -19,7 +20,8 @@ const Checkout = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector(state => state.user.currentUser);
-  const isBlocked = user?.isBlocked;
+  const currentMode = useSelector(state => state.user.currentMode);
+  const isBlocked = user?.isBlocked || currentMode === 'admin';
 
   useEffect(() => {
     // If the checkout route was called with custom checkout items (direct buy / subset selection)
@@ -130,9 +132,25 @@ const Checkout = () => {
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-brand-100 dark:border-gray-700 p-8 md:p-12 transition-colors duration-300">
           <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white mb-8">Checkout</h1>
           
-          {isBlocked && (
+          {isBlocked && user?.isBlocked && (
             <div className="bg-red-100 text-red-800 p-6 rounded-2xl mb-8 font-bold border border-red-200">
               Your account has been restricted from placing orders. Please contact customer support.
+            </div>
+          )}
+
+          {currentMode === 'admin' && (
+            <div className="bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 p-6 rounded-2xl mb-8 font-bold border border-amber-200 dark:border-amber-900/50 text-center space-y-3">
+              <p>Direct purchasing is disabled in Admin Mode.</p>
+              <button 
+                type="button"
+                onClick={() => {
+                  dispatch(setMode('user'));
+                  toast.success("Switched to User Mode");
+                }}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-md"
+              >
+                Switch to User Mode to Purchase
+              </button>
             </div>
           )}
 

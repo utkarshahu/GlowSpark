@@ -4,6 +4,7 @@ const initialState = {
   currentUser: null,
   isAuthenticated: false,
   loading: false,
+  currentMode: 'user', // 'user' or 'admin'
 };
 
 export const userSlice = createSlice({
@@ -17,14 +18,20 @@ export const userSlice = createSlice({
       state.loading = false;
       state.currentUser = action.payload;
       state.isAuthenticated = true;
+      state.currentMode = action.payload.role === 'admin' ? 'admin' : 'user';
     },
     loginFailure: (state) => {
       state.loading = false;
       state.isAuthenticated = false;
+      state.currentMode = 'user';
     },
     logout: (state) => {
       state.currentUser = null;
       state.isAuthenticated = false;
+      state.currentMode = 'user';
+    },
+    setMode: (state, action) => {
+      state.currentMode = action.payload;
     },
     updateWishlist: (state, action) => {
       if (state.currentUser) {
@@ -39,5 +46,5 @@ export const userSlice = createSlice({
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, updateWishlist, updateProfile } = userSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, setMode, updateWishlist, updateProfile } = userSlice.actions;
 export default userSlice.reducer;

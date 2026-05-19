@@ -2,19 +2,29 @@ import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FaTachometerAlt, FaBoxOpen, FaUsers, FaShoppingCart, FaSignOutAlt, FaStore, FaTag, FaUndo, FaChartBar } from 'react-icons/fa';
-import { logout } from '../store/userSlice';
+import { logout, setMode } from '../store/userSlice';
 import api from '../api/axios';
 
 const AdminLayout = () => {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, currentMode } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Basic role protection (should also be enforced by backend)
-  if (!currentUser || currentUser.role !== 'admin') {
+  // Strict role and active mode protection
+  if (!currentUser || currentUser.role !== 'admin' || currentMode !== 'admin') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-brand-50 text-brand-900 font-serif text-2xl">
-        Access Denied. Admins Only.
+      <div className="min-h-screen flex flex-col items-center justify-center bg-brand-50 dark:bg-gray-950 p-6 text-center space-y-4">
+        <h2 className="text-2xl font-serif font-black text-brand-900 dark:text-white">Access Denied</h2>
+        <p className="text-sm text-gray-500 max-w-sm">Admin mode is not active or you do not have permission to view this panel.</p>
+        <button 
+          onClick={() => {
+            dispatch(setMode('user'));
+            navigate('/');
+          }} 
+          className="px-5 py-2.5 bg-brand-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all shadow-md"
+        >
+          Return to Storefront
+        </button>
       </div>
     );
   }
@@ -72,12 +82,15 @@ const AdminLayout = () => {
         </div>
 
         <div className="p-4 border-t border-brand-100 dark:border-gray-800">
-          <NavLink
-            to="/"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mb-2"
+          <button
+            onClick={() => {
+              dispatch(setMode('user'));
+              navigate('/');
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-650 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mb-2 text-sm"
           >
-            <FaStore /> View Store
-          </NavLink>
+            <FaStore /> Switch to User Mode
+          </button>
           <button 
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
@@ -95,13 +108,16 @@ const AdminLayout = () => {
             Glow<span className="text-brand-500">Admin</span>
           </h1>
           <div className="flex items-center gap-2">
-            <NavLink
-              to="/"
-              title="View Store"
+            <button
+              onClick={() => {
+                dispatch(setMode('user'));
+                navigate('/');
+              }}
+              title="Switch to User Mode"
               className="p-2.5 bg-brand-50 dark:bg-gray-800 text-brand-900 dark:text-white rounded-xl text-sm hover:bg-brand-100 transition-colors"
             >
               <FaStore />
-            </NavLink>
+            </button>
             <button 
               onClick={handleLogout}
               title="Logout"
