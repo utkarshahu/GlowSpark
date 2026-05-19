@@ -232,9 +232,13 @@ module.exports.cancelOrder = async (req, res) => {
 
         await order.save();
 
+        const populatedOrder = await Order.findById(order._id)
+            .populate('user', 'email username')
+            .populate('products.product');
+
         const io = req.app.get('io');
         if (io) {
-            io.emit('orderStatusUpdated', order);
+            io.emit('orderStatusUpdated', populatedOrder);
         }
 
         res.status(200).json({ success: true, message: "Order cancelled successfully!", order });

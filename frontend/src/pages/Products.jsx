@@ -308,7 +308,7 @@ const Products = () => {
                                 e.stopPropagation();
                                 navigate(`/admin/products/${product._id}`);
                               }}
-                              className="hidden lg:flex absolute top-4 right-4 transition-colors p-2.5 rounded-full backdrop-blur-sm z-10 shadow-sm text-amber-600 bg-white/95 hover:bg-white hover:text-amber-700"
+                              className="hidden lg:flex absolute top-4 right-4 transition-colors p-2.5 rounded-full backdrop-blur-sm z-10 shadow-sm text-black bg-white/95 hover:bg-gray-100 hover:text-gray-900"
                               title="Edit Product"
                             >
                               <FaUserCog className="text-sm" />
@@ -358,7 +358,7 @@ const Products = () => {
                                   e.stopPropagation();
                                   navigate(`/admin/products/${product._id}`);
                                 }}
-                                className="lg:hidden p-2 rounded-full border border-amber-200 bg-amber-50 text-amber-600 shadow-sm transition-all"
+                                className="lg:hidden p-2 rounded-full border border-gray-205 bg-gray-50 text-black shadow-sm transition-all hover:bg-gray-150"
                                 title="Edit Product"
                               >
                                 <FaUserCog className="text-[10px]" />
@@ -385,7 +385,7 @@ const Products = () => {
                                   e.preventDefault();
                                   navigate(`/admin/products/${product._id}`);
                                 }}
-                                className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 dark:bg-amber-450 dark:hover:bg-amber-400 dark:text-gray-950 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all duration-300 shadow-md"
+                                className="w-full py-2.5 bg-black hover:bg-brand-900 text-white dark:bg-brand-100 dark:text-brand-900 dark:hover:bg-white text-xs font-black uppercase tracking-widest rounded-xl transition-all duration-300 shadow-md"
                               >
                                 Edit Product
                               </button>

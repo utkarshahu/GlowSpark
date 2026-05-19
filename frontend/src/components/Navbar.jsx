@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart, FaBars, FaTimes, FaChevronDown, FaUserShield, FaUserCog, FaChartLine, FaClipboardList, FaTachometerAlt, FaChartBar } from 'react-icons/fa';
-import { logout, setMode, incrementUnreadOrders, clearUnreadOrders } from '../store/userSlice';
+import { 
+  FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart, FaBars, 
+  FaTimes, FaChevronDown, FaUserShield, FaUserCog, FaTachometerAlt, 
+  FaChartBar, FaBell, FaShoppingBag, FaUndo, FaTimesCircle, FaTrash 
+} from 'react-icons/fa';
+import { logout, setMode, addNotification, clearUnreadOrders, clearNotifications } from '../store/userSlice';
 import { socket } from '../api/socket';
 import { toast } from 'react-toastify';
 import api from '../api/axios';
 import logo from '../assets/glow_spark_logo.svg';
 
 const Navbar = () => {
-  const { currentUser, currentMode, unreadOrdersCount } = useSelector((state) => state.user || {});
+  const { currentUser, currentMode, unreadOrdersCount, notifications } = useSelector((state) => state.user || {});
   const { totalQuantity } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -21,6 +25,9 @@ const Navbar = () => {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileShopOpen, setIsMobileShopOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  
+  const notificationRef = useRef(null);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -44,21 +51,56 @@ const Navbar = () => {
     };
   }, [isMobileMenuOpen]);
 
-  // Real-Time Socket Orders Listener for Admins
+  // Close notifications dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setIsNotificationOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Admin Login Alert: Notify admin of pending/unread notifications on login
+  useEffect(() => {
+    if (currentUser && currentUser.role === 'admin' && unreadOrdersCount > 0) {
+      toast.info(
+        <div className="flex flex-col gap-1 p-1 text-left">
+          <span className="font-extrabold text-[10px] uppercase tracking-widest text-gray-400">
+            🔔 Pending Notifications
+          </span>
+          <span className="text-xs font-semibold text-gray-900 dark:text-white">
+            You have {unreadOrdersCount} new order alerts since your last check.
+          </span>
+        </div>,
+        {
+          position: "top-right",
+          autoClose: 6000,
+          theme: isDarkMode ? "dark" : "light"
+        }
+      );
+    }
+  }, [currentUser]);
+
+  // Real-Time Socket Orders, Returns and Cancellations Listener for Admins
   useEffect(() => {
     if (currentUser && currentUser.role === 'admin') {
+      
       const handleNewOrder = (order) => {
-        // Trigger real-time beautiful notification
-        toast.info(
+        // Trigger real-time green/emerald success toast
+        toast.success(
           <div className="flex flex-col gap-1.5 p-1 text-left">
-            <span className="font-extrabold text-[10px] uppercase tracking-widest text-amber-500 flex items-center gap-1">
-              🔔 Real-Time Order Alert!
+            <span className="font-extrabold text-[10px] uppercase tracking-widest text-emerald-600 flex items-center gap-1">
+              🛍️ New Order Placed!
             </span>
             <span className="text-xs font-semibold text-gray-900 dark:text-white">
-              New order placed by <span className="text-amber-600 dark:text-amber-400 font-extrabold">{order.user?.username || 'Customer'}</span>!
+              Order of <span className="font-extrabold">₹{order.totalAmount?.toLocaleString("en-IN")}</span> placed by <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">{order.user?.username || 'Customer'}</span>!
             </span>
             <span className="text-[10px] text-gray-500 font-mono">
-              Total Amount: ₹{order.totalAmount?.toLocaleString("en-IN")}
+              Order ID: #{order._id?.slice(-6)}
             </span>
           </div>,
           {
@@ -72,14 +114,102 @@ const Navbar = () => {
           }
         );
         
-        // Dispatch to increment count
-        dispatch(incrementUnreadOrders());
+        // Dispatch order notification payload
+        dispatch(addNotification({
+          id: order._id + '_' + Date.now(),
+          type: 'order',
+          title: 'New Order Placed',
+          message: `Order of ₹${order.totalAmount?.toLocaleString("en-IN")} placed by ${order.user?.username || 'Customer'}.`,
+          date: new Date().toISOString(),
+          link: `/admin/orders`,
+          refId: order._id
+        }));
+      };
+
+      const handleReturnRequest = (order) => {
+        // Trigger real-time warning toast
+        toast.warn(
+          <div className="flex flex-col gap-1.5 p-1 text-left">
+            <span className="font-extrabold text-[10px] uppercase tracking-widest text-amber-600 flex items-center gap-1">
+              🔄 Return Requested!
+            </span>
+            <span className="text-xs font-semibold text-gray-900 dark:text-white">
+              Return requested for Order <span className="font-extrabold">#{order._id?.slice(-6)}</span>
+            </span>
+            <span className="text-[10px] text-gray-500 font-mono">
+              Reason: {order.returnReason || 'No reason provided'}
+            </span>
+          </div>,
+          {
+            position: "top-right",
+            autoClose: 10000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: isDarkMode ? "dark" : "light"
+          }
+        );
+
+        // Dispatch return notification payload
+        dispatch(addNotification({
+          id: order._id + '_return_' + Date.now(),
+          type: 'return',
+          title: 'Return Requested',
+          message: `Return requested for Order #${order._id?.slice(-6)}: ${order.returnReason || 'No reason provided'}.`,
+          date: new Date().toISOString(),
+          link: `/admin/returns`,
+          refId: order._id
+        }));
+      };
+
+      const handleOrderStatusUpdated = (order) => {
+        // Trigger cancellations toast only
+        if (order.status === 'Cancelled') {
+          toast.error(
+            <div className="flex flex-col gap-1.5 p-1 text-left">
+              <span className="font-extrabold text-[10px] uppercase tracking-widest text-red-500 flex items-center gap-1">
+                ❌ Order Cancelled!
+              </span>
+              <span className="text-xs font-semibold text-gray-900 dark:text-white">
+                Order <span className="font-extrabold">#{order._id?.slice(-6)}</span> was cancelled by <span className="font-extrabold">{order.user?.username || 'Customer'}</span>
+              </span>
+              <span className="text-[10px] text-gray-500 font-mono">
+                Reason: {order.cancelReason || 'No reason provided'}
+              </span>
+            </div>,
+            {
+              position: "top-right",
+              autoClose: 10000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              theme: isDarkMode ? "dark" : "light"
+            }
+          );
+
+          // Dispatch cancellation notification payload
+          dispatch(addNotification({
+            id: order._id + '_cancel_' + Date.now(),
+            type: 'cancel',
+            title: 'Order Cancelled',
+            message: `Order #${order._id?.slice(-6)} was cancelled by ${order.user?.username || 'Customer'}.`,
+            date: new Date().toISOString(),
+            link: `/admin/orders`,
+            refId: order._id
+          }));
+        }
       };
 
       socket.on('newOrderPlaced', handleNewOrder);
+      socket.on('returnRequested', handleReturnRequest);
+      socket.on('orderStatusUpdated', handleOrderStatusUpdated);
 
       return () => {
         socket.off('newOrderPlaced', handleNewOrder);
+        socket.off('returnRequested', handleReturnRequest);
+        socket.off('orderStatusUpdated', handleOrderStatusUpdated);
       };
     }
   }, [currentUser, isDarkMode, dispatch]);
@@ -97,6 +227,13 @@ const Navbar = () => {
       navigate('/login');
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleBellClick = () => {
+    setIsNotificationOpen(!isNotificationOpen);
+    if (!isNotificationOpen) {
+      dispatch(clearUnreadOrders());
     }
   };
 
@@ -174,7 +311,7 @@ const Navbar = () => {
                {/* Theme Toggle */}
               <button 
                 onClick={toggleTheme} 
-                className={`${currentMode === 'admin' ? 'text-black dark:text-white hover:text-amber-500' : 'text-gray-600 dark:text-gray-300 hover:text-brand-900 dark:hover:text-white'} transition-colors p-2`}
+                className="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors p-2"
                 aria-label="Toggle Dark Mode"
               >
                 {isDarkMode ? <FaSun className="text-lg sm:text-xl" /> : <FaMoon className="text-lg sm:text-xl" />}
@@ -187,7 +324,7 @@ const Navbar = () => {
                   <Link 
                     to="/admin" 
                     title="Dashboard" 
-                    className="text-black dark:text-white hover:text-amber-500 relative transition-colors p-2 flex items-center"
+                    className="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white relative transition-colors p-2 flex items-center"
                   >
                     <FaTachometerAlt className="text-lg sm:text-xl" />
                   </Link>
@@ -196,15 +333,105 @@ const Navbar = () => {
                   <Link 
                     to="/admin/analytics" 
                     title="Analysis" 
-                    className="text-black dark:text-white hover:text-amber-500 relative transition-colors p-2 flex items-center"
+                    className="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white relative transition-colors p-2 flex items-center"
                   >
                     <FaChartBar className="text-lg sm:text-xl" />
                   </Link>
+
+                  {/* Notifications Bell Icon & Dropdown */}
+                  <div className="relative flex items-center" ref={notificationRef}>
+                    <button 
+                      onClick={handleBellClick} 
+                      title="Notifications" 
+                      className="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white relative transition-colors p-2 flex items-center"
+                    >
+                      <FaBell className="text-lg sm:text-xl" />
+                      {unreadOrdersCount > 0 && (
+                        <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full h-4.5 w-4.5 flex items-center justify-center font-bold animate-pulse">
+                          {unreadOrdersCount}
+                        </span>
+                      )}
+                    </button>
+
+                    {isNotificationOpen && (
+                      <div className="absolute right-0 top-12 mt-2 w-80 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 py-3 z-50 transition-all duration-305">
+                        {/* Dropdown Header */}
+                        <div className="px-4 pb-2 border-b border-gray-100 dark:border-gray-800 mb-2 flex justify-between items-center">
+                          <span className="text-xs font-extrabold text-gray-900 dark:text-white uppercase tracking-widest">
+                            Notifications
+                          </span>
+                          {notifications.length > 0 && (
+                            <button 
+                              onClick={() => {
+                                dispatch(clearNotifications());
+                                setIsNotificationOpen(false);
+                              }}
+                              className="text-[10px] text-red-550 hover:text-red-700 flex items-center gap-1 font-extrabold transition-colors uppercase tracking-wider"
+                            >
+                              <FaTrash className="text-[9px]" /> Clear All
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Dropdown Body */}
+                        <div className="max-h-72 overflow-y-auto px-2 space-y-1">
+                          {notifications.length === 0 ? (
+                            <div className="text-center py-8 text-gray-400 dark:text-gray-500 text-xs font-semibold">
+                              No new notifications
+                            </div>
+                          ) : (
+                            notifications.map((item) => (
+                              <button
+                                key={item.id}
+                                onClick={() => {
+                                  setIsNotificationOpen(false);
+                                  navigate(item.link || '/admin/orders');
+                                }}
+                                className="w-full text-left p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/80 flex gap-3 transition-colors text-xs border border-transparent hover:border-gray-100 dark:hover:border-gray-700"
+                              >
+                                {/* Left Notification Icon */}
+                                <div className="mt-0.5">
+                                  {item.type === 'order' && (
+                                    <div className="p-1.5 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-lg">
+                                      <FaShoppingBag className="text-xs" />
+                                    </div>
+                                  )}
+                                  {item.type === 'return' && (
+                                    <div className="p-1.5 bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-lg">
+                                      <FaUndo className="text-xs" />
+                                    </div>
+                                  )}
+                                  {item.type === 'cancel' && (
+                                    <div className="p-1.5 bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 rounded-lg">
+                                      <FaTimesCircle className="text-xs" />
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* Right Details */}
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-extrabold text-[10px] uppercase tracking-wider text-gray-900 dark:text-white">
+                                    {item.title}
+                                  </p>
+                                  <p className="text-[11px] text-gray-600 dark:text-gray-400 line-clamp-2 leading-snug mt-0.5 font-medium">
+                                    {item.message}
+                                  </p>
+                                  <span className="text-[9px] text-gray-400 dark:text-gray-500 font-bold block mt-1">
+                                    {new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(item.date).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                  </span>
+                                </div>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 <>
                   {/* Wishlist */}
-                  <Link to="/wishlist" className="text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 relative transition-colors p-2 flex items-center">
+                  <Link to="/wishlist" className="text-gray-605 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 relative transition-colors p-2 flex items-center">
                     <FaHeart className="text-lg sm:text-xl" />
                     {currentUser?.wishlist?.length > 0 && (
                       <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
@@ -214,7 +441,7 @@ const Navbar = () => {
                   </Link>
 
                   {/* Cart */}
-                  <Link to="/cart" className="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 relative transition-colors p-2 flex items-center">
+                  <Link to="/cart" className="text-gray-650 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 relative transition-colors p-2 flex items-center">
                     <FaShoppingCart className="text-lg sm:text-xl" />
                     {totalQuantity > 0 && (
                       <span className="absolute top-0 right-0 bg-brand-500 text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
@@ -239,7 +466,7 @@ const Navbar = () => {
                   }}
                   className={`hidden md:inline-block px-4 py-2.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all shadow-sm border ${
                     currentMode === 'admin'
-                      ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-900/50 hover:bg-amber-250'
+                      ? 'bg-black hover:bg-gray-800 text-white dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white border-transparent'
                       : 'bg-brand-100 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400 border-brand-300 dark:border-brand-900/50 hover:bg-brand-200'
                   }`}
                 >
@@ -280,7 +507,7 @@ const Navbar = () => {
                       {currentUser.role === 'admin' && (
                         <Link to="/admin" className="block px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-gray-800 transition-colors">Admin Dashboard</Link>
                       )}
-                      <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center transition-colors">
+                      <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-xs text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center transition-colors">
                         <FaSignOutAlt className="mr-2" /> Logout
                       </button>
                     </div>
@@ -295,7 +522,7 @@ const Navbar = () => {
               {/* Mobile Hamburger Menu Toggle */}
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-                className={`md:hidden ${currentMode === 'admin' ? 'text-black dark:text-white hover:text-amber-500' : 'text-gray-600 dark:text-gray-300 hover:text-brand-900 dark:hover:text-white'} transition-colors p-2 z-50 focus:outline-none`}
+                className={`md:hidden ${currentMode === 'admin' ? 'text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white' : 'text-gray-600 dark:text-gray-300 hover:text-brand-900 dark:hover:text-white'} transition-colors p-2 z-50 focus:outline-none`}
                 aria-label="Toggle Mobile Menu"
               >
                 {isMobileMenuOpen ? <FaTimes className="text-xl sm:text-2xl animate-spin-once" /> : <FaBars className="text-xl sm:text-2xl" />}
@@ -403,7 +630,7 @@ const Navbar = () => {
                         }}
                         className={`col-span-2 px-3 py-2 text-[10px] uppercase font-bold tracking-wider rounded-xl border transition-all ${
                           currentMode === 'admin'
-                            ? 'bg-amber-500/10 text-amber-750 dark:text-amber-450 border-amber-500/20'
+                            ? 'bg-black text-white dark:bg-gray-800 dark:text-white border-transparent'
                             : 'bg-brand-500/10 text-brand-750 dark:text-brand-400 border-brand-500/20'
                         }`}
                       >

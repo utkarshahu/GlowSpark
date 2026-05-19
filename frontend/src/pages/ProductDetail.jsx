@@ -386,7 +386,7 @@ const ProductDetail = () => {
               {currentMode === 'admin' ? (
                 <button 
                   onClick={() => navigate(`/admin/products/${product._id}`)}
-                  className="w-full bg-amber-500 hover:bg-amber-600 dark:bg-amber-450 dark:hover:bg-amber-400 dark:text-gray-950 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md focus:outline-none flex items-center justify-center gap-2"
+                  className="w-full bg-black text-white hover:bg-brand-900 dark:bg-brand-100 dark:text-brand-900 dark:hover:bg-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md focus:outline-none flex items-center justify-center gap-2"
                 >
                   <FaUserCog /> Manage & Edit Product
                 </button>
@@ -701,7 +701,7 @@ const ProductDetail = () => {
           {currentMode === 'admin' ? (
             <button 
               onClick={() => navigate(`/admin/products/${product._id}`)}
-              className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
+              className="px-6 py-3 bg-black text-white hover:bg-brand-900 dark:bg-brand-100 dark:text-brand-900 dark:hover:bg-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
             >
               <FaUserCog /> Edit Details
             </button>

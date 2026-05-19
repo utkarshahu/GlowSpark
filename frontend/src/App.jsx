@@ -3,10 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from './store/userSlice';
 import api from './api/axios';
-import Lenis from 'lenis';
 import Preloader from './components/Preloader';
 import CustomCursor from './components/CustomCursor';
 import BackButton from './components/BackButton';
+import ScrollToTop from './components/ScrollToTop';
 
 // Lazy Loaded Pages
 const Home = lazy(() => import('./pages/Home'));
@@ -70,30 +70,6 @@ function App() {
       }
     };
     hydrateSession();
-
-    // Initialize Lenis smooth scrolling
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      direction: 'vertical',
-      gestureDirection: 'vertical',
-      smooth: true,
-      mouseMultiplier: 1,
-      smoothTouch: false,
-      touchMultiplier: 2,
-      infinite: false,
-    });
-
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
-    return () => {
-      lenis.destroy();
-    };
   }, []);
 
   return (
@@ -103,6 +79,7 @@ function App() {
       <div className={loading ? 'opacity-0' : 'opacity-100 transition-opacity duration-1000'}>
         <ErrorBoundary>
           <Router>
+            <ScrollToTop />
             <BackButton />
             <Suspense fallback={<PageSkeleton />}>
               <Routes>
