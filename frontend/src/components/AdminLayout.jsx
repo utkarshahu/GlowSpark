@@ -85,11 +85,11 @@ const AdminLayout = () => {
           <button
             onClick={() => {
               dispatch(setMode('user'));
-              navigate('/products');
+              navigate('/');
             }}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-650 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mb-2 text-sm"
           >
-            <FaArrowLeft /> Back to Shop
+            <FaStore /> Switch to User Mode
           </button>
           <button 
             onClick={handleLogout}
@@ -111,12 +111,12 @@ const AdminLayout = () => {
             <button
               onClick={() => {
                 dispatch(setMode('user'));
-                navigate('/products');
+                navigate('/');
               }}
-              title="Back to Shop"
+              title="Switch to User Mode"
               className="p-2.5 bg-brand-50 dark:bg-gray-800 text-brand-900 dark:text-white rounded-xl text-sm hover:bg-brand-100 transition-colors"
             >
-              <FaArrowLeft />
+              <FaStore />
             </button>
             <button 
               onClick={handleLogout}

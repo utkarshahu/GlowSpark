@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from './store/userSlice';
 import api from './api/axios';
 import Lenis from 'lenis';
@@ -36,6 +36,15 @@ const AdminProductDetail = lazy(() => import('./pages/admin/AdminProductDetail')
 const AdminUserDetail = lazy(() => import('./pages/admin/AdminUserDetail'));
 
 import ErrorBoundary from './components/ErrorBoundary';
+
+// StorefrontGuard: Strict role-based isolation blocking storefront access while in Admin Mode
+const StorefrontGuard = ({ children }) => {
+  const { currentUser, currentMode } = useSelector((state) => state.user || {});
+  if (currentUser && currentUser.role === 'admin' && currentMode === 'admin') {
+    return <Navigate to="/admin" replace />;
+  }
+  return children;
+};
 
 // Suspense Fallback Component
 const PageSkeleton = () => (
@@ -97,16 +106,16 @@ function App() {
             <BackButton />
             <Suspense fallback={<PageSkeleton />}>
               <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<StorefrontGuard><Home /></StorefrontGuard>} />
               <Route path="/login" element={<Login />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/about" element={<AboutUs />} />
+              <Route path="/products" element={<StorefrontGuard><Products /></StorefrontGuard>} />
+              <Route path="/products/:id" element={<StorefrontGuard><ProductDetail /></StorefrontGuard>} />
+              <Route path="/cart" element={<StorefrontGuard><Cart /></StorefrontGuard>} />
+              <Route path="/checkout" element={<StorefrontGuard><Checkout /></StorefrontGuard>} />
+              <Route path="/profile" element={<StorefrontGuard><Profile /></StorefrontGuard>} />
+              <Route path="/wishlist" element={<StorefrontGuard><Wishlist /></StorefrontGuard>} />
+              <Route path="/orders" element={<StorefrontGuard><Orders /></StorefrontGuard>} />
+              <Route path="/about" element={<StorefrontGuard><AboutUs /></StorefrontGuard>} />
               <Route path="*" element={<NotFound />} />
               
               {/* Admin Routes */}
