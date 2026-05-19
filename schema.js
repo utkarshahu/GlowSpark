@@ -12,12 +12,12 @@ module.exports.productSchema = Joi.object({
         images: Joi.array().items(Joi.object({
             url: Joi.string().required(),
             filename: Joi.string().required()
-        })).allow(null),
+        }).unknown(true)).allow(null),
         thumbnailIndex: Joi.number().min(0).allow("", null),
         isNewArrival: Joi.boolean().allow(null),
         stock: Joi.number().min(0).allow("", null),
         ingredients: Joi.string().allow("", null)
-    }).required(),
+    }).unknown(true).required(),
 });
 
 
