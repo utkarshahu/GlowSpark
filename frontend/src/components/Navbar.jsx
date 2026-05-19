@@ -49,6 +49,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout');
+      localStorage.removeItem('sessionId');
       dispatch(logout());
       setIsMobileMenuOpen(false);
       navigate('/login');

@@ -18,7 +18,7 @@ module.exports.signup = async (req, res, next) => {
         const registeredUser = await User.register(newUser, password);
         req.login(registeredUser, (err) => {
             if (err) return next(err);
-            res.status(201).json({ success: true, message: "Welcome to Glow Spark!", user: registeredUser });
+            res.status(201).json({ success: true, message: "Welcome to Glow Spark!", user: registeredUser, sessionId: req.sessionID });
         });
     } catch (e) {
         res.status(400).json({ success: false, message: e.message });
@@ -33,9 +33,9 @@ module.exports.login = async (req, res) => {
             req.user.wishlist = validWishlistIds;
             await req.user.save();
         }
-        res.status(200).json({ success: true, message: "Welcome back!", user: req.user });
+        res.status(200).json({ success: true, message: "Welcome back!", user: req.user, sessionId: req.sessionID });
     } catch (e) {
-        res.status(200).json({ success: true, message: "Welcome back!", user: req.user });
+        res.status(200).json({ success: true, message: "Welcome back!", user: req.user, sessionId: req.sessionID });
     }
 };
 

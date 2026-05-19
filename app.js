@@ -134,6 +134,21 @@ const sessionOptions = {
 };
 
 
+// Header to Session ID middleware for cross-site / mobile support (bypasses browser cookie blocking)
+app.use((req, res, next) => {
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+    const sessionId = req.headers.authorization.split(" ")[1];
+    if (sessionId) {
+      if (!req.signedCookies) req.signedCookies = {};
+      req.signedCookies['connect.sid'] = sessionId;
+
+      if (!req.cookies) req.cookies = {};
+      req.cookies['connect.sid'] = sessionId;
+    }
+  }
+  next();
+});
+
 app.use(session(sessionOptions));
 
 app.use(passport.initialize());

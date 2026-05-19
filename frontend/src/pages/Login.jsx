@@ -28,6 +28,9 @@ const Login = () => {
       const response = await api.post(endpoint, payload);
       
       if (response.data.success) {
+        if (response.data.sessionId) {
+          localStorage.setItem('sessionId', response.data.sessionId);
+        }
         dispatch(loginSuccess(response.data.user));
         toast.success(isLogin ? "Welcome back to Glow Spark!" : "Welcome to the Glow Spark family!");
         navigate('/products');

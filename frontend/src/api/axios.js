@@ -5,6 +5,20 @@ const api = axios.create({
   withCredentials: true, // Important for sending session cookies
 });
 
+// Request interceptor to attach session token for mobile / cross-site support
+api.interceptors.request.use(
+  (config) => {
+    const sessionId = localStorage.getItem('sessionId');
+    if (sessionId) {
+      config.headers['Authorization'] = `Bearer ${sessionId}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
