@@ -264,11 +264,14 @@ const Orders = () => {
                           <div key={step.status} className="relative pl-10 pb-5 last:pb-1 flex flex-col z-10">
                             
                             {/* Milestone Dot Bubble */}
-                            <div className={`absolute left-0 top-0.5 w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs transition-all ${
-                              isActive ? 'bg-black border-black text-white animate-pulse font-extrabold shadow-sm' :
-                              isCompleted ? 'bg-black border-black text-white font-bold' :
-                              'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400'
-                            }`}>
+                            <div 
+                              className={`absolute left-0 top-0.5 w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs transition-all ${
+                                isActive ? 'text-white animate-pulse font-extrabold shadow-sm' :
+                                isCompleted ? 'text-white font-bold' :
+                                'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400'
+                              }`}
+                              style={(isActive || isCompleted) ? { backgroundColor: '#a37c6c', borderColor: '#a37c6c' } : {}}
+                            >
                               {isCompleted ? (
                                 <svg className="w-3.5 h-3.5 stroke-current" fill="none" viewBox="0 0 24 24" strokeWidth="3.5">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
