@@ -41,9 +41,9 @@ const AdminLayout = () => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-brand-50 dark:bg-gray-950 font-sans transition-colors duration-300">
-      {/* Sidebar */}
-      <div className="w-64 bg-white dark:bg-gray-900 border-r border-brand-100 dark:border-gray-800 flex flex-col justify-between shadow-sm sticky top-0 h-screen transition-colors duration-300">
+    <div className="flex flex-col md:flex-row min-h-screen bg-brand-50 dark:bg-gray-950 font-sans transition-colors duration-300">
+      {/* Desktop Sidebar (hidden on mobile) */}
+      <div className="hidden md:flex w-64 bg-white dark:bg-gray-900 border-r border-brand-100 dark:border-gray-800 flex-col justify-between shadow-sm sticky top-0 h-screen transition-colors duration-300 shrink-0">
         <div>
           <div className="h-20 flex items-center px-8 border-b border-brand-100 dark:border-gray-800">
             <h1 className="text-2xl font-serif font-bold text-brand-900 dark:text-white tracking-tight">
@@ -87,9 +87,56 @@ const AdminLayout = () => {
         </div>
       </div>
 
+      {/* Mobile Sticky Header & Horizontally Scrollable Ribbon */}
+      <div className="md:hidden sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-brand-100 dark:border-gray-800 transition-colors duration-300">
+        {/* Mobile Title Bar */}
+        <div className="h-16 flex items-center justify-between px-4">
+          <h1 className="text-xl font-serif font-bold text-brand-900 dark:text-white tracking-tight">
+            Glow<span className="text-brand-500">Admin</span>
+          </h1>
+          <div className="flex items-center gap-2">
+            <NavLink
+              to="/"
+              title="View Store"
+              className="p-2.5 bg-brand-50 dark:bg-gray-800 text-brand-900 dark:text-white rounded-xl text-sm hover:bg-brand-100 transition-colors"
+            >
+              <FaStore />
+            </NavLink>
+            <button 
+              onClick={handleLogout}
+              title="Logout"
+              className="p-2.5 bg-red-50 dark:bg-red-950/20 text-red-650 dark:text-red-400 rounded-xl text-sm hover:bg-red-100 transition-colors"
+            >
+              <FaSignOutAlt />
+            </button>
+          </div>
+        </div>
+
+        {/* Horizontally Scrollable Menu Ribbon */}
+        <div className="flex gap-2.5 overflow-x-auto no-scrollbar px-4 pb-3">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.path}
+              end={item.path === '/admin'}
+              className={({ isActive }) =>
+                `flex items-center gap-2 shrink-0 px-4 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${
+                  isActive 
+                    ? 'bg-brand-900 dark:bg-brand-600 text-white' 
+                    : 'bg-gray-150 dark:bg-gray-800 text-gray-650 dark:text-gray-300 border border-transparent'
+                }`
+              }
+            >
+              {item.icon}
+              {item.name}
+            </NavLink>
+          ))}
+        </div>
+      </div>
+
       {/* Main Content Area */}
-      <div className="flex-1 bg-[#Fdf8f6] dark:bg-gray-950 transition-colors duration-300">
-        <div className="p-8">
+      <div className="flex-1 bg-[#Fdf8f6] dark:bg-gray-950 transition-colors duration-300 min-w-0">
+        <div className="p-4 sm:p-8">
           <Outlet />
         </div>
       </div>
