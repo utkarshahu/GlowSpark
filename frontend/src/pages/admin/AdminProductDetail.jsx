@@ -238,24 +238,24 @@ const AdminProductDetail = () => {
     (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=600');
 
   return (
-    <div className="max-w-6xl mx-auto pb-12">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <Link to="/admin/products" className="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300">
-            <FaArrowLeft />
+    <div className="max-w-6xl mx-auto pb-12 px-4 sm:px-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="flex items-center gap-3.5">
+          <Link to="/admin/products" className="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300 shrink-0">
+            <FaArrowLeft className="text-xs" />
           </Link>
-          <div>
-            <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white">Product Insights</h1>
-            <p className="text-gray-500 mt-1">{product.title}</p>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-serif font-bold text-gray-900 dark:text-white truncate">Product Insights</h1>
+            <p className="text-xs text-gray-500 mt-0.5 truncate">{product.title}</p>
           </div>
         </div>
         {!isEditing && (
-          <div className="flex gap-3">
-            <button onClick={() => setIsEditing(true)} className="flex items-center gap-2 bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-400 px-4 py-2 rounded-xl font-bold hover:bg-brand-200 dark:hover:bg-brand-900/50 transition-colors">
-              <FaEdit /> Edit Product
+          <div className="flex gap-2.5 sm:gap-3 w-full sm:w-auto">
+            <button onClick={() => setIsEditing(true)} className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-400 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-brand-200 dark:hover:bg-brand-900/50 transition-colors">
+              <FaEdit className="text-[10px]" /> Edit Product
             </button>
-            <button onClick={handleDeleteProduct} className="flex items-center gap-2 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-4 py-2 rounded-xl font-bold hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">
-              <FaTrash /> Delete
+            <button onClick={handleDeleteProduct} className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">
+              <FaTrash className="text-[10px]" /> Delete
             </button>
           </div>
         )}
@@ -402,11 +402,11 @@ const AdminProductDetail = () => {
                   <label htmlFor="isNewArrival" className="font-bold text-gray-900 dark:text-white cursor-pointer select-none">Mark as "New Arrival"</label>
                 </div>
 
-                <div className="flex gap-4 pt-2">
-                  <button type="button" onClick={() => { setIsEditing(false); setNewImagePreviews([]); setNewImageFiles([]); }} className="flex-1 flex justify-center items-center gap-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white py-3 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-bold">
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <button type="button" onClick={() => { setIsEditing(false); setNewImagePreviews([]); setNewImageFiles([]); }} className="w-full sm:flex-1 flex justify-center items-center gap-2 bg-gray-250 dark:bg-gray-700 text-gray-800 dark:text-white py-3 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-650 transition-colors text-xs font-black">
                     <FaTimes /> Cancel
                   </button>
-                  <button type="submit" className="flex-1 flex justify-center items-center gap-2 bg-brand-900 hover:bg-black text-white py-3 rounded-xl transition-colors font-bold shadow-lg">
+                  <button type="submit" className="w-full sm:flex-1 flex justify-center items-center gap-2 bg-brand-900 hover:bg-black text-white py-3 rounded-xl transition-colors text-xs font-black shadow-lg">
                     <FaSave /> Save Changes
                   </button>
                 </div>
