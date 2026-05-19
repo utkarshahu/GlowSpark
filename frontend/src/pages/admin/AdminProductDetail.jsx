@@ -46,7 +46,8 @@ const AdminProductDetail = () => {
           category: res.data.product.category,
           images: res.data.product.images || [],
           thumbnailIndex: res.data.product.thumbnailIndex || 0,
-          isNewArrival: res.data.product.isNewArrival || false
+          isNewArrival: res.data.product.isNewArrival || false,
+          isBestseller: res.data.product.isBestseller || false
         });
       }
     } catch (err) {
@@ -85,6 +86,7 @@ const AdminProductDetail = () => {
       payload.append('product[images]', JSON.stringify(editForm.images));
       payload.append('product[thumbnailIndex]', editForm.thumbnailIndex);
       payload.append('product[isNewArrival]', editForm.isNewArrival);
+      payload.append('product[isBestseller]', editForm.isBestseller);
 
       if (newImageFiles.length > 0) {
         newImageFiles.forEach((file) => {
@@ -326,10 +328,15 @@ const AdminProductDetail = () => {
                // Simple View Mode Gallery
                <div>
                  <div className="relative aspect-square bg-gray-100 dark:bg-gray-900 rounded-2xl mb-6 overflow-hidden">
-                   <img src={mainImageUrl} alt={product.title} className="w-full h-full object-cover" />
-                   {product.isNewArrival && (
-                     <span className="absolute top-3 right-3 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">New Arrival</span>
-                   )}
+                    <img src={mainImageUrl} alt={product.title} className="w-full h-full object-cover" />
+                    <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
+                      {product.isNewArrival && (
+                        <span className="bg-brand-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">New Arrival</span>
+                      )}
+                      {product.isBestseller && (
+                        <span className="bg-amber-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">Bestseller</span>
+                      )}
+                    </div>
                  </div>
                  
                  {/* Mini thumbs list */}
@@ -390,16 +397,29 @@ const AdminProductDetail = () => {
                   <textarea rows="4" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
 
-                {/* New Arrivals Toggle */}
-                <div className="flex items-center gap-3 bg-brand-50/50 dark:bg-gray-900 p-4 rounded-xl border border-brand-100 dark:border-gray-700">
-                  <input 
-                    type="checkbox" 
-                    id="isNewArrival" 
-                    checked={editForm.isNewArrival} 
-                    onChange={e => setEditForm({...editForm, isNewArrival: e.target.checked})} 
-                    className="w-5 h-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500" 
-                  />
-                  <label htmlFor="isNewArrival" className="font-bold text-gray-900 dark:text-white cursor-pointer select-none">Mark as "New Arrival"</label>
+                {/* Checkboxes Toggles Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3 bg-brand-50/50 dark:bg-gray-900 p-4 rounded-xl border border-brand-100 dark:border-gray-700">
+                    <input 
+                      type="checkbox" 
+                      id="isNewArrival" 
+                      checked={editForm.isNewArrival} 
+                      onChange={e => setEditForm({...editForm, isNewArrival: e.target.checked})} 
+                      className="w-5 h-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 cursor-pointer" 
+                    />
+                    <label htmlFor="isNewArrival" className="font-bold text-gray-900 dark:text-white cursor-pointer select-none text-xs">Mark as "New Arrival"</label>
+                  </div>
+
+                  <div className="flex items-center gap-3 bg-brand-50/50 dark:bg-gray-900 p-4 rounded-xl border border-brand-100 dark:border-gray-700">
+                    <input 
+                      type="checkbox" 
+                      id="isBestseller" 
+                      checked={editForm.isBestseller} 
+                      onChange={e => setEditForm({...editForm, isBestseller: e.target.checked})} 
+                      className="w-5 h-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 cursor-pointer" 
+                    />
+                    <label htmlFor="isBestseller" className="font-bold text-gray-900 dark:text-white cursor-pointer select-none text-xs">Mark as "Bestseller" Tag</label>
+                  </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">

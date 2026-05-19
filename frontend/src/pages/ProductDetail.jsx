@@ -8,7 +8,7 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { FaStar, FaCheckCircle, FaTruck, FaThumbsUp, FaThumbsDown, FaArrowLeft, FaInfoCircle } from 'react-icons/fa';
+import { FaStar, FaCheckCircle, FaTruck, FaThumbsUp, FaThumbsDown, FaArrowLeft, FaInfoCircle, FaUserCog } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCart } from '../store/cartSlice';
 import { socket } from '../api/socket';
@@ -17,7 +17,7 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const currentUser = useSelector(state => state.user?.currentUser);
+  const { currentUser, currentMode } = useSelector(state => state.user || {});
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(5);
@@ -328,20 +328,31 @@ const ProductDetail = () => {
 
             {/* Action Buttons (Visible on Desktop) */}
             <div className="hidden md:flex flex-col gap-3">
-              <button 
-                onClick={handleAddToCart}
-                disabled={product.stock === 0}
-                className="w-full bg-brand-900 hover:bg-black disabled:bg-gray-300 dark:bg-brand-100 dark:text-brand-900 dark:hover:bg-white text-white py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-sm focus:outline-none"
-              >
-                Add to Bag
-              </button>
-              <button 
-                onClick={handleProceedToBuy}
-                disabled={product.stock === 0}
-                className="w-full bg-transparent hover:bg-brand-900 text-brand-900 hover:text-white dark:text-brand-100 dark:hover:bg-brand-100 dark:hover:text-brand-900 border border-brand-900 dark:border-brand-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-100 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all focus:outline-none"
-              >
-                Proceed to Checkout
-              </button>
+              {currentMode === 'admin' ? (
+                <button 
+                  onClick={() => navigate(`/admin/products/${product._id}`)}
+                  className="w-full bg-amber-500 hover:bg-amber-600 dark:bg-amber-450 dark:hover:bg-amber-400 dark:text-gray-950 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md focus:outline-none flex items-center justify-center gap-2"
+                >
+                  <FaUserCog /> Manage & Edit Product
+                </button>
+              ) : (
+                <>
+                  <button 
+                    onClick={handleAddToCart}
+                    disabled={product.stock === 0}
+                    className="w-full bg-brand-900 hover:bg-black disabled:bg-gray-300 dark:bg-brand-100 dark:text-brand-900 dark:hover:bg-white text-white py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-sm focus:outline-none"
+                  >
+                    Add to Bag
+                  </button>
+                  <button 
+                    onClick={handleProceedToBuy}
+                    disabled={product.stock === 0}
+                    className="w-full bg-transparent hover:bg-brand-900 text-brand-900 hover:text-white dark:text-brand-100 dark:hover:bg-brand-100 dark:hover:text-brand-900 border border-brand-900 dark:border-brand-100 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-100 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all focus:outline-none"
+                  >
+                    Proceed to Checkout
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -598,13 +609,22 @@ const ProductDetail = () => {
           <p className="font-serif font-black text-brand-950 dark:text-white text-base">₹{product.price.toLocaleString("en-IN")}</p>
         </div>
         <div className="shrink-0">
-          <button 
-            onClick={handleAddToCart}
-            disabled={product.stock === 0}
-            className="px-6 py-3 bg-black hover:bg-brand-900 disabled:bg-gray-300 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all shadow-md"
-          >
-            {product.stock === 0 ? 'Out of Stock' : 'Add to Bag'}
-          </button>
+          {currentMode === 'admin' ? (
+            <button 
+              onClick={() => navigate(`/admin/products/${product._id}`)}
+              className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
+            >
+              <FaUserCog /> Edit Details
+            </button>
+          ) : (
+            <button 
+              onClick={handleAddToCart}
+              disabled={product.stock === 0}
+              className="px-6 py-3 bg-black hover:bg-brand-900 disabled:bg-gray-300 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all shadow-md"
+            >
+              {product.stock === 0 ? 'Out of Stock' : 'Add to Bag'}
+            </button>
+          )}
         </div>
       </div>
 

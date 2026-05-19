@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import api from '../api/axios';
 import Navbar from '../components/Navbar';
 import { FaHeart, FaFilter, FaSearch, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setCart } from '../store/cartSlice';
 import { updateWishlist } from '../store/userSlice';
 import EmptyState from '../components/EmptyState';
@@ -13,6 +13,7 @@ import SmartImage from '../components/SmartImage';
 import { socket } from '../api/socket';
 
 const Products = () => {
+  const { currentMode } = useSelector(state => state.user || {});
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,6 +26,7 @@ const Products = () => {
   const searchParams = new URLSearchParams(location.search);
   const sortParam = searchParams.get('sort');
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -289,7 +291,7 @@ const Products = () => {
                       (product.image?.url || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=400');
 
                     return (
-                      <Link to={`/products/${product._id}`} key={product._id} className="group block bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-brand-100/50 dark:border-gray-700 flex flex-col h-full relative">
+                      <Link to={currentMode === 'admin' ? `/admin/products/${product._id}` : `/products/${product._id}`} key={product._id} className="group block bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-brand-100/50 dark:border-gray-700 flex flex-col h-full relative">
                         {/* Aspect image frame p-4 on desktop, p-3 on mobile */}
                         <div className="relative aspect-[4/5] overflow-hidden bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-3 lg:p-4 shrink-0">
                           <SmartImage 
@@ -298,20 +300,27 @@ const Products = () => {
                             className="w-full h-full rounded-2xl group-hover:scale-105 transition-transform duration-700 ease-out object-cover"
                           />
                           
-                          {/* Desktop Heart Icon Overlay (hidden on mobile) */}
-                          <button 
-                            onClick={(e) => handleWishlist(e, product._id)}
-                            className={`hidden lg:flex absolute top-4 right-4 transition-colors p-2.5 rounded-full backdrop-blur-sm z-10 shadow-sm ${wishlist.includes(product._id) ? 'text-red-500 bg-red-50' : 'text-gray-400 hover:text-red-500 bg-white/90'}`}
-                          >
-                            <FaHeart className="text-sm" />
-                          </button>
+                          {/* Desktop Heart Icon Overlay (hidden on mobile, only shown to users) */}
+                          {currentMode !== 'admin' && (
+                            <button 
+                              onClick={(e) => handleWishlist(e, product._id)}
+                              className={`hidden lg:flex absolute top-4 right-4 transition-colors p-2.5 rounded-full backdrop-blur-sm z-10 shadow-sm ${wishlist.includes(product._id) ? 'text-red-500 bg-red-50' : 'text-gray-400 hover:text-red-500 bg-white/90'}`}
+                            >
+                              <FaHeart className="text-sm" />
+                            </button>
+                          )}
 
                           {product.isNewArrival && (
                             <div className="absolute top-3 left-3 lg:top-4 lg:left-4 bg-black text-white text-[8px] lg:text-[10px] font-bold px-2 py-0.5 lg:px-3 lg:py-1 rounded-md uppercase tracking-wider z-10">
                               New
                             </div>
                           )}
-                          {product.stock < 10 && product.stock > 0 && (
+                          {product.isBestseller && (
+                            <div className={`absolute ${product.isNewArrival ? 'top-8 lg:top-12' : 'top-3 lg:top-4'} left-3 lg:left-4 bg-amber-500 text-white text-[8px] lg:text-[10px] font-bold px-2 py-0.5 lg:px-3 lg:py-1 rounded-md uppercase tracking-wider z-10`}>
+                              Bestseller
+                            </div>
+                          )}
+                          {product.stock < 10 && product.stock > 0 && !product.isBestseller && (
                             <div className={`absolute ${product.isNewArrival ? 'top-8 lg:top-12' : 'top-3 lg:top-4'} left-3 lg:left-4 bg-brand-900 text-white text-[8px] lg:text-[10px] font-bold px-2 py-0.5 lg:px-3 lg:py-1 rounded-md uppercase tracking-wider z-10`}>
                               Low Stock
                             </div>
@@ -329,27 +338,41 @@ const Products = () => {
                               &#8377; {product.price.toLocaleString("en-IN")}
                             </span>
                             
-                            {/* Mobile Heart Button (hidden on desktop, styled exactly like Image 3 screen 1) */}
-                            <button 
-                              onClick={(e) => handleWishlist(e, product._id)}
-                              className={`lg:hidden p-2 rounded-full border shadow-sm transition-all ${
-                                wishlist.includes(product._id) 
-                                  ? 'text-red-500 bg-red-50 border-red-100' 
-                                  : 'text-gray-400 bg-white border-gray-150'
-                              }`}
-                            >
-                              <FaHeart className="text-[10px]" />
-                            </button>
+                            {/* Mobile Heart Button (only shown to users) */}
+                            {currentMode !== 'admin' && (
+                              <button 
+                                onClick={(e) => handleWishlist(e, product._id)}
+                                className={`lg:hidden p-2 rounded-full border shadow-sm transition-all ${
+                                  wishlist.includes(product._id) 
+                                    ? 'text-red-500 bg-red-50 border-red-100' 
+                                    : 'text-gray-400 bg-white border-gray-150'
+                                }`}
+                              >
+                                <FaHeart className="text-[10px]" />
+                              </button>
+                            )}
                           </div>
 
-                          {/* Desktop Add to Cart (hidden on mobile to match image 3 clean shop grid layout) */}
+                          {/* Desktop Add to Cart (hidden on mobile, customized for admin) */}
                           <div className="mt-auto hidden lg:block">
-                            <button 
-                              onClick={(e) => handleAddToCart(product, e)}
-                              className="w-full py-2.5 bg-black text-white hover:bg-brand-900 text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 shadow-md"
-                            >
-                              Add to Cart
-                            </button>
+                            {currentMode === 'admin' ? (
+                              <button 
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  navigate(`/admin/products/${product._id}`);
+                                }}
+                                className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 dark:bg-amber-450 dark:hover:bg-amber-400 dark:text-gray-950 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all duration-300 shadow-md"
+                              >
+                                Edit Product
+                              </button>
+                            ) : (
+                              <button 
+                                onClick={(e) => handleAddToCart(product, e)}
+                                className="w-full py-2.5 bg-black text-white hover:bg-brand-900 text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 shadow-md"
+                              >
+                                Add to Cart
+                              </button>
+                            )}
                           </div>
                         </div>
                       </Link>

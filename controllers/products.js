@@ -27,9 +27,14 @@ module.exports.index = async (req, res) => {
       matchStage.isNewArrival = true;
     } else if (sort === 'bestseller') {
       sortStage = { orderCount: -1, ratingAverage: -1 };
-      matchStage.ratingAverage = { $gte: 3 };
-      matchStage.orderCount = { $gt: 5 };
-      matchStage.reviewCount = { $gt: 5 };
+      matchStage.$or = [
+        { isBestseller: true },
+        {
+          ratingAverage: { $gte: 3 },
+          orderCount: { $gt: 5 },
+          reviewCount: { $gt: 5 }
+        }
+      ];
     } else if (sort === 'highest-rated') {
       sortStage = { ratingAverage: -1 };
     } else if (sort === 'most-ordered') {
@@ -45,6 +50,7 @@ module.exports.index = async (req, res) => {
       { $addFields: {
           bestsellerScore: {
             $add: [
+              { $multiply: [{ $cond: [{ $eq: ["$isBestseller", true] }, 1000, 0] }, 1] },
               { $multiply: ["$orderCount", 0.5] },
               { $multiply: ["$ratingAverage", 0.3] },
               { $multiply: ["$reviewCount", 0.2] }

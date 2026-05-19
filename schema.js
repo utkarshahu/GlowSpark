@@ -15,6 +15,7 @@ module.exports.productSchema = Joi.object({
         }).unknown(true)).allow(null),
         thumbnailIndex: Joi.number().min(0).allow("", null),
         isNewArrival: Joi.boolean().allow(null),
+        isBestseller: Joi.boolean().allow(null),
         stock: Joi.number().min(0).allow("", null),
         ingredients: Joi.string().allow("", null)
     }).unknown(true).required(),

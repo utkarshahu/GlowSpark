@@ -14,6 +14,7 @@ const AdminCreateProduct = () => {
     category: '',
     ingredients: '',
     isNewArrival: false,
+    isBestseller: false,
   });
   
   const [newImageFiles, setNewImageFiles] = useState([]);
@@ -93,6 +94,7 @@ const AdminCreateProduct = () => {
     data.append('product[ingredients]', formData.ingredients);
     data.append('product[thumbnailIndex]', thumbnailIndex);
     data.append('product[isNewArrival]', formData.isNewArrival);
+    data.append('product[isBestseller]', formData.isBestseller);
     
     newImageFiles.forEach((file) => {
       data.append('images', file);
@@ -304,16 +306,30 @@ const AdminCreateProduct = () => {
               </div>
 
               {/* Checkboxes / Toggles */}
-              <div className="flex items-center gap-3 bg-brand-50/20 dark:bg-gray-900 p-4 rounded-2xl border border-brand-100/40 dark:border-gray-750">
-                <input 
-                  type="checkbox" 
-                  id="isNewArrival" 
-                  name="isNewArrival"
-                  checked={formData.isNewArrival} 
-                  onChange={handleChange} 
-                  className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 cursor-pointer" 
-                />
-                <label htmlFor="isNewArrival" className="text-xs font-bold text-gray-800 dark:text-gray-200 cursor-pointer select-none">Mark product as "New Arrival"</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 bg-brand-50/20 dark:bg-gray-900 p-4 rounded-2xl border border-brand-100/40 dark:border-gray-750">
+                  <input 
+                    type="checkbox" 
+                    id="isNewArrival" 
+                    name="isNewArrival"
+                    checked={formData.isNewArrival} 
+                    onChange={handleChange} 
+                    className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 cursor-pointer" 
+                  />
+                  <label htmlFor="isNewArrival" className="text-xs font-bold text-gray-850 dark:text-gray-200 cursor-pointer select-none">Mark as "New Arrival"</label>
+                </div>
+
+                <div className="flex items-center gap-3 bg-brand-50/20 dark:bg-gray-900 p-4 rounded-2xl border border-brand-100/40 dark:border-gray-750">
+                  <input 
+                    type="checkbox" 
+                    id="isBestseller" 
+                    name="isBestseller"
+                    checked={formData.isBestseller} 
+                    onChange={handleChange} 
+                    className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 cursor-pointer" 
+                  />
+                  <label htmlFor="isBestseller" className="text-xs font-bold text-gray-855 dark:text-gray-200 cursor-pointer select-none">Mark as "Bestseller" Tag</label>
+                </div>
               </div>
 
               {/* Submit Buttons */}

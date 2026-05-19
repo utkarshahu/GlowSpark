@@ -8,6 +8,7 @@ import MagneticButton from '../components/MagneticButton';
 import HeroScene from '../components/HeroScene';
 import api from '../api/axios';
 import { socket } from '../api/socket';
+import { useSelector } from 'react-redux';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,6 +19,7 @@ const pageVariants = {
 };
 
 const Home = () => {
+  const { currentMode } = useSelector(state => state.user || {});
   const heroRef = useRef(null);
   const textContainerRef = useRef(null);
   const parallaxImgRef = useRef(null);
@@ -276,10 +278,10 @@ const Home = () => {
                       </div>
 
                       <Link 
-                        to={`/products/${product._id}`}
+                        to={currentMode === 'admin' ? `/admin/products/${product._id}` : `/products/${product._id}`}
                         className="w-full py-3 bg-brand-900 hover:bg-black dark:bg-brand-500 text-white text-center rounded-xl font-bold transition-all text-sm uppercase tracking-wider block hover:shadow-lg"
                       >
-                        View Details
+                        {currentMode === 'admin' ? 'Manage Product' : 'View Details'}
                       </Link>
                     </motion.div>
                   );

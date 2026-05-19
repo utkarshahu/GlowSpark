@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart, FaBars, FaTimes, FaChevronDown } from 'react-icons/fa';
+import { FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart, FaBars, FaTimes, FaChevronDown, FaUserShield, FaUserCog } from 'react-icons/fa';
 import { logout, setMode } from '../store/userSlice';
 import api from '../api/axios';
 import logo from '../assets/glow_spark_logo.png';
@@ -174,7 +174,10 @@ const Navbar = () => {
                       : 'bg-brand-100 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400 border-brand-300 dark:border-brand-900/50 hover:bg-brand-200'
                   }`}
                 >
-                  {currentMode === 'admin' ? '🛡️ Admin Mode' : '👤 User Mode'}
+                  <span className="flex items-center gap-1.5 justify-center">
+                    {currentMode === 'admin' ? <FaUserCog className="text-xs" /> : <FaUserShield className="text-xs" />}
+                    <span>{currentMode === 'admin' ? 'Admin Mode' : 'User Mode'}</span>
+                  </span>
                 </button>
               )}
               
@@ -333,7 +336,10 @@ const Navbar = () => {
                             : 'bg-brand-500/10 text-brand-750 dark:text-brand-400 border-brand-500/20'
                         }`}
                       >
-                        {currentMode === 'admin' ? '🛡️ Switch to User Mode' : '🛡️ Switch to Admin Mode'}
+                        <span className="flex items-center gap-2 justify-center">
+                          {currentMode === 'admin' ? <FaUserShield className="text-xs" /> : <FaUserCog className="text-xs" />}
+                          <span>{currentMode === 'admin' ? 'Switch to User Mode' : 'Switch to Admin Mode'}</span>
+                        </span>
                       </button>
                     )}
                   </div>
