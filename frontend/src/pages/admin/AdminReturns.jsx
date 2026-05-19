@@ -9,6 +9,7 @@ const AdminReturns = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedReturnOrder, setSelectedReturnOrder] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -131,9 +132,10 @@ const AdminReturns = () => {
                 {filteredOrders.map(order => (
                   <tr 
                     key={order._id} 
-                    className="hover:bg-brand-50/20 dark:hover:bg-gray-700/20 transition-colors"
+                    onClick={() => setSelectedReturnOrder(order)}
+                    className="hover:bg-brand-50/20 dark:hover:bg-gray-700/20 transition-colors cursor-pointer"
                   >
-                    <td className="px-6 py-4 text-sm font-mono font-bold text-brand-600 dark:text-brand-400">
+                    <td className="px-6 py-4 text-sm font-mono font-bold text-brand-600 dark:text-brand-400" onClick={(e) => e.stopPropagation()}>
                       <Link to={`/admin/orders/${order._id}`} className="hover:underline hover:text-brand-800">
                         #{order._id.substring(order._id.length - 6)}
                       </Link>
@@ -184,10 +186,11 @@ const AdminReturns = () => {
             {filteredOrders.map(order => (
               <div 
                 key={order._id} 
-                className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-brand-100/60 dark:border-gray-700/80 shadow-sm space-y-3 transition-all flex flex-col"
+                onClick={() => setSelectedReturnOrder(order)}
+                className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-brand-100/60 dark:border-gray-700/80 shadow-sm space-y-3 transition-all flex flex-col cursor-pointer hover:border-brand-200 dark:hover:border-gray-650"
               >
                 <div className="flex justify-between items-center">
-                  <Link to={`/admin/orders/${order._id}`} className="font-mono text-xs font-bold text-brand-600 hover:underline">
+                  <Link to={`/admin/orders/${order._id}`} onClick={(e) => e.stopPropagation()} className="font-mono text-xs font-bold text-brand-600 hover:underline">
                     #{order._id.substring(order._id.length - 6)}
                   </Link>
                   <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
@@ -249,6 +252,149 @@ const AdminReturns = () => {
             {filteredOrders.length === 0 && (
               <p className="text-center py-6 text-gray-500">No return requests found.</p>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Return Details Modal Overlay */}
+      {selectedReturnOrder && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-2xl p-6 sm:p-8 border border-brand-100 dark:border-gray-700 shadow-2xl overflow-y-auto max-h-[90vh] space-y-6">
+            
+            {/* Header */}
+            <div className="flex justify-between items-start border-b border-gray-100 dark:border-gray-700 pb-4">
+              <div>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Return Request Details</span>
+                <h3 className="text-xl font-serif font-black text-gray-900 dark:text-white mt-1">Order #{selectedReturnOrder._id}</h3>
+              </div>
+              <button 
+                onClick={() => setSelectedReturnOrder(null)} 
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1 bg-gray-50 dark:bg-gray-750 rounded-full transition-all"
+              >
+                <FaTimes className="text-base" />
+              </button>
+            </div>
+
+            {/* Core Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-brand-50/50">
+                <p className="text-[9px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500 mb-1">Customer Profile</p>
+                <p className="text-xs font-bold text-gray-900 dark:text-white">{selectedReturnOrder.user?.email || 'Guest User'}</p>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">ID: {selectedReturnOrder.user?._id || 'N/A'}</p>
+              </div>
+
+              <div className="bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-brand-50/50">
+                <p className="text-[9px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500 mb-1">Return Status</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    selectedReturnOrder.returnStatus === 'Requested' ? 'bg-yellow-100 text-yellow-755' :
+                    selectedReturnOrder.returnStatus === 'Approved' ? 'bg-blue-100 text-blue-700' :
+                    selectedReturnOrder.returnStatus === 'Refunded' ? 'bg-green-100 text-green-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    {selectedReturnOrder.returnStatus}
+                  </span>
+                  <span className="text-[10px] font-mono font-bold text-brand-700">₹{selectedReturnOrder.totalAmount.toLocaleString("en-IN")}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Products List */}
+            <div className="space-y-3">
+              <h4 className="text-[10px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500">Items Requested for Return</h4>
+              <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                {selectedReturnOrder.products.map((item) => {
+                  const itemImageUrl = item.image || 
+                    (item.product?.images && item.product.images[item.product.thumbnailIndex || 0]?.url) || 
+                    (item.product?.images && item.product.images[0]?.url);
+                  return (
+                    <div key={item.product?._id || Math.random()} className="flex items-center gap-3 bg-white dark:bg-gray-750 p-2.5 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                      <div className="w-10 h-10 bg-gray-50 rounded-lg overflow-hidden border shrink-0">
+                        {itemImageUrl ? (
+                          <img src={itemImageUrl} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200"></div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{item.name || 'Product'}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">Qty: {item.quantity} × ₹{item.price.toLocaleString("en-IN")}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Return Reason Statement */}
+            <div className="space-y-2">
+              <h4 className="text-[10px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500">Reason Statement</h4>
+              <div className="p-4 bg-brand-50/30 dark:bg-gray-900 border border-brand-100/30 dark:border-gray-800 rounded-2xl">
+                <p className="text-xs text-gray-700 dark:text-gray-305 leading-relaxed font-medium italic">
+                  "{selectedReturnOrder.returnReason || 'No reason specified by customer.'}"
+                </p>
+              </div>
+            </div>
+
+            {/* Images attached */}
+            {selectedReturnOrder.returnImages && selectedReturnOrder.returnImages.length > 0 && (
+              <div className="space-y-3">
+                <h4 className="text-[10px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500">Defect Image Attachments</h4>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {selectedReturnOrder.returnImages.map((img, idx) => (
+                    <a key={idx} href={img.url} target="_blank" rel="noopener noreferrer" className="relative aspect-square rounded-xl overflow-hidden border border-brand-100 hover:opacity-85 transition-opacity bg-gray-50 shrink-0">
+                      <img src={img.url} alt={`Defect Attachment ${idx + 1}`} className="w-full h-full object-cover" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Actions Panel */}
+            <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+              {selectedReturnOrder.returnStatus === 'Requested' && (
+                <>
+                  <button 
+                    onClick={() => {
+                      handleUpdateStatus(selectedReturnOrder._id, 'Approved');
+                      setSelectedReturnOrder(null);
+                    }} 
+                    className="flex-1 flex justify-center items-center gap-1.5 py-3 bg-green-650 hover:bg-green-700 text-white font-bold text-xs rounded-xl shadow-md transition-all"
+                  >
+                    <FaCheck className="text-[10px]" /> Approve Request
+                  </button>
+                  <button 
+                    onClick={() => {
+                      handleUpdateStatus(selectedReturnOrder._id, 'Rejected');
+                      setSelectedReturnOrder(null);
+                    }} 
+                    className="flex-1 flex justify-center items-center gap-1.5 py-3 bg-red-650 hover:bg-red-750 text-white font-bold text-xs rounded-xl shadow-md transition-all"
+                  >
+                    <FaTimes className="text-[10px]" /> Reject Request
+                  </button>
+                </>
+              )}
+              {selectedReturnOrder.returnStatus === 'Approved' && (
+                <button 
+                  onClick={() => {
+                    handleUpdateStatus(selectedReturnOrder._id, 'Refunded');
+                    setSelectedReturnOrder(null);
+                  }} 
+                  className="w-full flex justify-center items-center gap-1.5 py-3 bg-black hover:bg-brand-900 text-white font-bold text-xs rounded-xl shadow-md transition-all"
+                >
+                  Confirm Refund Issued
+                </button>
+              )}
+              <button 
+                onClick={() => setSelectedReturnOrder(null)} 
+                className={`py-3 px-6 bg-gray-100 hover:bg-gray-250 dark:bg-gray-700 dark:hover:bg-gray-650 text-gray-750 dark:text-white font-bold text-xs rounded-xl transition-all ${
+                  selectedReturnOrder.returnStatus === 'Refunded' || selectedReturnOrder.returnStatus === 'Rejected' ? 'w-full' : ''
+                }`}
+              >
+                Close
+              </button>
+            </div>
+
           </div>
         </div>
       )}
