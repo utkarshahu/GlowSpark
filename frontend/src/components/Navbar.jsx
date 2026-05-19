@@ -108,9 +108,11 @@ const Navbar = () => {
           <div className="flex justify-between h-20 items-center">
             {/* Logo */}
             <Link to="/" className="flex items-center group transition-transform hover:scale-[1.02] z-50">
-              <span className="text-2xl sm:text-3xl font-serif tracking-tighter font-black text-gray-900 dark:text-white transition-colors duration-300">
-                Glow<span className="text-brand-600 dark:text-brand-400">Spark</span><span className="text-brand-400 text-3xl sm:text-4xl leading-none">.</span>
-              </span>
+              <img 
+                src={logo} 
+                alt="GlowSpark Logo" 
+                className="h-14 sm:h-18 md:h-22 w-auto object-contain transition-all duration-300"
+              />
             </Link>
             
             {/* Desktop Nav Links */}
@@ -322,9 +324,11 @@ const Navbar = () => {
           <div className="fixed top-0 right-0 bottom-0 w-[80%] max-w-sm bg-white dark:bg-gray-900 border-l border-gray-150 dark:border-gray-800 z-50 shadow-2xl p-6 flex flex-col md:hidden transition-transform duration-300 ease-out overflow-y-auto">
             {/* Header / Brand */}
             <div className="flex justify-between items-center pb-6 border-b border-gray-150 dark:border-gray-800 mb-6">
-              <span className="text-xl font-serif tracking-tighter font-black text-gray-900 dark:text-white">
-                Glow<span className="text-brand-600 dark:text-brand-400">Spark</span><span className="text-brand-400">.</span>
-              </span>
+              <img 
+                src={logo} 
+                alt="GlowSpark Logo" 
+                className="h-12 w-auto object-contain"
+              />
             </div>
 
             {/* Mobile Nav Options */}

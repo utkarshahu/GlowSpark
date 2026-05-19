@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginStart, loginSuccess, loginFailure } from '../store/userSlice';
 import { toast } from 'react-toastify';
 import api from '../api/axios';
+import logo from '../assets/glow_spark_logo.png';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -60,8 +61,12 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-brand-50">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-brand-100">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif font-bold text-brand-900 mb-2">Glow<span className="text-brand-500">Spark</span></h1>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img 
+            src={logo} 
+            alt="GlowSpark Logo" 
+            className="h-16 w-auto object-contain mb-3"
+          />
           <p className="text-gray-500">{isLogin ? 'Welcome back, beautiful.' : 'Join the Glow Spark family.'}</p>
         </div>
 

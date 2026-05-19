@@ -300,8 +300,20 @@ const Products = () => {
                             className="w-full h-full rounded-2xl group-hover:scale-105 transition-transform duration-700 ease-out object-cover"
                           />
                           
-                          {/* Desktop Heart Icon Overlay (hidden on mobile, only shown to users) */}
-                          {currentMode !== 'admin' && (
+                          {/* Desktop Heart/Edit Icon Overlay (hidden on mobile) */}
+                          {currentMode === 'admin' ? (
+                            <button 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                navigate(`/admin/products/${product._id}`);
+                              }}
+                              className="hidden lg:flex absolute top-4 right-4 transition-colors p-2.5 rounded-full backdrop-blur-sm z-10 shadow-sm text-amber-600 bg-white/95 hover:bg-white hover:text-amber-700"
+                              title="Edit Product"
+                            >
+                              <FaUserCog className="text-sm" />
+                            </button>
+                          ) : (
                             <button 
                               onClick={(e) => handleWishlist(e, product._id)}
                               className={`hidden lg:flex absolute top-4 right-4 transition-colors p-2.5 rounded-full backdrop-blur-sm z-10 shadow-sm ${wishlist.includes(product._id) ? 'text-red-500 bg-red-50' : 'text-gray-400 hover:text-red-500 bg-white/90'}`}
@@ -338,15 +350,27 @@ const Products = () => {
                               &#8377; {product.price.toLocaleString("en-IN")}
                             </span>
                             
-                            {/* Mobile Heart Button (only shown to users) */}
-                            {currentMode !== 'admin' && (
+                            {/* Mobile Heart/Edit Button */}
+                            {currentMode === 'admin' ? (
+                              <button 
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  navigate(`/admin/products/${product._id}`);
+                                }}
+                                className="lg:hidden p-2 rounded-full border border-amber-200 bg-amber-50 text-amber-600 shadow-sm transition-all"
+                                title="Edit Product"
+                              >
+                                <FaUserCog className="text-[10px]" />
+                              </button>
+                            ) : (
                               <button 
                                 onClick={(e) => handleWishlist(e, product._id)}
                                 className={`lg:hidden p-2 rounded-full border shadow-sm transition-all ${
                                   wishlist.includes(product._id) 
                                     ? 'text-red-500 bg-red-50 border-red-100' 
                                     : 'text-gray-400 bg-white border-gray-150'
-                                }`}
+                                  }`}
                               >
                                 <FaHeart className="text-[10px]" />
                               </button>

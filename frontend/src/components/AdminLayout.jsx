@@ -82,15 +82,6 @@ const AdminLayout = () => {
         </div>
 
         <div className="p-4 border-t border-brand-100 dark:border-gray-800">
-          <button
-            onClick={() => {
-              dispatch(setMode('user'));
-              navigate('/');
-            }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-650 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mb-2 text-sm"
-          >
-            <FaStore /> Switch to User Mode
-          </button>
           <button 
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
@@ -108,16 +99,6 @@ const AdminLayout = () => {
             Glow<span className="text-brand-500">Admin</span>
           </h1>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                dispatch(setMode('user'));
-                navigate('/');
-              }}
-              title="Switch to User Mode"
-              className="p-2.5 bg-brand-50 dark:bg-gray-800 text-brand-900 dark:text-white rounded-xl text-sm hover:bg-brand-100 transition-colors"
-            >
-              <FaStore />
-            </button>
             <button 
               onClick={handleLogout}
               title="Logout"
