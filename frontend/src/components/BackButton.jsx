@@ -1,9 +1,15 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 
 const BackButton = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Hide floating back button on admin panel routes
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <button 

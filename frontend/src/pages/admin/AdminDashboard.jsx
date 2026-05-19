@@ -192,11 +192,13 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-brand-100 dark:border-gray-700 shadow-sm transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl border border-brand-100 dark:border-gray-700 shadow-sm transition-colors duration-300">
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-gray-900 dark:text-white">Recent Orders Feed</h3>
         </div>
-        <div className="overflow-x-auto">
+        
+        {/* Desktop View Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-brand-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-sm uppercase">
               <tr>
@@ -226,6 +228,35 @@ const AdminDashboard = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile View Card List (Image 3 inspired modern layout) */}
+        <div className="md:hidden space-y-4">
+          {recentOrders.map(order => (
+            <div key={order._id} className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-2xl border border-brand-100/60 dark:border-gray-800 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="font-mono text-xs font-bold text-gray-500 dark:text-gray-400">#{order._id.substring(order._id.length - 6).toUpperCase()}</span>
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  order.status === 'Delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                  order.status === 'Shipped' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                  order.status === 'Cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                }`}>
+                  {order.status}
+                </span>
+              </div>
+              
+              <div className="space-y-1">
+                <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500">Customer</p>
+                <p className="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">{order.user?.email || 'Guest'}</p>
+              </div>
+
+              <div className="flex justify-between items-center pt-2.5 border-t border-gray-200/50 dark:border-gray-800">
+                <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500">Amount</span>
+                <span className="text-sm font-extrabold text-brand-900 dark:text-brand-400">₹{order.totalAmount}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

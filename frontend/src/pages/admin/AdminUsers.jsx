@@ -105,47 +105,99 @@ const AdminUsers = () => {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-brand-100 dark:border-gray-700 shadow-sm overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-brand-50 dark:bg-gray-700 border-b border-brand-100 dark:border-gray-600">
-            <tr>
-              <th className="p-4 font-medium text-gray-600 dark:text-gray-300">User ID</th>
-              <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Email</th>
-              <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Role</th>
-              <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Status</th>
-              <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-brand-100 dark:divide-gray-700">
-            {filteredUsers.map(user => (
-              <tr 
-                key={user._id} 
-                onClick={() => navigate(`/admin/users/${user._id}`)}
-                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-              >
-                <td className="p-4 text-sm text-gray-800 dark:text-gray-200">#{user._id.substring(user._id.length - 8).toUpperCase()}</td>
-                <td className="p-4 text-sm text-gray-800 dark:text-gray-200">{user.email}</td>
-                <td className="p-4 text-sm text-gray-800 dark:text-gray-200 capitalize">{user.role}</td>
-                <td className="p-4">
-                  <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
-                    user.isBlocked 
-                      ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' 
-                      : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                  }`}>
-                    {user.isBlocked ? 'Blocked' : 'Active'}
-                  </span>
-                </td>
-                <td className="p-4 space-x-4" onClick={(e) => e.stopPropagation()}>
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-brand-50 dark:bg-gray-700 border-b border-brand-100 dark:border-gray-600">
+              <tr>
+                <th className="p-4 font-medium text-gray-600 dark:text-gray-300">User ID</th>
+                <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Email</th>
+                <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Role</th>
+                <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Status</th>
+                <th className="p-4 font-medium text-gray-600 dark:text-gray-300">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-brand-100 dark:divide-gray-700">
+              {filteredUsers.map(user => (
+                <tr 
+                  key={user._id} 
+                  onClick={() => navigate(`/admin/users/${user._id}`)}
+                  className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                  <td className="p-4 text-sm text-gray-800 dark:text-gray-200">#{user._id.substring(user._id.length - 8).toUpperCase()}</td>
+                  <td className="p-4 text-sm text-gray-800 dark:text-gray-200">{user.email}</td>
+                  <td className="p-4 text-sm text-gray-800 dark:text-gray-200 capitalize">{user.role}</td>
+                  <td className="p-4">
+                    <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
+                      user.isBlocked 
+                        ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' 
+                        : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                    }`}>
+                      {user.isBlocked ? 'Blocked' : 'Active'}
+                    </span>
+                  </td>
+                  <td className="p-4 space-x-4" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      onClick={() => confirmToggleBlock(user._id)}
+                      className={`${user.isBlocked ? 'text-green-600 dark:text-green-400 hover:text-green-800' : 'text-red-600 dark:text-red-400 hover:text-red-800'} font-medium text-sm`}
+                    >
+                      {user.isBlocked ? 'Unblock' : 'Block'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile Modern Card View (Image 3 inspired layout) */}
+        <div className="md:hidden p-4 space-y-4 bg-gray-50/30 dark:bg-gray-900/10">
+          {filteredUsers.map(user => (
+            <div 
+              key={user._id} 
+              onClick={() => navigate(`/admin/users/${user._id}`)}
+              className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-brand-100/60 dark:border-gray-700/80 shadow-sm space-y-3 cursor-pointer hover:bg-brand-50/10 transition-all"
+            >
+              <div className="flex justify-between items-center">
+                <span className="font-mono text-xs font-bold text-gray-500 dark:text-gray-400">#{user._id.substring(user._id.length - 8).toUpperCase()}</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  user.isBlocked 
+                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' 
+                    : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                }`}>
+                  {user.isBlocked ? 'Blocked' : 'Active'}
+                </span>
+              </div>
+              
+              <div className="space-y-1">
+                <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500">Email</p>
+                <p className="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">{user.email}</p>
+              </div>
+
+              <div className="flex justify-between items-center pt-2.5 border-t border-gray-100 dark:border-gray-700/80">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500">Role:</span>
+                  <span className="text-xs font-bold text-gray-700 dark:text-gray-300 capitalize">{user.role}</span>
+                </div>
+                <div onClick={(e) => e.stopPropagation()}>
                   <button 
                     onClick={() => confirmToggleBlock(user._id)}
-                    className={`${user.isBlocked ? 'text-green-600 dark:text-green-400 hover:text-green-800' : 'text-red-600 dark:text-red-400 hover:text-red-800'} font-medium text-sm`}
+                    className={`px-3 py-1.5 rounded-xl font-bold text-xs shadow-sm transition-all ${
+                      user.isBlocked 
+                        ? 'bg-green-500 hover:bg-green-600 text-white' 
+                        : 'bg-red-500 hover:bg-red-650 text-white'
+                    }`}
                   >
                     {user.isBlocked ? 'Unblock' : 'Block'}
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </div>
+            </div>
+          ))}
+          {filteredUsers.length === 0 && (
+            <p className="text-center py-6 text-gray-500">No users found.</p>
+          )}
+        </div>
       </div>
 
       <ConfirmModal

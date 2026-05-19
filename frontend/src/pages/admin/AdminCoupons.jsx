@@ -122,55 +122,108 @@ const AdminCoupons = () => {
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-brand-100 dark:border-gray-700 overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-brand-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-sm uppercase">
-              <tr>
-                <th className="px-6 py-4 font-medium">Code</th>
-                <th className="px-6 py-4 font-medium">Discount</th>
-                <th className="px-6 py-4 font-medium">Min Order</th>
-                <th className="px-6 py-4 font-medium">Usage</th>
-                <th className="px-6 py-4 font-medium">Status</th>
-                <th className="px-6 py-4 font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {filteredCoupons.map(coupon => (
-                <tr key={coupon._id} className="hover:bg-brand-50/50 dark:hover:bg-gray-700/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <span className="font-bold font-mono bg-brand-100 dark:bg-brand-900/30 text-brand-800 dark:text-brand-300 px-3 py-1 rounded-lg">
-                      {coupon.code}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-900 dark:text-gray-300">
-                    {coupon.discountPercent > 0 ? `${coupon.discountPercent}%` : `₹${coupon.flatDiscount}`}
-                  </td>
-                  <td className="px-6 py-4 text-gray-900 dark:text-gray-300">₹{coupon.minOrderValue}</td>
-                  <td className="px-6 py-4 text-gray-900 dark:text-gray-300">
-                    {coupon.usedCount} / {coupon.usageLimit || '∞'}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      coupon.active && new Date(coupon.expiresAt) > new Date() 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
-                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                    }`}>
-                      {coupon.active && new Date(coupon.expiresAt) > new Date() ? 'Active' : 'Expired/Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <button onClick={() => handleDelete(coupon._id)} className="text-red-500 hover:text-red-700 p-2">
-                      <FaTrash />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {coupons.length === 0 && (
+          {/* Desktop View Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-brand-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-sm uppercase">
                 <tr>
-                  <td colSpan="6" className="px-6 py-8 text-center text-gray-500">No coupons found. Create one to offer discounts.</td>
+                  <th className="px-6 py-4 font-medium">Code</th>
+                  <th className="px-6 py-4 font-medium">Discount</th>
+                  <th className="px-6 py-4 font-medium">Min Order</th>
+                  <th className="px-6 py-4 font-medium">Usage</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium">Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {filteredCoupons.map(coupon => (
+                  <tr key={coupon._id} className="hover:bg-brand-50/50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <span className="font-bold font-mono bg-brand-100 dark:bg-brand-900/30 text-brand-800 dark:text-brand-300 px-3 py-1 rounded-lg">
+                        {coupon.code}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-900 dark:text-gray-300">
+                      {coupon.discountPercent > 0 ? `${coupon.discountPercent}%` : `₹${coupon.flatDiscount}`}
+                    </td>
+                    <td className="px-6 py-4 text-gray-900 dark:text-gray-300">₹{coupon.minOrderValue}</td>
+                    <td className="px-6 py-4 text-gray-900 dark:text-gray-300">
+                      {coupon.usedCount} / {coupon.usageLimit || '∞'}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        coupon.active && new Date(coupon.expiresAt) > new Date() 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
+                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                      }`}>
+                        {coupon.active && new Date(coupon.expiresAt) > new Date() ? 'Active' : 'Expired/Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button onClick={() => handleDelete(coupon._id)} className="text-red-500 hover:text-red-700 p-2">
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {coupons.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-8 text-center text-gray-500">No coupons found. Create one to offer discounts.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Modern Card View (Image 3 inspired layout) */}
+          <div className="md:hidden p-4 space-y-4 bg-gray-50/30 dark:bg-gray-900/10">
+            {filteredCoupons.map(coupon => (
+              <div 
+                key={coupon._id} 
+                className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-brand-100/60 dark:border-gray-700/80 shadow-sm space-y-3"
+              >
+                <div className="flex justify-between items-center">
+                  <span className="font-bold font-mono bg-brand-100 dark:bg-brand-900/30 text-brand-800 dark:text-brand-300 px-3 py-1 rounded-lg text-sm">
+                    {coupon.code}
+                  </span>
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                    coupon.active && new Date(coupon.expiresAt) > new Date() 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
+                      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                  }`}>
+                    {coupon.active && new Date(coupon.expiresAt) > new Date() ? 'Active' : 'Expired'}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500">Discount</p>
+                    <p className="font-bold text-gray-800 dark:text-gray-200">{coupon.discountPercent > 0 ? `${coupon.discountPercent}%` : `₹${coupon.flatDiscount}`}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500">Min Order</p>
+                    <p className="font-bold text-gray-800 dark:text-gray-200">₹{coupon.minOrderValue}</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center pt-2.5 border-t border-gray-100 dark:border-gray-700/80">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500">Usage:</span>
+                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{coupon.usedCount} / {coupon.usageLimit || '∞'}</span>
+                  </div>
+                  <button 
+                    onClick={() => handleDelete(coupon._id)} 
+                    className="p-2 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 text-red-500 rounded-xl transition-all shadow-sm"
+                  >
+                    <FaTrash className="text-xs" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {filteredCoupons.length === 0 && (
+              <p className="text-center py-6 text-gray-500">No coupons found.</p>
+            )}
+          </div>
         </div>
       )}
 
