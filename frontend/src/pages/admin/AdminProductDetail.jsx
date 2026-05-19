@@ -422,20 +422,25 @@ const AdminProductDetail = () => {
                 <h4 className="font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider text-xs mb-2">Description</h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-8">{product.description}</p>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
-                    <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                      <FaBox className="text-brand-500 text-xl" />
-                      <span className="font-medium">Stock Available</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex justify-between items-center bg-white dark:bg-gray-800/40 p-5 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-sm transition-all hover:shadow-md">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-brand-50 dark:bg-brand-950/20 text-brand-600 dark:text-brand-400 rounded-xl border border-brand-100/50 dark:border-brand-900/30 shrink-0">
+                        <FaBox className="text-base" />
+                      </div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Stock Available</span>
                     </div>
-                    <span className="font-bold text-gray-900 dark:text-white text-lg">{product.stock}</span>
+                    <span className="font-serif font-black text-gray-950 dark:text-white text-xl sm:text-2xl">{product.stock}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
-                    <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                      <FaShoppingCart className="text-brand-500 text-xl" />
-                      <span className="font-medium">Total Sales</span>
+                  
+                  <div className="flex justify-between items-center bg-white dark:bg-gray-800/40 p-5 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-sm transition-all hover:shadow-md">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-brand-50 dark:bg-brand-950/20 text-brand-600 dark:text-brand-400 rounded-xl border border-brand-100/50 dark:border-brand-900/30 shrink-0">
+                        <FaShoppingCart className="text-base" />
+                      </div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-gray-550 dark:text-gray-400">Total Sales</span>
                     </div>
-                    <span className="font-bold text-gray-900 dark:text-white text-lg">{product.soldCount || 0}</span>
+                    <span className="font-serif font-black text-gray-950 dark:text-white text-xl sm:text-2xl">{product.soldCount || 0}</span>
                   </div>
                 </div>
               </div>

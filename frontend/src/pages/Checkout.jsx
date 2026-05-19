@@ -182,21 +182,23 @@ const Checkout = () => {
             </div>
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2"><FaTag /> Apply Coupon</h2>
-            <div className="flex gap-2">
-              <input 
-                type="text" 
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                placeholder="Enter GLOW20" 
-                className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-transparent dark:text-white focus:ring-brand-500 focus:border-brand-500 outline-none uppercase"
-              />
-              <button onClick={handleApplyCoupon} type="button" className="bg-brand-100 text-brand-900 px-6 rounded-xl font-bold hover:bg-brand-200 transition-colors">
-                Apply
-              </button>
+          {discountAmount === 0 && (
+            <div className="mb-8">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2"><FaTag /> Apply Coupon</h2>
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  placeholder="Enter GLOW20" 
+                  className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-transparent dark:text-white focus:ring-brand-500 focus:border-brand-500 outline-none uppercase"
+                />
+                <button onClick={handleApplyCoupon} type="button" className="bg-brand-100 text-brand-900 px-6 rounded-xl font-bold hover:bg-brand-200 transition-colors">
+                  Apply
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <div className="mb-8">
