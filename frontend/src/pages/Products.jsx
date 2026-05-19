@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import api from '../api/axios';
 import Navbar from '../components/Navbar';
-import { FaHeart, FaFilter, FaSearch, FaTimes } from 'react-icons/fa';
+import { FaHeart, FaFilter, FaSearch, FaTimes, FaUserCog } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCart } from '../store/cartSlice';
