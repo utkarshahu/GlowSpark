@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FaTachometerAlt, FaBoxOpen, FaUsers, FaShoppingCart, FaSignOutAlt, FaStore, FaTag, FaUndo, FaChartBar } from 'react-icons/fa';
+import { FaTachometerAlt, FaBoxOpen, FaUsers, FaShoppingCart, FaSignOutAlt, FaStore, FaTag, FaUndo, FaChartBar, FaArrowLeft } from 'react-icons/fa';
 import { logout, setMode } from '../store/userSlice';
 import api from '../api/axios';
 
@@ -85,11 +85,11 @@ const AdminLayout = () => {
           <button
             onClick={() => {
               dispatch(setMode('user'));
-              navigate('/');
+              navigate('/products');
             }}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-650 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mb-2 text-sm"
           >
-            <FaStore /> Switch to User Mode
+            <FaArrowLeft /> Back to Shop
           </button>
           <button 
             onClick={handleLogout}
@@ -111,12 +111,12 @@ const AdminLayout = () => {
             <button
               onClick={() => {
                 dispatch(setMode('user'));
-                navigate('/');
+                navigate('/products');
               }}
-              title="Switch to User Mode"
+              title="Back to Shop"
               className="p-2.5 bg-brand-50 dark:bg-gray-800 text-brand-900 dark:text-white rounded-xl text-sm hover:bg-brand-100 transition-colors"
             >
-              <FaStore />
+              <FaArrowLeft />
             </button>
             <button 
               onClick={handleLogout}
