@@ -8,10 +8,11 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { FaStar, FaCheckCircle, FaTruck, FaThumbsUp, FaThumbsDown, FaArrowLeft, FaInfoCircle, FaUserCog } from 'react-icons/fa';
+import { FaStar, FaCheckCircle, FaTruck, FaThumbsUp, FaThumbsDown, FaArrowLeft, FaInfoCircle, FaUserCog, FaCamera, FaTimes } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCart } from '../store/cartSlice';
 import { socket } from '../api/socket';
+import ImagePreviewModal from '../components/ImagePreviewModal';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -24,6 +25,11 @@ const ProductDetail = () => {
   const [comment, setComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewSort, setReviewSort] = useState('newest'); // newest, highest, lowest
+  const [reviewImageFiles, setReviewImageFiles] = useState([]);
+  const [reviewImagePreviews, setReviewImagePreviews] = useState([]);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [previewImagesList, setPreviewImagesList] = useState([]);
+  const [previewInitialIdx, setPreviewInitialIdx] = useState(0);
 
   // Interactive Tabs State
   const [activeTab, setActiveTab] = useState('reviews'); // description, ingredients, reviews
@@ -119,11 +125,23 @@ const ProductDetail = () => {
     e.preventDefault();
     setIsSubmittingReview(true);
     try {
-      const res = await api.post(`/products/${id}/reviews`, { review: { rating, comment } });
+      const formData = new FormData();
+      formData.append('review[rating]', rating);
+      formData.append('review[comment]', comment);
+      reviewImageFiles.forEach((file) => {
+        formData.append('images', file);
+      });
+
+      const res = await api.post(`/products/${id}/reviews`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
       if (res.data.success) {
         toast.success("Review added successfully", { theme: 'dark' });
         setProduct({ ...product, reviews: [...product.reviews, res.data.review] });
         setComment('');
+        setReviewImageFiles([]);
+        setReviewImagePreviews([]);
       }
     } catch (err) {
       if (err.response?.status === 401) {
@@ -134,6 +152,43 @@ const ProductDetail = () => {
     } finally {
       setIsSubmittingReview(false);
     }
+  };
+
+  const handleMultipleImagesChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    if (reviewImageFiles.length + files.length > 5) {
+      toast.error("Maximum 5 images allowed per review");
+      return;
+    }
+
+    const updatedFiles = [...reviewImageFiles, ...files];
+    setReviewImageFiles(updatedFiles);
+
+    const filePreviews = [];
+    let loadedCount = 0;
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        filePreviews.push(reader.result);
+        loadedCount++;
+        if (loadedCount === files.length) {
+          setReviewImagePreviews([...reviewImagePreviews, ...filePreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeReviewImage = (index) => {
+    setReviewImageFiles(prev => prev.filter((_, i) => i !== index));
+    setReviewImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleOpenPreview = (imagesList, index) => {
+    setPreviewImagesList(imagesList);
+    setPreviewInitialIdx(index);
+    setPreviewModalOpen(true);
   };
 
   const handleHelpful = async (reviewId) => {
@@ -493,6 +548,41 @@ const ProductDetail = () => {
                           placeholder="What did you like or dislike about this cosmetic?"
                         ></textarea>
                       </div>
+                      
+                      {/* Review Photos Uploader */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-400 mb-1.5 uppercase tracking-wider">
+                          Review Photos (Max 5)
+                        </label>
+                        <div className="flex flex-wrap gap-2 items-center">
+                          {reviewImagePreviews.map((preview, idx) => (
+                            <div key={idx} className="relative w-12 h-12 rounded-lg overflow-hidden border border-gray-150 dark:border-gray-700 shrink-0">
+                              <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => removeReviewImage(idx)}
+                                className="absolute top-0 right-0 p-0.5 bg-black/75 hover:bg-red-600 text-white rounded-bl-lg transition-colors"
+                              >
+                                <FaTimes className="text-[8px]" />
+                              </button>
+                            </div>
+                          ))}
+                          {reviewImageFiles.length < 5 && (
+                            <label className="w-12 h-12 flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-gray-600 hover:border-brand-500 cursor-pointer bg-gray-50/50 dark:bg-gray-800/50 hover:bg-brand-50/10 transition-colors shrink-0">
+                              <FaCamera className="text-gray-400 dark:text-gray-500 text-sm" />
+                              <span className="text-[7px] text-gray-400 dark:text-gray-500 mt-1">Add</span>
+                              <input 
+                                type="file" 
+                                multiple 
+                                accept="image/*" 
+                                onChange={handleMultipleImagesChange} 
+                                className="hidden" 
+                              />
+                            </label>
+                          )}
+                        </div>
+                      </div>
+
                       <button 
                         disabled={isSubmittingReview}
                         type="submit" 
@@ -555,21 +645,20 @@ const ProductDetail = () => {
                         
                         <p className="text-xs text-gray-650 dark:text-gray-300 font-light leading-relaxed">{rev.comment}</p>
                         
-                        {/* High-Fidelity Cosmetic Review Media Attachment Mock Gallery */}
-                        <div className="flex gap-2 pt-1.5 overflow-x-auto pb-1">
-                          <img 
-                            src="https://images.unsplash.com/photo-1608248597481-496100c8c836?auto=format&fit=crop&w=150&q=80" 
-                            alt="Cosmetic Detail" 
-                            className="w-14 h-14 object-cover rounded-lg border border-brand-100/50 dark:border-gray-700 shadow-sm cursor-pointer hover:opacity-90 hover:scale-102 transition-all"
-                            onError={(e) => { e.target.style.display = 'none'; }}
-                          />
-                          <img 
-                            src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=150&q=80" 
-                            alt="Serum swatch" 
-                            className="w-14 h-14 object-cover rounded-lg border border-brand-100/50 dark:border-gray-700 shadow-sm cursor-pointer hover:opacity-90 hover:scale-102 transition-all"
-                            onError={(e) => { e.target.style.display = 'none'; }}
-                          />
-                        </div>
+                        {/* Real Uploaded Cosmetic Review Media Attachment Gallery */}
+                        {rev.images && rev.images.length > 0 && (
+                          <div className="flex gap-2 pt-1.5 overflow-x-auto pb-1">
+                            {rev.images.map((img, idx) => (
+                              <img 
+                                key={idx}
+                                src={img.url} 
+                                alt={`Review Attachment ${idx + 1}`} 
+                                className="w-14 h-14 object-cover rounded-lg border border-brand-100/50 dark:border-gray-700 shadow-sm cursor-pointer hover:opacity-90 hover:scale-105 transition-all duration-300"
+                                onClick={() => handleOpenPreview(rev.images, idx)}
+                              />
+                            ))}
+                          </div>
+                        )}
 
                         {/* Admin reply segment */}
                         {rev.adminReply && (
@@ -628,6 +717,12 @@ const ProductDetail = () => {
         </div>
       </div>
 
+      <ImagePreviewModal 
+        images={previewImagesList}
+        initialIndex={previewInitialIdx}
+        isOpen={previewModalOpen}
+        onClose={() => setPreviewModalOpen(false)}
+      />
     </div>
   );
 };

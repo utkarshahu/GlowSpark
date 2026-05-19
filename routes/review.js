@@ -6,15 +6,15 @@ const ExpressError= require("../utils/ExpressError.js");
 const Product = require("../models/product.js");
 const {validateReview, isLoggedIn , isReviewAuthor} = require("../middleware.js");
 const reviewController = require("../controllers/reviews.js");
-
-
-
-
+const multer = require('multer');
+const { storage } = require("../cloudConfig.js");
+const upload = multer({ storage });
 
 // Reviews
   //Post route
   router.post("/" ,
     isLoggedIn,
+    upload.array("images", 5),
     validateReview,
     wrapAsync (reviewController.createReview)); 
   

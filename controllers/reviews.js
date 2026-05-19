@@ -11,6 +11,14 @@ module.exports.createReview = async (req, res) => {
         let newReview = new Review(req.body.review);
         newReview.author = req.user._id;
 
+        // Process uploaded images
+        if (req.files && req.files.length > 0) {
+            newReview.images = req.files.map(file => ({
+                url: file.path,
+                filename: file.filename
+            }));
+        }
+
         product.reviews.push(newReview);
 
         await newReview.save();

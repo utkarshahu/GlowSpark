@@ -23,6 +23,21 @@ const Checkout = () => {
   const currentMode = useSelector(state => state.user.currentMode);
   const isBlocked = user?.isBlocked || currentMode === 'admin';
 
+
+  useEffect(() => {
+    if (user?.addresses && user.addresses.length > 0 && !shippingAddress) {
+      const defaultAddress = user.addresses.find(a => a.isDefault) || user.addresses[0];
+      const formatted = [
+        defaultAddress.houseNo,
+        defaultAddress.street,
+        defaultAddress.city,
+        defaultAddress.state,
+        defaultAddress.pincode
+      ].filter(Boolean).join(', ');
+      setShippingAddress(formatted);
+    }
+  }, [user, shippingAddress]);
+
   useEffect(() => {
     // If the checkout route was called with custom checkout items (direct buy / subset selection)
     if (location.state?.checkoutItems) {
@@ -129,7 +144,7 @@ const Checkout = () => {
     <div className="bg-brand-50 dark:bg-gray-900 min-h-screen pb-20 transition-colors duration-300">
       <Navbar />
       <div className="pt-32 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-brand-100 dark:border-gray-700 p-8 md:p-12 transition-colors duration-300">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-brand-100 dark:border-gray-700 p-4 sm:p-8 md:p-12 transition-colors duration-300">
           <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white mb-8">Checkout</h1>
           
           {isBlocked && user?.isBlocked && (
@@ -193,7 +208,7 @@ const Checkout = () => {
                   placeholder="Enter GLOW20" 
                   className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-transparent dark:text-white focus:ring-brand-500 focus:border-brand-500 outline-none uppercase"
                 />
-                <button onClick={handleApplyCoupon} type="button" className="bg-brand-100 text-brand-900 px-6 rounded-xl font-bold hover:bg-brand-200 transition-colors">
+                <button onClick={handleApplyCoupon} type="button" className="bg-brand-100 text-brand-900 px-6 rounded-xl font-bold hover:bg-brand-200 transition-colors shrink-0">
                   Apply
                 </button>
               </div>
