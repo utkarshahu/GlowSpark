@@ -102,6 +102,11 @@ app.use(express.json()); // Essential for REST API JSON parsing
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname,"/public")));
 
+// Serve frontend React static build in production
+if (isProd) {
+  app.use(express.static(path.join(__dirname, "frontend/dist")));
+}
+
 const store = MongoStore.create({
   mongoUrl: dbURL,
   crypto : {
@@ -220,6 +225,16 @@ app.use("/api/orders", orderRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/users", userRouter);
 app.use("/api/coupons", couponRouter);
+
+// Serve React's index.html for non-API routes in production
+if (isProd) {
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api")) {
+      return next();
+    }
+    res.sendFile(path.join(__dirname, "frontend/dist/index.html"));
+  });
+}
 
 // 404 API Error
 app.all("*", (req,res,next) => {

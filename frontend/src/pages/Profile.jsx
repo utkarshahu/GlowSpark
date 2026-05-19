@@ -90,6 +90,8 @@ const Profile = () => {
       if (res.data.success) {
         dispatch(updateProfile(res.data.user));
         toast.success("Profile updated successfully", { theme: "dark" });
+        setIsEditingGeneral(false);
+        setIsEditingAddress(false);
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update profile");
