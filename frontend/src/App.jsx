@@ -106,9 +106,9 @@ function App() {
             <BackButton />
             <Suspense fallback={<PageSkeleton />}>
               <Routes>
-              <Route path="/" element={<StorefrontGuard><Home /></StorefrontGuard>} />
+              <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/products" element={<StorefrontGuard><Products /></StorefrontGuard>} />
+              <Route path="/products" element={<Products />} />
               <Route path="/products/:id" element={<StorefrontGuard><ProductDetail /></StorefrontGuard>} />
               <Route path="/cart" element={<StorefrontGuard><Cart /></StorefrontGuard>} />
               <Route path="/checkout" element={<StorefrontGuard><Checkout /></StorefrontGuard>} />

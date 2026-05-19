@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginStart, loginSuccess, loginFailure } from '../store/userSlice';
 import { toast } from 'react-toastify';
 import api from '../api/axios';
-import logo from '../assets/glow_spark_logo.png';
+import logo from '../assets/glow_spark_logo.svg';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);

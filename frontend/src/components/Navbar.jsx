@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart, FaBars, FaTimes, FaChevronDown, FaUserShield, FaUserCog, FaChartLine, FaClipboardList } from 'react-icons/fa';
+import { FaShoppingCart, FaUser, FaSignOutAlt, FaMoon, FaSun, FaHeart, FaBars, FaTimes, FaChevronDown, FaUserShield, FaUserCog, FaChartLine, FaClipboardList, FaTachometerAlt, FaChartBar } from 'react-icons/fa';
 import { logout, setMode, incrementUnreadOrders, clearUnreadOrders } from '../store/userSlice';
 import { socket } from '../api/socket';
 import { toast } from 'react-toastify';
 import api from '../api/axios';
-import logo from '../assets/glow_spark_logo.png';
+import logo from '../assets/glow_spark_logo.svg';
 
 const Navbar = () => {
   const { currentUser, currentMode, unreadOrdersCount } = useSelector((state) => state.user || {});
@@ -183,28 +183,22 @@ const Navbar = () => {
               {/* Conditional Icons based on Mode */}
               {currentMode === 'admin' ? (
                 <>
-                  {/* Dashboard Icon option */}
+                  {/* Dashboard Icon */}
                   <Link 
                     to="/admin" 
                     title="Dashboard" 
                     className="text-black dark:text-white hover:text-amber-500 relative transition-colors p-2 flex items-center"
                   >
-                    <FaChartLine className="text-lg sm:text-xl" />
+                    <FaTachometerAlt className="text-lg sm:text-xl" />
                   </Link>
 
-                  {/* Orders Icon option with real-time notification badge */}
+                  {/* Analysis Icon */}
                   <Link 
-                    to="/admin/orders" 
-                    title="Manage Orders" 
-                    onClick={() => dispatch(clearUnreadOrders())}
+                    to="/admin/analytics" 
+                    title="Analysis" 
                     className="text-black dark:text-white hover:text-amber-500 relative transition-colors p-2 flex items-center"
                   >
-                    <FaClipboardList className="text-lg sm:text-xl" />
-                    {unreadOrdersCount > 0 && (
-                      <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold animate-bounce shadow-md">
-                        {unreadOrdersCount}
-                      </span>
-                    )}
+                    <FaChartBar className="text-lg sm:text-xl" />
                   </Link>
                 </>
               ) : (
