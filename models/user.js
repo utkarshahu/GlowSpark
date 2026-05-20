@@ -54,6 +54,11 @@ const userSchema = new Schema({
         sparse: true,
         unique: true
     },
+    githubId: {
+        type: String,
+        sparse: true,
+        unique: true
+    },
     isVerified: {
         type: Boolean,
         default: false

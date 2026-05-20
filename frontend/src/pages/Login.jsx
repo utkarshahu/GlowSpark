@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaFacebook, FaGoogle } from 'react-icons/fa';
+import { FaFacebook, FaGoogle, FaGithub } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginStart, loginSuccess, loginFailure } from '../store/userSlice';
 import { toast } from 'react-toastify';
@@ -56,6 +56,11 @@ const Login = () => {
   const handleGoogleLogin = () => {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
     window.location.href = `${apiUrl}/auth/google`;
+  };
+
+  const handleGithubLogin = () => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+    window.location.href = `${apiUrl}/auth/github`;
   };
 
   return (
@@ -120,19 +125,29 @@ const Login = () => {
           <span className="border-b border-gray-200 w-1/5 lg:w-1/4"></span>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-4">
+        <div className="mt-6 grid grid-cols-3 gap-3">
           <button 
             onClick={handleFacebookLogin}
-            className="w-full flex items-center justify-center gap-2 bg-[#1877F2] hover:bg-[#166FE5] text-white py-3 rounded-xl font-medium transition-colors shadow-md"
+            className="w-full flex items-center justify-center gap-2 bg-[#1877F2] hover:bg-[#166FE5] text-white py-3 rounded-xl font-semibold transition-colors shadow-sm text-xs"
+            title="Sign in with Facebook"
           >
-            <FaFacebook className="text-xl" /> Facebook
+            <FaFacebook className="text-lg" /> <span className="hidden sm:inline">Facebook</span>
           </button>
           
           <button 
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-xl font-medium transition-colors shadow-md"
+            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-xl font-semibold transition-colors shadow-sm text-xs"
+            title="Sign in with Google"
           >
-            <FaGoogle className="text-xl text-[#DB4437]" /> Google
+            <FaGoogle className="text-lg text-[#DB4437]" /> <span className="hidden sm:inline">Google</span>
+          </button>
+
+          <button 
+            onClick={handleGithubLogin}
+            className="w-full flex items-center justify-center gap-2 bg-[#24292F] hover:bg-[#1C1F23] text-white py-3 rounded-xl font-semibold transition-colors shadow-sm text-xs"
+            title="Sign in with GitHub"
+          >
+            <FaGithub className="text-lg" /> <span className="hidden sm:inline">GitHub</span>
           </button>
         </div>
 

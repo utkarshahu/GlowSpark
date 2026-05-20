@@ -161,6 +161,41 @@ passport.deserializeUser(User.deserializeUser());
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
+const GitHubStrategy = require('passport-github2').Strategy;
+
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID || 'mock_client_id',
+    clientSecret: process.env.GITHUB_CLIENT_SECRET || 'mock_client_secret',
+    callbackURL: "/api/auth/github/callback"
+  },
+  async function(accessToken, refreshToken, profile, cb) {
+    try {
+      let user = await User.findOne({ githubId: profile.id });
+      if (!user) {
+        // Fallback to checking by email if exists
+        const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
+        if (email) {
+            user = await User.findOne({ email: email });
+        }
+        if (user) {
+          user.githubId = profile.id;
+          await user.save();
+        } else {
+          user = new User({
+            githubId: profile.id,
+            email: email || `${profile.username || profile.id}@github.com`,
+            username: profile.username || profile.displayName || `github_${profile.id}`,
+            isVerified: true
+          });
+          await user.save();
+        }
+      }
+      return cb(null, user);
+    } catch (err) {
+      return cb(err);
+    }
+  }
+}));
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID || 'mock_client_id',

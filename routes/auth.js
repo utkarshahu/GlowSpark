@@ -26,6 +26,9 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
 router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
 router.get('/facebook/callback', passport.authenticate('facebook', { failureRedirect: `${frontendUrl}/login` }), authController.oauthCallback);
 
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+router.get('/github/callback', passport.authenticate('github', { failureRedirect: `${frontendUrl}/login` }), authController.oauthCallback);
+
 // OTP & Password Reset
 router.post("/forgot-password", wrapAsync(authController.forgotPassword));
 router.post("/reset-password", wrapAsync(authController.resetPassword));
