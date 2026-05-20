@@ -160,7 +160,6 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const FacebookStrategy = require('passport-facebook').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 
 passport.use(new GitHubStrategy({
@@ -227,39 +226,6 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-passport.use(new FacebookStrategy({
-    clientID: process.env.FACEBOOK_APP_ID || 'mock_app_id',
-    clientSecret: process.env.FACEBOOK_APP_SECRET || 'mock_app_secret',
-    callbackURL: "/api/auth/facebook/callback",
-    profileFields: ['id', 'emails', 'name']
-  },
-  async function(accessToken, refreshToken, profile, cb) {
-    try {
-      let user = await User.findOne({ facebookId: profile.id });
-      if (!user) {
-        // Fallback to checking by email if exists
-        const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
-        if (email) {
-            user = await User.findOne({ email: email });
-        }
-        if (user) {
-          user.facebookId = profile.id;
-          await user.save();
-        } else {
-          user = new User({
-            facebookId: profile.id,
-            email: email || `${profile.id}@facebook.com`,
-            isVerified: true
-          });
-          await user.save();
-        }
-      }
-      return cb(null, user);
-    } catch (err) {
-      return cb(err);
-    }
-  }
-));
 
 app.use((req,res,next)  => {
   res.locals.currUser = req.user || null;
